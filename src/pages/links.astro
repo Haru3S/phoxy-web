@@ -15,7 +15,7 @@ import { links } from '../data/links';
         <header class="links-header">
           <h1>Links</h1>
 
-          <span>PHOXY / WWW</span>
+          <span>PHOXY / FOX</span>
         </header>
 
         <div class="links-column-header" aria-hidden="true">
@@ -66,6 +66,9 @@ import { links } from '../data/links';
 
     width: 100%;
     min-height: 100vh;
+
+    background: var(--color-bg);
+    color: var(--color-fg);
   }
 
   /*
@@ -79,7 +82,7 @@ import { links } from '../data/links';
     min-width: 0;
     min-height: 100vh;
 
-    border-right: 1px solid #111;
+    border-right: 1px solid var(--color-border);
   }
 
   /*
@@ -131,7 +134,7 @@ import { links } from '../data/links';
 
     padding-bottom: 0.5rem;
 
-    border-bottom: 1px solid #111;
+    border-bottom: 1px solid var(--color-border);
 
     font-family: "Adwaita Mono", monospace;
     font-size: 0.7rem;
@@ -162,7 +165,7 @@ import { links } from '../data/links';
 
     overflow: hidden;
 
-    background: #000;
+    background: var(--color-bg);
   }
 
   /*
@@ -195,7 +198,7 @@ import { links } from '../data/links';
     .links-visual {
       min-height: 70vh;
 
-      border-top: 1px solid #111;
+      border-top: 1px solid var(--color-border);
     }
   }
 </style>

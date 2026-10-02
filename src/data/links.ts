@@ -19,7 +19,7 @@ export const links: LinkEntry[] = [
     icon: 'spotify-logo',
   },
   {
-    name: 'Bluesky',
+    name: 'Placeholder',
     href: 'https://bsky.app/profile/haru3s.bsky.social',
     type: 'SOCIAL',
     icon: 'butterfly',

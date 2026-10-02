@@ -18,7 +18,9 @@ const category = project.tags?.join(' / ') ?? '';
   </div>
 
   <div class="project-name">
-    <h3>{project.title}</h3>
+    <h3>
+      <span>{project.title}</span>
+    </h3>
   </div>
 
   <div class="project-category">
@@ -51,14 +53,16 @@ const category = project.tags?.join(' / ') ?? '';
 
     padding: 0 1.5rem;
 
-    border-top: 1px solid #111;
+    border-top: 1px solid var(--color-border);
   }
 
   .project-row:last-child {
-    border-bottom: 1px solid #111;
+    border-bottom: 1px solid var(--color-border);
   }
 
-  /* COLUMN 1 — NUMBER */
+  /*
+   * NUMBER
+   */
 
   .project-number {
     flex: 0 0 8%;
@@ -68,7 +72,9 @@ const category = project.tags?.join(' / ') ?? '';
     font-weight: 700;
   }
 
-  /* COLUMN 2 — PROJECT */
+  /*
+   * PROJECT NAME
+   */
 
   .project-name {
     flex: 0 0 42%;
@@ -83,7 +89,43 @@ const category = project.tags?.join(' / ') ?? '';
     line-height: 1;
   }
 
-  /* COLUMN 3 — CATEGORY */
+  .project-name h3 span {
+    position: relative;
+
+    display: inline-block;
+  }
+
+  /*
+   * Animated underline
+   */
+
+  .project-name h3 span::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    bottom: -0.08em;
+
+    width: 100%;
+    height: 0.06em;
+
+    background: currentColor;
+
+    transform: scaleX(0);
+    transform-origin: left;
+
+    transition: transform 0.1s ease-out;
+  }
+
+  .project-row:hover .project-name h3 span::after,
+  .project-row:focus-within .project-name h3 span::after {
+    transform: scaleX(1);
+  }
+
+  /*
+   * CATEGORY
+   */
 
   .project-category {
     flex: 1;
@@ -95,7 +137,9 @@ const category = project.tags?.join(' / ') ?? '';
     text-transform: uppercase;
   }
 
-  /* COLUMN 4 — LINK */
+  /*
+   * ACTION
+   */
 
   .project-action {
     flex: 0 0 3rem;
@@ -111,7 +155,8 @@ const category = project.tags?.join(' / ') ?? '';
     align-items: center;
     justify-content: center;
 
-    color: #111;
+    color: var(--color-fg);
+
     font-size: 1.5rem;
 
     text-decoration: none;
@@ -126,11 +171,24 @@ const category = project.tags?.join(' / ') ?? '';
     opacity: 0.5;
   }
 
-  /* MOBILE */
+  /*
+   * REDUCED MOTION
+   */
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-name h3 span::after {
+      transition: none;
+    }
+  }
+
+  /*
+   * MOBILE
+   */
 
   @media (max-width: 700px) {
     .project-row {
       min-height: 64px;
+
       padding: 0 1rem;
     }
 

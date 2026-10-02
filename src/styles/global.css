@@ -1,5 +1,23 @@
 @import "tailwindcss";
 
+:root {
+  /*
+   * GLOBAL COLOUR PALETTE
+   */
+
+  --color-bg: #000;
+  --color-fg: #fff;
+
+  --color-border: #fff;
+
+  --color-hover: rgba(255, 255, 255, 0.08);
+}
+
+
+/*
+ * BASE
+ */
+
 *,
 *::before,
 *::after {
@@ -12,8 +30,17 @@ html {
 
 body {
   margin: 0;
+
+  background: var(--color-bg);
+  color: var(--color-fg);
+
   font-family: "Inter Variable", sans-serif;
 }
+
+
+/*
+ * TYPOGRAPHY
+ */
 
 h1,
 h2,

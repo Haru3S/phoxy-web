@@ -3,870 +3,564 @@
 <script>
   import { textmode } from 'textmode.js';
 
-  const container = document.querySelector<HTMLElement>('[data-link-visual]');
+  const container =
+    document.querySelector<HTMLElement>('[data-link-visual]');
 
   if (container) {
-    /*
-     * ============================================================
-     * TEXTMODE INSTANCE
-     * ============================================================
-     */
-
     const t = textmode.create({
       width: container.clientWidth,
       height: container.clientHeight,
       fontSize: 10,
     });
 
-
     /*
-     * ============================================================
-     * CHARACTER RAMP
-     * ============================================================
+     * COLOURS — LOCKED
      */
 
-    const RAMP = ' .,:;-=+*#%@';
+    const COLORS = {
+      deep: [104, 55, 180],
+      violet: [147, 86, 255],
+      mauve: [203, 166, 247],
+      pink: [225, 150, 255],
+      lavender: [210, 190, 255],
+      white: [255, 255, 255],
+    } as const;
 
+    type RGB = readonly [number, number, number];
+    type Vec3 = [number, number, number];
 
-    /*
-     * ============================================================
-     * GALAXY CONTROLS
-     * ============================================================
-     */
-
-    const ARM_COUNT = 4;
-
-    const DISC_RADIUS = 1.0;
-
-    const CORE_RADIUS = 0.23;
-
-    const ARM_TIGHTNESS = 4.2;
-
-    /*
-     * Dense center line of each arm.
-     */
-    const PRIMARY_ARM_WIDTH = 0.22;
-
-    /*
-     * Broader material surrounding each arm.
-     */
-    const SECONDARY_ARM_WIDTH = 0.52;
-
-    /*
-     * Apparent flattening caused by our viewing angle.
-     */
-    const DISC_FLATTEN = 0.43;
-
-    /*
-     * Diagonal presentation angle.
-     */
-    const VIEW_ROTATION =
-      30 * Math.PI / 180;
-
-    /*
-     * Slow rotation of the galaxy itself.
-     */
-    const ROTATION_SPEED = 0.025;
-
-
-    /*
-     * ============================================================
-     * HELPERS
-     * ============================================================
-     */
-
-    function clamp(
-      value: number,
-      min: number,
-      max: number
-    ) {
-      return Math.max(
-        min,
-        Math.min(max, value)
-      );
+    interface Cell {
+      x: number;
+      y: number;
+      z: number;
+      light: number;
     }
 
+    /*
+     * TORUS
+     */
 
-    function smoothstep(
-      edge0: number,
-      edge1: number,
-      x: number
-    ) {
-      const value =
-        clamp(
-          (x - edge0) /
-          (edge1 - edge0),
-          0,
-          1
-        );
+    const MAJOR_RADIUS = 1.25;
+    const MINOR_RADIUS = 0.48;
 
-      return (
-        value *
-        value *
-        (3 - 2 * value)
-      );
-    }
-
-
-    function angleDifference(
-      a: number,
-      b: number
-    ) {
-      let difference =
-        a - b;
-
-      while (
-        difference > Math.PI
-      ) {
-        difference -=
-          Math.PI * 2;
-      }
-
-      while (
-        difference < -Math.PI
-      ) {
-        difference +=
-          Math.PI * 2;
-      }
-
-      return Math.abs(
-        difference
-      );
-    }
-
+    const MAJOR_STEPS = 220;
+    const MINOR_STEPS = 110;
 
     /*
-     * Deterministic pseudo-random value.
+     * LIGHT
      *
-     * Unlike Math.random(), this won't
-     * flicker every frame.
+     * Think of this as a soft light mounted
+     * above the camera.
+     *
+     * -Y = above
+     * +Z = toward camera
      */
 
-    function hash(
+    const LIGHT: Vec3 = [
+      0,
+      -0.72,
+      0.69,
+    ];
+
+    /*
+     * HELPERS
+     */
+
+    const clamp = (
+      value: number,
+      min = 0,
+      max = 1,
+    ) =>
+      Math.max(
+        min,
+        Math.min(max, value),
+      );
+
+    function mix(
+      a: RGB,
+      b: RGB,
+      amount: number,
+    ): Vec3 {
+      const n = clamp(amount);
+
+      return [
+        Math.round(
+          a[0] +
+          (b[0] - a[0]) * n,
+        ),
+
+        Math.round(
+          a[1] +
+          (b[1] - a[1]) * n,
+        ),
+
+        Math.round(
+          a[2] +
+          (b[2] - a[2]) * n,
+        ),
+      ];
+    }
+
+    /*
+     * XYZ ROTATION
+     */
+
+    function rotate(
+      [x, y, z]: Vec3,
+      ax: number,
+      ay: number,
+      az: number,
+    ): Vec3 {
+      const sx = Math.sin(ax);
+      const cx = Math.cos(ax);
+
+      const sy = Math.sin(ay);
+      const cy = Math.cos(ay);
+
+      const sz = Math.sin(az);
+      const cz = Math.cos(az);
+
+      const y1 =
+        y * cx -
+        z * sx;
+
+      const z1 =
+        y * sx +
+        z * cx;
+
+      const x2 =
+        x * cy +
+        z1 * sy;
+
+      const z2 =
+        -x * sy +
+        z1 * cy;
+
+      return [
+        x2 * cz -
+        y1 * sz,
+
+        x2 * sz +
+        y1 * cz,
+
+        z2,
+      ];
+    }
+
+    /*
+     * COLOUR
+     */
+
+    function getColor(
+      light: number,
+    ): Vec3 {
+      if (light < 0.18) {
+        return mix(
+          COLORS.deep,
+          COLORS.violet,
+          light / 0.18,
+        );
+      }
+
+      if (light < 0.45) {
+        return mix(
+          COLORS.violet,
+          COLORS.mauve,
+          (light - 0.18) / 0.27,
+        );
+      }
+
+      if (light < 0.68) {
+        return mix(
+          COLORS.mauve,
+          COLORS.pink,
+          (light - 0.45) / 0.23,
+        );
+      }
+
+      if (light < 0.84) {
+        return mix(
+          COLORS.pink,
+          COLORS.lavender,
+          (light - 0.68) / 0.16,
+        );
+      }
+
+      return mix(
+        COLORS.lavender,
+        COLORS.white,
+        (light - 0.84) / 0.16,
+      );
+    }
+
+    /*
+     * ASCII SHADING
+     */
+
+    function getCharacter(
+      light: number,
       x: number,
-      y: number
+      y: number,
     ) {
-      const value =
+      const ramp =
+        '.,:;-~=+*#%@';
+
+      const noise =
         Math.sin(
-          x * 127.1 +
-          y * 311.7
+          x * 12.9898 +
+          y * 78.233,
         ) *
         43758.5453;
 
-      return (
-        value -
-        Math.floor(value)
-      );
-    }
-
-
-    /*
-     * Second independent-looking noise layer.
-     */
-
-    function hash2(
-      x: number,
-      y: number
-    ) {
-      const value =
-        Math.sin(
-          x * 269.5 +
-          y * 183.3
-        ) *
-        24634.6345;
-
-      return (
-        value -
-        Math.floor(value)
-      );
-    }
-
-
-    /*
-     * ============================================================
-     * GALAXY DENSITY
-     * ============================================================
-     */
-
-    function galaxyDensity(
-      x: number,
-      y: number,
-      time: number
-    ) {
-      /*
-       * ----------------------------------------------------------
-       * GALAXY ROTATION
-       * ----------------------------------------------------------
-       */
-
-      const rotation =
-        time *
-        ROTATION_SPEED;
-
-      const cosRotation =
-        Math.cos(
-          -rotation
-        );
-
-      const sinRotation =
-        Math.sin(
-          -rotation
-        );
-
-
-      const rx =
-        x * cosRotation -
-        y * sinRotation;
-
-      const ry =
-        x * sinRotation +
-        y * cosRotation;
-
-
-      /*
-       * ----------------------------------------------------------
-       * POLAR COORDINATES
-       * ----------------------------------------------------------
-       */
-
-      const radius =
-        Math.sqrt(
-          rx * rx +
-          ry * ry
-        );
-
-
-      if (
-        radius >
-        DISC_RADIUS
-      ) {
-        return 0;
-      }
-
-
-      const angle =
-        Math.atan2(
-          ry,
-          rx
-        );
-
-
-      /*
-       * ----------------------------------------------------------
-       * SPIRAL ARMS
-       * ----------------------------------------------------------
-       */
-
-      let primaryArms = 0;
-      let secondaryArms = 0;
-
-
-      for (
-        let arm = 0;
-        arm < ARM_COUNT;
-        arm++
-      ) {
-        const armOffset =
-          arm *
-          (
-            Math.PI * 2 /
-            ARM_COUNT
-          );
-
-
-        const spiralAngle =
-          armOffset +
-          radius *
-          ARM_TIGHTNESS;
-
-
-        const difference =
-          angleDifference(
-            angle,
-            spiralAngle
-          );
-
-
-        const primaryWidth =
-          PRIMARY_ARM_WIDTH *
-          (
-            1.18 -
-            radius * 0.30
-          );
-
-
-        const secondaryWidth =
-          SECONDARY_ARM_WIDTH *
-          (
-            1.12 -
-            radius * 0.22
-          );
-
-
-        /*
-         * Narrow dense ridge.
-         */
-
-        const primary =
-          Math.exp(
-            -(
-              difference *
-              difference
-            ) /
-            (
-              primaryWidth *
-              primaryWidth
-            )
-          );
-
-
-        /*
-         * Wide diffuse material.
-         */
-
-        const secondary =
-          Math.exp(
-            -(
-              difference *
-              difference
-            ) /
-            (
-              secondaryWidth *
-              secondaryWidth
-            )
-          );
-
-
-        primaryArms =
-          Math.max(
-            primaryArms,
-            primary
-          );
-
-
-        secondaryArms =
-          Math.max(
-            secondaryArms,
-            secondary
-          );
-      }
-
-
-      /*
-       * ----------------------------------------------------------
-       * OUTER FADE
-       * ----------------------------------------------------------
-       */
-
-      const outerFade =
-        1 -
-        smoothstep(
-          0.72,
-          1.0,
-          radius
-        );
-
-
-      /*
-       * ----------------------------------------------------------
-       * DIFFUSE DISC
-       * ----------------------------------------------------------
-       */
-
-      const diffuseDisc =
-        Math.exp(
-          -radius * 2.15
-        ) *
-        0.36;
-
-
-      /*
-       * ----------------------------------------------------------
-       * CENTRAL BULGE
-       * ----------------------------------------------------------
-       */
-
-      const core =
-        Math.exp(
-          -(
-            radius *
-            radius
-          ) /
-          (
-            CORE_RADIUS *
-            CORE_RADIUS
-          )
-        );
-
-
-      const innerGlow =
-        Math.exp(
-          -(
-            radius *
-            radius
-          ) /
-          (
-            0.40 *
-            0.40
-          )
-        );
-
-
-      /*
-       * ----------------------------------------------------------
-       * STRUCTURAL IRREGULARITY
-       * ----------------------------------------------------------
-       */
-
-      const cellX =
-        Math.floor(
-          rx * 95
-        );
-
-      const cellY =
-        Math.floor(
-          ry * 95
-        );
-
-
-      const fineNoise =
-        hash(
-          cellX,
-          cellY
-        );
-
-
-      const coarseNoise =
-        hash2(
-          Math.floor(
-            rx * 30
-          ),
-          Math.floor(
-            ry * 30
-          )
-        );
-
-
       const grain =
-        0.72 +
-        fineNoise *
-        0.42;
+        noise -
+        Math.floor(noise);
 
-
-      const clouds =
-        0.78 +
-        coarseNoise *
-        0.34;
-
-
-      /*
-       * ----------------------------------------------------------
-       * ARM CLUMPING
-       * ----------------------------------------------------------
-       */
-
-      const armClumps =
-        0.84 +
-        Math.sin(
-          angle * 9 +
-          radius * 31
-        ) *
-        0.10 +
-        Math.sin(
-          angle * 17 -
-          radius * 19
-        ) *
-        0.05;
-
-
-      /*
-       * ==========================================================
-       * LAYER COMPOSITION
-       * ==========================================================
-       */
-
-      const primaryLayer =
-        primaryArms *
-        0.76;
-
-
-      const secondaryLayer =
-        secondaryArms *
-        0.36;
-
-
-      const discLayer =
-        diffuseDisc;
-
-
-      const coreLayer =
-        core *
-        1.25;
-
-
-      const glowLayer =
-        innerGlow *
-        0.38;
-
-
-      let density =
-        (
-          primaryLayer +
-          secondaryLayer +
-          discLayer +
-          coreLayer +
-          glowLayer
-        ) *
-        outerFade;
-
-
-      /*
-       * Apply irregularity mostly outside
-       * the nucleus.
-       */
-
-      const noiseInfluence =
-        smoothstep(
-          0.12,
-          0.42,
-          radius
+      const value =
+        clamp(
+          light +
+          (grain - 0.5) *
+            0.08,
         );
 
-
-      const irregularity =
-        (
-          grain *
-          clouds *
-          armClumps
-        );
-
-
-      density *=
-        (
-          1 -
-          noiseInfluence
-        ) +
-        (
-          irregularity *
-          noiseInfluence
-        );
-
-
-      /*
-       * ----------------------------------------------------------
-       * DUST GAPS
-       * ----------------------------------------------------------
-       */
-
-      const dustThreshold =
-        0.07 +
-        radius * 0.10;
-
-
-      const dustValue =
-        hash2(
-          cellX + 47,
-          cellY - 91
-        );
-
-
-      if (
-        radius > 0.30 &&
-        dustValue <
-        dustThreshold
-      ) {
-        density *= 0.25;
-      }
-
-
-      /*
-       * Pull genuinely empty material
-       * back toward black.
-       */
-
-      density -= 0.09;
-
-
-      return clamp(
-        density,
-        0,
-        1
-      );
+      return ramp[
+        Math.floor(
+          value *
+          (ramp.length - 1),
+        )
+      ];
     }
 
-
     /*
-     * ============================================================
      * DRAW
-     * ============================================================
      */
 
     t.draw(() => {
       t.background(0);
 
-
-      const cols =
-        t.grid.cols;
-
-      const rows =
-        t.grid.rows;
-
-
-      const halfCols =
-        Math.floor(
-          cols / 2
-        );
-
-      const halfRows =
-        Math.floor(
-          rows / 2
-        );
-
-
       const time =
         t.frameCount / 60;
 
-
       /*
-       * ----------------------------------------------------------
-       * GALAXY SIZE
-       * ----------------------------------------------------------
+       * ROTATION
        */
 
-      const galaxyWidth =
+      const ax =
+        time * 0.37;
+
+      const ay =
+        time * 0.26;
+
+      const az =
+        time * 0.19;
+
+      const scale =
         Math.min(
-          cols * 0.84,
-          rows * 1.72
-        );
+          t.grid.cols,
+          t.grid.rows * 1.7,
+        ) * 0.23;
 
+      const cameraDistance =
+        5.5;
 
-      const galaxyHeight =
-        galaxyWidth *
-        DISC_FLATTEN;
-
-
-      /*
-       * ----------------------------------------------------------
-       * FIXED VIEW ROTATION
-       * ----------------------------------------------------------
-       */
-
-      const cosView =
-        Math.cos(
-          VIEW_ROTATION
-        );
-
-      const sinView =
-        Math.sin(
-          VIEW_ROTATION
-        );
-
+      const cells =
+        new Map<string, Cell>();
 
       /*
-       * ==========================================================
-       * CHARACTER GRID
-       * ==========================================================
+       * TORUS SURFACE
        */
 
       for (
-        let gy = -halfRows;
-        gy <= halfRows;
-        gy++
+        let i = 0;
+        i < MAJOR_STEPS;
+        i++
       ) {
+        const u =
+          i /
+          MAJOR_STEPS *
+          Math.PI *
+          2;
+
+        const cu =
+          Math.cos(u);
+
+        const su =
+          Math.sin(u);
+
         for (
-          let gx = -halfCols;
-          gx <= halfCols;
-          gx++
+          let j = 0;
+          j < MINOR_STEPS;
+          j++
         ) {
+          const v =
+            j /
+            MINOR_STEPS *
+            Math.PI *
+            2;
+
+          const cv =
+            Math.cos(v);
+
+          const sv =
+            Math.sin(v);
+
+          const ring =
+            MAJOR_RADIUS +
+            MINOR_RADIUS * cv;
+
           /*
-           * Undo the diagonal presentation
-           * rotation before sampling.
+           * POSITION
            */
 
-          const rotatedX =
-            gx * cosView +
-            gy * sinView;
-
-
-          const rotatedY =
-            -gx * sinView +
-            gy * cosView;
-
+          const [
+            px,
+            py,
+            pz,
+          ] =
+            rotate(
+              [
+                ring * cu,
+                MINOR_RADIUS * sv,
+                ring * su,
+              ],
+              ax,
+              ay,
+              az,
+            );
 
           /*
-           * Normalize into galaxy space.
+           * NORMAL
            */
 
-          const x =
-            rotatedX /
+          const [
+            nx,
+            ny,
+            nz,
+          ] =
+            rotate(
+              [
+                cv * cu,
+                sv,
+                cv * su,
+              ],
+              ax,
+              ay,
+              az,
+            );
+
+          /*
+           * BACK-FACE CULLING
+           */
+
+          if (nz <= 0) {
+            continue;
+          }
+
+          /*
+           * PERSPECTIVE
+           */
+
+          const perspective =
+            cameraDistance /
             (
-              galaxyWidth *
-              0.5
+              cameraDistance -
+              pz
             );
 
-
-          const y =
-            rotatedY /
-            (
-              galaxyHeight *
-              0.5
+          const screenX =
+            Math.round(
+              px *
+              perspective *
+              scale,
             );
 
-
-          const density =
-            galaxyDensity(
-              x,
-              y,
-              time
+          const screenY =
+            Math.round(
+              py *
+              perspective *
+              scale,
             );
-
 
           /*
-           * Empty background remains empty.
+           * CAMERA-BIASED OVERHEAD LIGHT
+           *
+           * Unlike the previous revision,
+           * there is no fake self-shadow.
+           *
+           * The light lives above and near
+           * the viewer, so visible surfaces
+           * remain readable while the lower
+           * surfaces still fall into purple.
            */
+
+          const diffuse =
+            Math.max(
+              0,
+              nx * LIGHT[0] +
+              ny * LIGHT[1] +
+              nz * LIGHT[2],
+            );
+
+          /*
+           * Broad, strong light.
+           */
+
+          const broadLight =
+            Math.pow(
+              diffuse,
+              0.72,
+            );
+
+          /*
+           * Smaller bright core.
+           */
+
+          const highlight =
+            Math.pow(
+              diffuse,
+              5,
+            );
+
+          /*
+           * Front-facing surfaces receive
+           * a tiny amount of fill light.
+           *
+           * This prevents large visible
+           * areas from becoming uniformly
+           * dark purple without creating
+           * another bright underside patch.
+           */
+
+          const cameraFill =
+            Math.pow(
+              clamp(nz),
+              1.5,
+            );
+
+          const light =
+            clamp(
+              0.09 +
+              broadLight * 0.73 +
+              highlight * 0.22 +
+              cameraFill * 0.12,
+            );
+
+          /*
+           * Z BUFFER
+           */
+
+          const key =
+            `${screenX},${screenY}`;
+
+          const existing =
+            cells.get(key);
 
           if (
-            density <= 0.025
+            existing &&
+            existing.z >= pz
           ) {
             continue;
           }
 
-
-          /*
-           * ------------------------------------------------------
-           * DENSITY -> CHARACTER
-           * ------------------------------------------------------
-           */
-
-          const index =
-            Math.floor(
-              density *
-              (
-                RAMP.length -
-                1
-              )
-            );
-
-
-          const character =
-            RAMP[
-              clamp(
-                index,
-                0,
-                RAMP.length - 1
-              )
-            ];
-
-
-          /*
-           * ------------------------------------------------------
-           * BRIGHTNESS
-           * ------------------------------------------------------
-           */
-
-          const brightness =
-            Math.floor(
-              85 +
-              density *
-              170
-            );
-
-
-          /*
-           * ------------------------------------------------------
-           * DRAW CELL
-           * ------------------------------------------------------
-           */
-
-          t.push();
-
-
-          t.translate(
-            gx,
-            gy
+          cells.set(
+            key,
+            {
+              x: screenX,
+              y: screenY,
+              z: pz,
+              light,
+            },
           );
-
-
-          t.char(
-            character
-          );
-
-
-          t.charColor(
-            brightness,
-            brightness,
-            brightness
-          );
-
-
-          t.cellColor(
-            0,
-            0,
-            0
-          );
-
-
-          t.point();
-
-
-          t.pop();
         }
+      }
+
+      /*
+       * DRAW
+       */
+
+      for (
+        const cell
+        of cells.values()
+      ) {
+        const [
+          r,
+          g,
+          b,
+        ] =
+          getColor(
+            cell.light,
+          );
+
+        t.push();
+
+        t.translate(
+          cell.x,
+          cell.y,
+        );
+
+        t.char(
+          getCharacter(
+            cell.light,
+            cell.x,
+            cell.y,
+          ),
+        );
+
+        t.charColor(
+          r,
+          g,
+          b,
+        );
+
+        t.cellColor(
+          0,
+          0,
+          0,
+        );
+
+        t.point();
+
+        t.pop();
       }
     });
 
-
     /*
-     * ============================================================
-     * MOUNT
-     * ============================================================
+     * CANVAS
      */
 
-    container.appendChild(t.canvas);
-
+    container.appendChild(
+      t.canvas,
+    );
 
     /*
-     * ============================================================
      * RESIZE
-     * ============================================================
-     *
-     * The visual belongs to the right-hand panel,
-     * not the entire browser viewport.
      */
 
     const resizeObserver =
-      new ResizeObserver((entries) => {
-        const entry =
-          entries[0];
+      new ResizeObserver(
+        ([entry]) => {
+          if (!entry) return;
 
-        if (!entry) {
-          return;
-        }
+          t.resizeCanvas(
+            Math.max(
+              1,
+              Math.floor(
+                entry.contentRect.width,
+              ),
+            ),
 
-        const width =
-          Math.max(
-            1,
-            Math.floor(
-              entry.contentRect.width
-            )
+            Math.max(
+              1,
+              Math.floor(
+                entry.contentRect.height,
+              ),
+            ),
           );
-
-        const height =
-          Math.max(
-            1,
-            Math.floor(
-              entry.contentRect.height
-            )
-          );
-
-        t.resizeCanvas(
-          width,
-          height
-        );
-      });
-
+        },
+      );
 
     resizeObserver.observe(
-      container
+      container,
     );
   }
 </script>
