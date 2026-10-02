@@ -1,10 +1,19 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import SupportCard from '../components/support/SupportCard.astro';
+import { supportMethods } from '../data/support';
 ---
 
 <Layout title="Support | Phoxy">
   <main>
     <h1>Support</h1>
+
+    <div class="support-methods">
+      {supportMethods.map((method) => (
+        <SupportCard method={method} />
+      ))}
+    </div>
+
     <a href="/">Back Home</a>
   </main>
 </Layout>

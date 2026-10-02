@@ -1,0 +1,21 @@
+---
+import type { SupportMethod } from '../../data/support';
+
+interface Props {
+  method: SupportMethod;
+}
+
+const { method } = Astro.props;
+---
+
+<article class="support-card">
+  <h2>{method.title}</h2>
+
+  {method.description && (
+    <p>{method.description}</p>
+  )}
+
+  {method.href && (
+    <a href={method.href}>View option</a>
+  )}
+</article>
