@@ -3,47 +3,49 @@ import Layout from '../layouts/Layout.astro';
 import Hero from '../components/hero/Hero.astro';
 import MainNav from '../components/navigation/MainNav.astro';
 import ProjectCard from '../components/projects/ProjectCard.astro';
-import { projects } from '../data/projects';
 import GalleryItem from '../components/gallery/GalleryItem.astro';
-import { gallery } from '../data/gallery';
-import Contact from '../components/contact/Contact.astro';
----
 
+import { projects } from '../data/projects';
+import { gallery } from '../data/gallery';
+---
 
 <Layout title="Phoxy">
   <main>
     <Hero />
 
+    <!-- About Me -->
+    <section id="about">
+      <h2>Who Am I</h2>
+    </section>
+
+    <!-- Links / Navigation -->
     <MainNav />
 
-    <section id="about">
-      <h2>Who Am I?</h2>
+    <!-- Projects -->
+    <section id="projects">
+      <h2>Projects</h2>
+
+      <div class="projects">
+        {projects.map((project) => (
+          <ProjectCard project={project} />
+        ))}
+      </div>
     </section>
 
-	  <section id="projects">
-  		<h2>My Projects</h2>
-
-  		<div class="projects">
-    		{projects.map((project) => (
-      			<ProjectCard project={project} />
-    		))}
-  		</div>
-	  </section>
-
-    <section id="qualified-work">
-      <h2>Qualified Work</h2>
-    </section>
-
+    <!-- Contact -->
     <section id="contact">
-  	  <Contact />
-	  </section>
+      <h2>Contact</h2>
+    </section>
 
+    <!-- Interests -->
     <section id="interests">
       <h2>Interests</h2>
     </section>
 
+    <!-- Gallery -->
     <section id="gallery">
       <h2>Gallery</h2>
+
       <div class="gallery">
         {gallery.map((item) => (
           <GalleryItem item={item} />
