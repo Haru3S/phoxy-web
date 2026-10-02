@@ -13,7 +13,7 @@ import { gallery } from '../data/gallery';
   <main>
     <Hero />
 
-    <!-- About Me -->
+    <!-- Who Am I -->
     <section id="about">
       <h2>Who Am I</h2>
     </section>
@@ -22,12 +22,15 @@ import { gallery } from '../data/gallery';
     <MainNav />
 
     <!-- Projects -->
-    <section id="projects">
+    <section id="projects" class="projects-section">
       <h2>Projects</h2>
 
       <div class="projects">
-        {projects.map((project) => (
-          <ProjectCard project={project} />
+        {projects.map((project, index) => (
+          <ProjectCard
+            project={project}
+            index={index}
+          />
         ))}
       </div>
     </section>
@@ -54,3 +57,21 @@ import { gallery } from '../data/gallery';
     </section>
   </main>
 </Layout>
+
+<style>
+  .projects-section {
+    width: 100%;
+    padding-top: clamp(4rem, 10vw, 10rem);
+  }
+
+  .projects-section > h2 {
+    margin: 0;
+    padding: 0 1.5rem 0.2em;
+
+    font-family: "Space Grotesk Variable", sans-serif;
+    font-size: clamp(4rem, 10vw, 10rem);
+    font-weight: 600;
+    line-height: 0.85;
+    letter-spacing: -0.05em;
+  }
+</style>

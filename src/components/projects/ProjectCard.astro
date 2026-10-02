@@ -3,29 +3,151 @@ import type { Project } from '../../data/projects';
 
 interface Props {
   project: Project;
+  index: number;
 }
 
-const { project } = Astro.props;
+const { project, index } = Astro.props;
+
+const projectNumber = String(index + 1).padStart(2, '0');
+const category = project.tags?.join(' / ') ?? '';
 ---
 
-<article class="project-card">
-  {project.image && (
-    <img src={project.image} alt="" />
-  )}
+<article class="project-row">
+  <div class="project-number">
+    {projectNumber}
+  </div>
 
-  <h3>{project.title}</h3>
+  <div class="project-name">
+    <h3>{project.title}</h3>
+  </div>
 
-  <p>{project.description}</p>
+  <div class="project-category">
+    {category}
+  </div>
 
-  {project.tags && (
-    <ul>
-      {project.tags.map((tag) => (
-        <li>{tag}</li>
-      ))}
-    </ul>
-  )}
-
-  {project.href && (
-    <a href={project.href}>View project</a>
-  )}
+  <div class="project-action">
+    {project.href ? (
+      <a
+        href={project.href}
+        aria-label={`Open ${project.title}`}
+      >
+        <i class="ph ph-arrow-square-out" aria-hidden="true"></i>
+      </a>
+    ) : (
+      <span class="disabled-link" aria-hidden="true">
+        <i class="ph ph-arrow-square-out"></i>
+      </span>
+    )}
+  </div>
 </article>
+
+<style>
+  .project-row {
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    min-height: 72px;
+
+    padding: 0 1.5rem;
+
+    border-top: 1px solid #111;
+  }
+
+  .project-row:last-child {
+    border-bottom: 1px solid #111;
+  }
+
+  /* COLUMN 1 — NUMBER */
+
+  .project-number {
+    flex: 0 0 8%;
+
+    font-family: "Adwaita Mono", monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  /* COLUMN 2 — PROJECT */
+
+  .project-name {
+    flex: 0 0 42%;
+  }
+
+  .project-name h3 {
+    margin: 0;
+
+    font-family: "Space Grotesk Variable", sans-serif;
+    font-size: clamp(1.25rem, 1.8vw, 2rem);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  /* COLUMN 3 — CATEGORY */
+
+  .project-category {
+    flex: 1;
+
+    font-family: "Adwaita Mono", monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+
+    text-transform: uppercase;
+  }
+
+  /* COLUMN 4 — LINK */
+
+  .project-action {
+    flex: 0 0 3rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .project-action a,
+  .disabled-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #111;
+    font-size: 1.5rem;
+
+    text-decoration: none;
+  }
+
+  .disabled-link {
+    opacity: 0.25;
+  }
+
+  .project-action a:hover,
+  .project-action a:focus-visible {
+    opacity: 0.5;
+  }
+
+  /* MOBILE */
+
+  @media (max-width: 700px) {
+    .project-row {
+      min-height: 64px;
+      padding: 0 1rem;
+    }
+
+    .project-number {
+      flex-basis: 3rem;
+    }
+
+    .project-name {
+      flex: 1;
+    }
+
+    .project-category {
+      display: none;
+    }
+
+    .project-action {
+      flex-basis: 2.5rem;
+    }
+  }
+</style>
