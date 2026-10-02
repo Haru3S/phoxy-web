@@ -1,19 +1,211 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import LinkCard from '../components/links/LinkCard.astro';
+import PageNav from '../components/navigation/PageNav.astro';
+
 import { links } from '../data/links';
 ---
 
-<Layout title="Links | Phoxy">
-  <main>
-    <h1>Links</h1>
+<Layout title="Links — Phoxy">
+  <main class="links-page">
+    <!-- Left Side -->
+    <section class="links-panel">
+      <div class="links-content">
+        <header class="links-header">
+          <h1>Links</h1>
 
-    <div class="links">
-      {links.map((link) => (
-        <LinkCard link={link} />
-      ))}
-    </div>
+          <span>PHOXY / WWW</span>
+        </header>
 
-    <a href="/">Back Home</a>
+        <div class="links-column-header" aria-hidden="true">
+          <span>ICON</span>
+          <span>NAME</span>
+          <span>TYPE</span>
+        </div>
+
+        <div class="links-list">
+          {links.map((link) => (
+            <LinkCard link={link} />
+          ))}
+        </div>
+      </div>
+
+      <!-- Sticky Page Navigation -->
+      <PageNav
+        first={{
+          label: 'Home',
+          href: '/',
+          icon: 'house',
+        }}
+        second={{
+          label: 'Support',
+          href: '/support',
+          icon: 'tip-jar',
+        }}
+      />
+    </section>
+
+    <!-- Right Side / Future ASCII Visual -->
+    <section class="links-visual" aria-label="Visual">
+      <img
+        src="/assets/dev/Debugempty.png"
+        alt=""
+      />
+    </section>
   </main>
 </Layout>
+
+<style>
+  /*
+   * PAGE
+   */
+
+  .links-page {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  /*
+   * LEFT PANEL
+   */
+
+  .links-panel {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+    min-height: 100vh;
+
+    border-right: 1px solid #111;
+  }
+
+  /*
+   * LINKS CONTENT
+   */
+
+  .links-content {
+    width: 100%;
+
+    padding: 0.75rem;
+  }
+
+  /*
+   * HEADER
+   */
+
+  .links-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    margin-bottom: clamp(4rem, 10vh, 8rem);
+  }
+
+  .links-header h1 {
+    margin: 0;
+
+    font-family: "Space Grotesk Variable", sans-serif;
+    font-size: clamp(5rem, 9vw, 10rem);
+    font-weight: 700;
+    line-height: 0.78;
+    letter-spacing: -0.06em;
+  }
+
+  .links-header span {
+    font-family: "Adwaita Mono", monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  /*
+   * COLUMN LABELS
+   */
+
+  .links-column-header {
+    display: grid;
+    grid-template-columns: 3rem 1fr auto;
+    gap: 1rem;
+
+    padding-bottom: 0.5rem;
+
+    border-bottom: 1px solid #111;
+
+    font-family: "Adwaita Mono", monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+
+  .links-column-header span:first-child {
+    text-align: center;
+  }
+
+  /*
+   * LINK LIST
+   */
+
+  .links-list {
+    width: 100%;
+  }
+
+  /*
+   * RIGHT VISUAL
+   */
+
+  .links-visual {
+    position: relative;
+
+    min-width: 0;
+    min-height: 100vh;
+
+    overflow: hidden;
+  }
+
+  .links-visual img {
+    position: absolute;
+    inset: 0;
+
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+  }
+
+  /*
+   * MOBILE
+   */
+
+  @media (max-width: 700px) {
+    .links-page {
+      grid-template-columns: 1fr;
+    }
+
+    .links-panel {
+      min-height: 100vh;
+
+      border-right: 0;
+    }
+
+    .links-content {
+      padding: 0.75rem;
+    }
+
+    .links-header {
+      margin-bottom: 4rem;
+    }
+
+    .links-header h1 {
+      font-size: clamp(5rem, 25vw, 8rem);
+    }
+
+    .links-visual {
+      min-height: 70vh;
+
+      border-top: 1px solid #111;
+    }
+  }
+</style>

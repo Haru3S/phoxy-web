@@ -1,18 +1,39 @@
 export interface LinkEntry {
-  label: string;
+  name: string;
   href: string;
-  description?: string;
+  type: string;
+  icon?: string;
 }
 
 export const links: LinkEntry[] = [
   {
-    label: 'GitHub',
+    name: 'YouTube',
     href: '#',
-    description: 'Projects and code',
+    type: 'SOCIAL',
+    icon: 'youtube-logo',
   },
   {
-    label: 'Placeholder',
+    name: 'Spotify',
     href: '#',
-    description: 'Something else will live here.',
+    type: 'SOCIAL',
+    icon: 'spotify-logo',
+  },
+  {
+    name: 'Bluesky',
+    href: '#',
+    type: 'SOCIAL',
+    icon: 'butterfly',
+  },
+  {
+    name: 'GitHub',
+    href: '#',
+    type: 'DEV',
+    icon: 'github-logo',
+  },
+  {
+    name: 'Modrinth',
+    href: '#',
+    type: 'DEV',
+    icon: 'cube',
   },
 ];
