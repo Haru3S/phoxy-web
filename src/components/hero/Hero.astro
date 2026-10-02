@@ -14,11 +14,17 @@
       alt=""
     />
 
-    <img
-      class="hero-layer hero-scout"
-      src="/assets/hero/scout.webp"
-      alt=""
-    />
+    <button
+      class="scout-button"
+      type="button"
+      aria-label="Play a random Scout voice line"
+    >
+      <img
+        class="hero-layer hero-scout"
+        src="/assets/hero/scout.webp"
+        alt=""
+      />
+    </button>
   </div>
 
   <h1 id="hero-title" class="sr-only">Phoxy</h1>
@@ -59,12 +65,35 @@
   .hero-wall {
     mix-blend-mode: screen;
   }
+
+  .scout-button {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+
+    padding: 0;
+    border: 0;
+    background: transparent;
+
+    cursor: pointer;
+  }
+
+  .hero-scout {
+    pointer-events: none;
+  }
 </style>
 
 <script>
   const hero = document.querySelector<HTMLElement>('.hero-canvas');
   const graffiti = document.querySelector<HTMLElement>('.hero-graffiti');
   const scout = document.querySelector<HTMLElement>('.hero-scout');
+  const scoutButton =
+    document.querySelector<HTMLButtonElement>('.scout-button');
+
+  /*
+   * HERO PARALLAX
+   */
 
   if (hero && graffiti && scout) {
     const reducedMotion = window.matchMedia(
@@ -81,9 +110,11 @@
 
       const rect = hero.getBoundingClientRect();
 
-      // -1 → 1 relative to the center of the hero
-      targetX = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
-      targetY = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
+      targetX =
+        ((event.clientX - rect.left) / rect.width - 0.5) * 2;
+
+      targetY =
+        ((event.clientY - rect.top) / rect.height - 0.5) * 2;
     };
 
     const resetTarget = () => {
@@ -92,7 +123,6 @@
     };
 
     const animate = () => {
-      // Smoothly approach the cursor position
       currentX += (targetX - currentX) * 0.08;
       currentY += (targetY - currentY) * 0.08;
 
@@ -110,4 +140,67 @@
 
     animate();
   }
+
+  /*
+   * SCOUT VOICE LINES
+   */
+
+  const scoutLines = [
+    '/audio/scout/scout_award12.mp3',
+    '/audio/scout/scout_cheers06.mp3',
+    '/audio/scout/scout_generic01.mp3',
+    '/audio/scout/scout_invincible03.mp3',
+    '/audio/scout/scout_meleedare04.mp3',
+    '/audio/scout/scout_positivevocalization01.mp3',
+    '/audio/scout/scout_positivevocalization04.mp3',
+    '/audio/scout/scout_revenge07.mp3',
+    '/audio/scout/scout_specialcompleted06.mp3',
+  ];
+
+  let previousLine = -1;
+  let currentAudio: HTMLAudioElement | null = null;
+
+  const playRandomScoutLine = () => {
+    if (scoutLines.length === 0) return;
+
+    let nextLine = previousLine;
+
+    while (
+      nextLine === previousLine &&
+      scoutLines.length > 1
+    ) {
+      nextLine = Math.floor(
+        Math.random() * scoutLines.length
+      );
+    }
+
+    if (scoutLines.length === 1) {
+      nextLine = 0;
+    }
+
+    previousLine = nextLine;
+
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    }
+
+    currentAudio = new Audio(scoutLines[nextLine]);
+
+    // 0.0 = silent, 1.0 = original volume
+    // 0.5 is approximately -6 dB.
+    currentAudio.volume = 0.5;
+
+    currentAudio.play().catch((error) => {
+      console.error(
+        'Could not play Scout voice line:',
+        error
+      );
+    });
+  };
+
+  scoutButton?.addEventListener(
+    'click',
+    playRandomScoutLine
+  );
 </script>
