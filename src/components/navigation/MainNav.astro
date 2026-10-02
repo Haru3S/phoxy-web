@@ -1,33 +1,86 @@
+---
+import '@phosphor-icons/web/regular';
+---
+
 <nav class="main-nav" aria-label="Primary navigation">
-  <a href="/#about">ABOUT</a>
-  <a href="/links">LINKS</a>
-  <a href="/support">SUPPORT</a>
+  <a href="/#about">
+    <span class="nav-label">Who Am I</span>
+    <span class="nav-icon" aria-hidden="true">
+      <i class="ph ph-user"></i>
+    </span>
+  </a>
+
+  <a href="/links">
+    <span class="nav-label">Links</span>
+    <span class="nav-icon" aria-hidden="true">
+      <i class="ph ph-link"></i>
+    </span>
+  </a>
+
+  <a href="/support">
+    <span class="nav-label">Support</span>
+    <span class="nav-icon" aria-hidden="true">
+      <i class="ph ph-tip-jar"></i>
+    </span>
+  </a>
 </nav>
 
 <style>
-    .main-nav {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        width: 100%;
+  .main-nav {
+    display: flex;
+    flex-direction: column;
 
-        position: sticky;
-        top: 0;
-        z-index: 100;
-    } 
+    width: 100%;
+    background: #fff;
 
-    .main-nav a {
-        display: grid;
-        place-items: center;
+    border-top: 1px solid #111;
+    border-bottom: 1px solid #111;
+  }
 
-        min-height: 120px;
+  .main-nav a {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
 
-        border: 2px solid #111;
+    width: 100%;
+    padding: 0.35em 0.5em;
 
-        color: #111;
-        background: #fff;
+    color: #111;
 
-        font-weight: 800;
-        font-size: clamp(1.5rem, 3vw, 3rem);
-        text-decoration: none;
-    }
+    font-family: "Space Grotesk Variable", sans-serif;
+    font-size: clamp(2.5rem, 4vw, 4.5rem);
+    font-weight: 500;
+    line-height: 1;
+
+    text-decoration: none;
+  }
+
+  .main-nav a + a {
+    border-top: 1px solid #111;
+  }
+
+  .nav-label {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .nav-icon {
+    grid-column: 2;
+    grid-row: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding-right: 0.15em;
+  }
+
+  .nav-icon i {
+    font-size: 0.65em;
+  }
+
+  .main-nav a:hover,
+  .main-nav a:focus-visible {
+    background: rgba(0, 0, 0, 0.06);
+  }
 </style>
