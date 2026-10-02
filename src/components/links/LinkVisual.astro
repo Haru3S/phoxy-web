@@ -1,0 +1,893 @@
+<div class="link-visual" data-link-visual aria-hidden="true"></div>
+
+<script>
+  import { textmode } from 'textmode.js';
+
+  const container = document.querySelector<HTMLElement>('[data-link-visual]');
+
+  if (container) {
+    /*
+     * ============================================================
+     * TEXTMODE INSTANCE
+     * ============================================================
+     */
+
+    const t = textmode.create({
+      width: container.clientWidth,
+      height: container.clientHeight,
+      fontSize: 10,
+    });
+
+
+    /*
+     * ============================================================
+     * CHARACTER RAMP
+     * ============================================================
+     */
+
+    const RAMP = ' .,:;-=+*#%@';
+
+
+    /*
+     * ============================================================
+     * GALAXY CONTROLS
+     * ============================================================
+     */
+
+    const ARM_COUNT = 4;
+
+    const DISC_RADIUS = 1.0;
+
+    const CORE_RADIUS = 0.23;
+
+    const ARM_TIGHTNESS = 4.2;
+
+    /*
+     * Dense center line of each arm.
+     */
+    const PRIMARY_ARM_WIDTH = 0.22;
+
+    /*
+     * Broader material surrounding each arm.
+     */
+    const SECONDARY_ARM_WIDTH = 0.52;
+
+    /*
+     * Apparent flattening caused by our viewing angle.
+     */
+    const DISC_FLATTEN = 0.43;
+
+    /*
+     * Diagonal presentation angle.
+     */
+    const VIEW_ROTATION =
+      30 * Math.PI / 180;
+
+    /*
+     * Slow rotation of the galaxy itself.
+     */
+    const ROTATION_SPEED = 0.025;
+
+
+    /*
+     * ============================================================
+     * HELPERS
+     * ============================================================
+     */
+
+    function clamp(
+      value: number,
+      min: number,
+      max: number
+    ) {
+      return Math.max(
+        min,
+        Math.min(max, value)
+      );
+    }
+
+
+    function smoothstep(
+      edge0: number,
+      edge1: number,
+      x: number
+    ) {
+      const value =
+        clamp(
+          (x - edge0) /
+          (edge1 - edge0),
+          0,
+          1
+        );
+
+      return (
+        value *
+        value *
+        (3 - 2 * value)
+      );
+    }
+
+
+    function angleDifference(
+      a: number,
+      b: number
+    ) {
+      let difference =
+        a - b;
+
+      while (
+        difference > Math.PI
+      ) {
+        difference -=
+          Math.PI * 2;
+      }
+
+      while (
+        difference < -Math.PI
+      ) {
+        difference +=
+          Math.PI * 2;
+      }
+
+      return Math.abs(
+        difference
+      );
+    }
+
+
+    /*
+     * Deterministic pseudo-random value.
+     *
+     * Unlike Math.random(), this won't
+     * flicker every frame.
+     */
+
+    function hash(
+      x: number,
+      y: number
+    ) {
+      const value =
+        Math.sin(
+          x * 127.1 +
+          y * 311.7
+        ) *
+        43758.5453;
+
+      return (
+        value -
+        Math.floor(value)
+      );
+    }
+
+
+    /*
+     * Second independent-looking noise layer.
+     */
+
+    function hash2(
+      x: number,
+      y: number
+    ) {
+      const value =
+        Math.sin(
+          x * 269.5 +
+          y * 183.3
+        ) *
+        24634.6345;
+
+      return (
+        value -
+        Math.floor(value)
+      );
+    }
+
+
+    /*
+     * ============================================================
+     * GALAXY DENSITY
+     * ============================================================
+     */
+
+    function galaxyDensity(
+      x: number,
+      y: number,
+      time: number
+    ) {
+      /*
+       * ----------------------------------------------------------
+       * GALAXY ROTATION
+       * ----------------------------------------------------------
+       */
+
+      const rotation =
+        time *
+        ROTATION_SPEED;
+
+      const cosRotation =
+        Math.cos(
+          -rotation
+        );
+
+      const sinRotation =
+        Math.sin(
+          -rotation
+        );
+
+
+      const rx =
+        x * cosRotation -
+        y * sinRotation;
+
+      const ry =
+        x * sinRotation +
+        y * cosRotation;
+
+
+      /*
+       * ----------------------------------------------------------
+       * POLAR COORDINATES
+       * ----------------------------------------------------------
+       */
+
+      const radius =
+        Math.sqrt(
+          rx * rx +
+          ry * ry
+        );
+
+
+      if (
+        radius >
+        DISC_RADIUS
+      ) {
+        return 0;
+      }
+
+
+      const angle =
+        Math.atan2(
+          ry,
+          rx
+        );
+
+
+      /*
+       * ----------------------------------------------------------
+       * SPIRAL ARMS
+       * ----------------------------------------------------------
+       */
+
+      let primaryArms = 0;
+      let secondaryArms = 0;
+
+
+      for (
+        let arm = 0;
+        arm < ARM_COUNT;
+        arm++
+      ) {
+        const armOffset =
+          arm *
+          (
+            Math.PI * 2 /
+            ARM_COUNT
+          );
+
+
+        const spiralAngle =
+          armOffset +
+          radius *
+          ARM_TIGHTNESS;
+
+
+        const difference =
+          angleDifference(
+            angle,
+            spiralAngle
+          );
+
+
+        const primaryWidth =
+          PRIMARY_ARM_WIDTH *
+          (
+            1.18 -
+            radius * 0.30
+          );
+
+
+        const secondaryWidth =
+          SECONDARY_ARM_WIDTH *
+          (
+            1.12 -
+            radius * 0.22
+          );
+
+
+        /*
+         * Narrow dense ridge.
+         */
+
+        const primary =
+          Math.exp(
+            -(
+              difference *
+              difference
+            ) /
+            (
+              primaryWidth *
+              primaryWidth
+            )
+          );
+
+
+        /*
+         * Wide diffuse material.
+         */
+
+        const secondary =
+          Math.exp(
+            -(
+              difference *
+              difference
+            ) /
+            (
+              secondaryWidth *
+              secondaryWidth
+            )
+          );
+
+
+        primaryArms =
+          Math.max(
+            primaryArms,
+            primary
+          );
+
+
+        secondaryArms =
+          Math.max(
+            secondaryArms,
+            secondary
+          );
+      }
+
+
+      /*
+       * ----------------------------------------------------------
+       * OUTER FADE
+       * ----------------------------------------------------------
+       */
+
+      const outerFade =
+        1 -
+        smoothstep(
+          0.72,
+          1.0,
+          radius
+        );
+
+
+      /*
+       * ----------------------------------------------------------
+       * DIFFUSE DISC
+       * ----------------------------------------------------------
+       */
+
+      const diffuseDisc =
+        Math.exp(
+          -radius * 2.15
+        ) *
+        0.36;
+
+
+      /*
+       * ----------------------------------------------------------
+       * CENTRAL BULGE
+       * ----------------------------------------------------------
+       */
+
+      const core =
+        Math.exp(
+          -(
+            radius *
+            radius
+          ) /
+          (
+            CORE_RADIUS *
+            CORE_RADIUS
+          )
+        );
+
+
+      const innerGlow =
+        Math.exp(
+          -(
+            radius *
+            radius
+          ) /
+          (
+            0.40 *
+            0.40
+          )
+        );
+
+
+      /*
+       * ----------------------------------------------------------
+       * STRUCTURAL IRREGULARITY
+       * ----------------------------------------------------------
+       */
+
+      const cellX =
+        Math.floor(
+          rx * 95
+        );
+
+      const cellY =
+        Math.floor(
+          ry * 95
+        );
+
+
+      const fineNoise =
+        hash(
+          cellX,
+          cellY
+        );
+
+
+      const coarseNoise =
+        hash2(
+          Math.floor(
+            rx * 30
+          ),
+          Math.floor(
+            ry * 30
+          )
+        );
+
+
+      const grain =
+        0.72 +
+        fineNoise *
+        0.42;
+
+
+      const clouds =
+        0.78 +
+        coarseNoise *
+        0.34;
+
+
+      /*
+       * ----------------------------------------------------------
+       * ARM CLUMPING
+       * ----------------------------------------------------------
+       */
+
+      const armClumps =
+        0.84 +
+        Math.sin(
+          angle * 9 +
+          radius * 31
+        ) *
+        0.10 +
+        Math.sin(
+          angle * 17 -
+          radius * 19
+        ) *
+        0.05;
+
+
+      /*
+       * ==========================================================
+       * LAYER COMPOSITION
+       * ==========================================================
+       */
+
+      const primaryLayer =
+        primaryArms *
+        0.76;
+
+
+      const secondaryLayer =
+        secondaryArms *
+        0.36;
+
+
+      const discLayer =
+        diffuseDisc;
+
+
+      const coreLayer =
+        core *
+        1.25;
+
+
+      const glowLayer =
+        innerGlow *
+        0.38;
+
+
+      let density =
+        (
+          primaryLayer +
+          secondaryLayer +
+          discLayer +
+          coreLayer +
+          glowLayer
+        ) *
+        outerFade;
+
+
+      /*
+       * Apply irregularity mostly outside
+       * the nucleus.
+       */
+
+      const noiseInfluence =
+        smoothstep(
+          0.12,
+          0.42,
+          radius
+        );
+
+
+      const irregularity =
+        (
+          grain *
+          clouds *
+          armClumps
+        );
+
+
+      density *=
+        (
+          1 -
+          noiseInfluence
+        ) +
+        (
+          irregularity *
+          noiseInfluence
+        );
+
+
+      /*
+       * ----------------------------------------------------------
+       * DUST GAPS
+       * ----------------------------------------------------------
+       */
+
+      const dustThreshold =
+        0.07 +
+        radius * 0.10;
+
+
+      const dustValue =
+        hash2(
+          cellX + 47,
+          cellY - 91
+        );
+
+
+      if (
+        radius > 0.30 &&
+        dustValue <
+        dustThreshold
+      ) {
+        density *= 0.25;
+      }
+
+
+      /*
+       * Pull genuinely empty material
+       * back toward black.
+       */
+
+      density -= 0.09;
+
+
+      return clamp(
+        density,
+        0,
+        1
+      );
+    }
+
+
+    /*
+     * ============================================================
+     * DRAW
+     * ============================================================
+     */
+
+    t.draw(() => {
+      t.background(0);
+
+
+      const cols =
+        t.grid.cols;
+
+      const rows =
+        t.grid.rows;
+
+
+      const halfCols =
+        Math.floor(
+          cols / 2
+        );
+
+      const halfRows =
+        Math.floor(
+          rows / 2
+        );
+
+
+      const time =
+        t.frameCount / 60;
+
+
+      /*
+       * ----------------------------------------------------------
+       * GALAXY SIZE
+       * ----------------------------------------------------------
+       */
+
+      const galaxyWidth =
+        Math.min(
+          cols * 0.84,
+          rows * 1.72
+        );
+
+
+      const galaxyHeight =
+        galaxyWidth *
+        DISC_FLATTEN;
+
+
+      /*
+       * ----------------------------------------------------------
+       * FIXED VIEW ROTATION
+       * ----------------------------------------------------------
+       */
+
+      const cosView =
+        Math.cos(
+          VIEW_ROTATION
+        );
+
+      const sinView =
+        Math.sin(
+          VIEW_ROTATION
+        );
+
+
+      /*
+       * ==========================================================
+       * CHARACTER GRID
+       * ==========================================================
+       */
+
+      for (
+        let gy = -halfRows;
+        gy <= halfRows;
+        gy++
+      ) {
+        for (
+          let gx = -halfCols;
+          gx <= halfCols;
+          gx++
+        ) {
+          /*
+           * Undo the diagonal presentation
+           * rotation before sampling.
+           */
+
+          const rotatedX =
+            gx * cosView +
+            gy * sinView;
+
+
+          const rotatedY =
+            -gx * sinView +
+            gy * cosView;
+
+
+          /*
+           * Normalize into galaxy space.
+           */
+
+          const x =
+            rotatedX /
+            (
+              galaxyWidth *
+              0.5
+            );
+
+
+          const y =
+            rotatedY /
+            (
+              galaxyHeight *
+              0.5
+            );
+
+
+          const density =
+            galaxyDensity(
+              x,
+              y,
+              time
+            );
+
+
+          /*
+           * Empty background remains empty.
+           */
+
+          if (
+            density <= 0.025
+          ) {
+            continue;
+          }
+
+
+          /*
+           * ------------------------------------------------------
+           * DENSITY -> CHARACTER
+           * ------------------------------------------------------
+           */
+
+          const index =
+            Math.floor(
+              density *
+              (
+                RAMP.length -
+                1
+              )
+            );
+
+
+          const character =
+            RAMP[
+              clamp(
+                index,
+                0,
+                RAMP.length - 1
+              )
+            ];
+
+
+          /*
+           * ------------------------------------------------------
+           * BRIGHTNESS
+           * ------------------------------------------------------
+           */
+
+          const brightness =
+            Math.floor(
+              85 +
+              density *
+              170
+            );
+
+
+          /*
+           * ------------------------------------------------------
+           * DRAW CELL
+           * ------------------------------------------------------
+           */
+
+          t.push();
+
+
+          t.translate(
+            gx,
+            gy
+          );
+
+
+          t.char(
+            character
+          );
+
+
+          t.charColor(
+            brightness,
+            brightness,
+            brightness
+          );
+
+
+          t.cellColor(
+            0,
+            0,
+            0
+          );
+
+
+          t.point();
+
+
+          t.pop();
+        }
+      }
+    });
+
+
+    /*
+     * ============================================================
+     * MOUNT
+     * ============================================================
+     */
+
+    container.appendChild(t.canvas);
+
+
+    /*
+     * ============================================================
+     * RESIZE
+     * ============================================================
+     *
+     * The visual belongs to the right-hand panel,
+     * not the entire browser viewport.
+     */
+
+    const resizeObserver =
+      new ResizeObserver((entries) => {
+        const entry =
+          entries[0];
+
+        if (!entry) {
+          return;
+        }
+
+        const width =
+          Math.max(
+            1,
+            Math.floor(
+              entry.contentRect.width
+            )
+          );
+
+        const height =
+          Math.max(
+            1,
+            Math.floor(
+              entry.contentRect.height
+            )
+          );
+
+        t.resizeCanvas(
+          width,
+          height
+        );
+      });
+
+
+    resizeObserver.observe(
+      container
+    );
+  }
+</script>
+
+<style>
+  .link-visual {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    background: #000;
+  }
+
+  .link-visual :global(canvas) {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+  }
+</style>

@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import LinkCard from '../components/links/LinkCard.astro';
+import LinkVisual from '../components/links/LinkVisual.astro';
 import PageNav from '../components/navigation/PageNav.astro';
 
 import { links } from '../data/links';
@@ -30,7 +31,6 @@ import { links } from '../data/links';
         </div>
       </div>
 
-      <!-- Sticky Page Navigation -->
       <PageNav
         first={{
           label: 'Home',
@@ -45,12 +45,12 @@ import { links } from '../data/links';
       />
     </section>
 
-    <!-- Right Side / Future ASCII Visual -->
-    <section class="links-visual" aria-label="Visual">
-      <img
-        src="/assets/dev/Debugempty.png"
-        alt=""
-      />
+    <!-- Procedural ASCII Galaxy -->
+    <section
+      class="links-visual"
+      aria-label="Procedural ASCII galaxy"
+    >
+      <LinkVisual />
     </section>
   </main>
 </Layout>
@@ -161,18 +161,8 @@ import { links } from '../data/links';
     min-height: 100vh;
 
     overflow: hidden;
-  }
 
-  .links-visual img {
-    position: absolute;
-    inset: 0;
-
-    display: block;
-
-    width: 100%;
-    height: 100%;
-
-    object-fit: cover;
+    background: #000;
   }
 
   /*
