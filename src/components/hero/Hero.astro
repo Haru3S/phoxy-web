@@ -1,0 +1,113 @@
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-canvas">
+    <div class="hero-fill"></div>
+
+    <img
+      class="hero-layer hero-wall"
+      src="/assets/hero/wall-texture.webp"
+      alt=""
+    />
+
+    <img
+      class="hero-layer hero-graffiti"
+      src="/assets/hero/phoxy-graffiti.webp"
+      alt=""
+    />
+
+    <img
+      class="hero-layer hero-scout"
+      src="/assets/hero/scout.webp"
+      alt=""
+    />
+  </div>
+
+  <h1 id="hero-title" class="sr-only">Phoxy</h1>
+</section>
+
+<style>
+  .hero {
+    width: 100%;
+    overflow: hidden;
+    background: #FF9500;
+  }
+
+  .hero-canvas {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+  }
+
+  .hero-fill,
+  .hero-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-fill {
+    background: #FF9500;
+  }
+
+  .hero-layer {
+    object-fit: contain;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .hero-wall {
+    mix-blend-mode: screen;
+  }
+</style>
+
+<script>
+  const hero = document.querySelector<HTMLElement>('.hero-canvas');
+  const graffiti = document.querySelector<HTMLElement>('.hero-graffiti');
+  const scout = document.querySelector<HTMLElement>('.hero-scout');
+
+  if (hero && graffiti && scout) {
+    const reducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    );
+
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+
+    const updateTarget = (event: PointerEvent) => {
+      if (reducedMotion.matches) return;
+
+      const rect = hero.getBoundingClientRect();
+
+      // -1 → 1 relative to the center of the hero
+      targetX = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
+      targetY = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
+    };
+
+    const resetTarget = () => {
+      targetX = 0;
+      targetY = 0;
+    };
+
+    const animate = () => {
+      // Smoothly approach the cursor position
+      currentX += (targetX - currentX) * 0.08;
+      currentY += (targetY - currentY) * 0.08;
+
+      graffiti.style.transform =
+        `translate(${currentX * 3}px, ${currentY * 3}px)`;
+
+      scout.style.transform =
+        `translate(${currentX * 7}px, ${currentY * 7}px)`;
+
+      requestAnimationFrame(animate);
+    };
+
+    hero.addEventListener('pointermove', updateTarget);
+    hero.addEventListener('pointerleave', resetTarget);
+
+    animate();
+  }
+</script>

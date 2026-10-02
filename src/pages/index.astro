@@ -1,18 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Hero from '../components/hero/Hero.astro';
+import MainNav from '../components/navigation/MainNav.astro';
 ---
 
 <Layout title="Phoxy">
   <main>
-    <section id="hero">
-      <h1>PHOXY</h1>
-    </section>
+    <Hero />
 
-    <nav aria-label="Primary navigation">
-      <a href="#about">ABOUT</a>
-      <a href="/links">LINKS</a>
-      <a href="/support">SUPPORT</a>
-    </nav>
+    <MainNav />
 
     <section id="about">
       <h2>Who Am I?</h2>

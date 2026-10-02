@@ -1,0 +1,29 @@
+<nav class="main-nav" aria-label="Primary navigation">
+  <a href="/#about">ABOUT</a>
+  <a href="/links">LINKS</a>
+  <a href="/support">SUPPORT</a>
+</nav>
+
+<style>
+  .main-nav {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+  }
+
+  .main-nav a {
+    display: grid;
+    place-items: center;
+
+    min-height: 120px;
+
+    border: 2px solid #111;
+
+    color: #111;
+    background: #fff;
+
+    font-weight: 800;
+    font-size: clamp(1.5rem, 3vw, 3rem);
+    text-decoration: none;
+  }
+</style>
