@@ -5,25 +5,29 @@
 </nav>
 
 <style>
-  .main-nav {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    width: 100%;
-  }
+    .main-nav {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        width: 100%;
 
-  .main-nav a {
-    display: grid;
-    place-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    } 
 
-    min-height: 120px;
+    .main-nav a {
+        display: grid;
+        place-items: center;
 
-    border: 2px solid #111;
+        min-height: 120px;
 
-    color: #111;
-    background: #fff;
+        border: 2px solid #111;
 
-    font-weight: 800;
-    font-size: clamp(1.5rem, 3vw, 3rem);
-    text-decoration: none;
-  }
+        color: #111;
+        background: #fff;
+
+        font-weight: 800;
+        font-size: clamp(1.5rem, 3vw, 3rem);
+        text-decoration: none;
+    }
 </style>

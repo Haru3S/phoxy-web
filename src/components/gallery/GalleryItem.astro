@@ -1,0 +1,29 @@
+---
+import type { GalleryEntry } from '../../data/gallery';
+
+interface Props {
+  item: GalleryEntry;
+}
+
+const { item } = Astro.props;
+---
+
+<figure class="gallery-item">
+  <img
+    src={item.src}
+    alt={item.alt}
+    loading="lazy"
+  />
+
+  <figcaption>
+    <h3>{item.title}</h3>
+
+    {(item.type || item.year) && (
+      <p>
+        {item.type}
+        {item.type && item.year && ' · '}
+        {item.year}
+      </p>
+    )}
+  </figcaption>
+</figure>

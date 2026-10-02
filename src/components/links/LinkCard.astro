@@ -1,0 +1,17 @@
+---
+import type { LinkEntry } from '../../data/links';
+
+interface Props {
+  link: LinkEntry;
+}
+
+const { link } = Astro.props;
+---
+
+<a class="link-card" href={link.href}>
+  <h2>{link.label}</h2>
+
+  {link.description && (
+    <p>{link.description}</p>
+  )}
+</a>

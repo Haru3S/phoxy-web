@@ -1,10 +1,19 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import LinkCard from '../components/links/LinkCard.astro';
+import { links } from '../data/links';
 ---
 
 <Layout title="Links | Phoxy">
   <main>
     <h1>Links</h1>
+
+    <div class="links">
+      {links.map((link) => (
+        <LinkCard link={link} />
+      ))}
+    </div>
+
     <a href="/">Back Home</a>
   </main>
 </Layout>

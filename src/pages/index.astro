@@ -2,6 +2,11 @@
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/hero/Hero.astro';
 import MainNav from '../components/navigation/MainNav.astro';
+import ProjectCard from '../components/projects/ProjectCard.astro';
+import { projects } from '../data/projects';
+import GalleryItem from '../components/gallery/GalleryItem.astro';
+import { gallery } from '../data/gallery';
+import Contact from '../components/contact/Contact.astro';
 ---
 
 <Layout title="Phoxy">
@@ -14,17 +19,23 @@ import MainNav from '../components/navigation/MainNav.astro';
       <h2>Who Am I?</h2>
     </section>
 
-    <section id="projects">
-      <h2>My Projects</h2>
-    </section>
+	<section id="projects">
+  		<h2>My Projects</h2>
+
+  		<div class="projects">
+    		{projects.map((project) => (
+      			<ProjectCard project={project} />
+    		))}
+  		</div>
+	</section>
 
     <section id="qualified-work">
       <h2>Qualified Work</h2>
     </section>
 
     <section id="contact">
-      <h2>Contact</h2>
-    </section>
+  		<Contact />
+	</section>
 
     <section id="interests">
       <h2>Interests</h2>
@@ -32,6 +43,11 @@ import MainNav from '../components/navigation/MainNav.astro';
 
     <section id="gallery">
       <h2>Gallery</h2>
+      <div class="gallery">
+        {gallery.map((item) => (
+          <GalleryItem item={item} />
+        ))}
+      </div>
     </section>
   </main>
 </Layout>
