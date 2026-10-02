@@ -12,4 +12,20 @@ html {
 
 body {
   margin: 0;
+  font-family: "Inter Variable", sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Space Grotesk Variable", sans-serif;
+}
+
+code,
+pre,
+.mono {
+  font-family: "Adwaita Mono", monospace;
 }
