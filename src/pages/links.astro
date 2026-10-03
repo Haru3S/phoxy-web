@@ -11,24 +11,46 @@ import { links } from '../data/links';
   <main class="links-page">
     <!-- Left Side -->
     <section class="links-panel">
-      <div class="links-content">
-        <header class="links-header">
-          <h1>Links</h1>
+      <div
+        class="links-scroll-region"
+        data-scroll-region
+      >
+        <div class="links-content">
+          <header class="links-header">
+            <h1>Links</h1>
 
-          <span>PHOXY / FOX</span>
-        </header>
+            <span>PHOXY / FOX</span>
+          </header>
 
-        <div class="links-column-header" aria-hidden="true">
-          <span>ICON</span>
-          <span>NAME</span>
-          <span>TYPE</span>
+          <div
+            class="links-column-header"
+            aria-hidden="true"
+          >
+            <span>ICON</span>
+            <span>NAME</span>
+            <span>TYPE</span>
+          </div>
+
+          <div class="links-list">
+            {links.map((link) => (
+              <LinkCard link={link} />
+            ))}
+          </div>
         </div>
 
-        <div class="links-list">
-          {links.map((link) => (
-            <LinkCard link={link} />
-          ))}
-        </div>
+        <!-- Desktop Scroll Affordance -->
+        <button
+          class="scroll-indicator"
+          type="button"
+          data-scroll-indicator
+          aria-label="Scroll for more links"
+          tabindex="-1"
+        >
+          <i
+            class="ph ph-caret-down"
+            aria-hidden="true"
+          ></i>
+        </button>
       </div>
 
       <PageNav
@@ -55,6 +77,119 @@ import { links } from '../data/links';
   </main>
 </Layout>
 
+<script>
+  /*
+   * INTERNAL SCROLL INDICATOR
+   */
+
+  const scrollRegion =
+    document.querySelector<HTMLElement>(
+      '[data-scroll-region]'
+    );
+
+  const scrollIndicator =
+    document.querySelector<HTMLButtonElement>(
+      '[data-scroll-indicator]'
+    );
+
+  const desktopQuery =
+    window.matchMedia('(min-width: 701px)');
+
+  const updateScrollIndicator = () => {
+    if (!scrollRegion || !scrollIndicator) {
+      return;
+    }
+
+    if (!desktopQuery.matches) {
+      scrollIndicator.classList.remove(
+        'is-visible'
+      );
+
+      scrollIndicator.tabIndex = -1;
+
+      return;
+    }
+
+    const overflow =
+      scrollRegion.scrollHeight >
+      scrollRegion.clientHeight + 1;
+
+    const atBottom =
+      scrollRegion.scrollTop +
+        scrollRegion.clientHeight >=
+      scrollRegion.scrollHeight - 2;
+
+    const shouldShow =
+      overflow && !atBottom;
+
+    scrollIndicator.classList.toggle(
+      'is-visible',
+      shouldShow
+    );
+
+    scrollIndicator.tabIndex =
+      shouldShow ? 0 : -1;
+  };
+
+  if (scrollRegion && scrollIndicator) {
+    scrollRegion.addEventListener(
+      'scroll',
+      updateScrollIndicator,
+      { passive: true }
+    );
+
+    scrollIndicator.addEventListener(
+      'click',
+      () => {
+        const reducedMotion =
+          window.matchMedia(
+            '(prefers-reduced-motion: reduce)'
+          ).matches;
+
+        scrollRegion.scrollBy({
+          top:
+            scrollRegion.clientHeight *
+            0.65,
+
+          behavior:
+            reducedMotion
+              ? 'auto'
+              : 'smooth',
+        });
+      }
+    );
+
+    const resizeObserver =
+      new ResizeObserver(
+        updateScrollIndicator
+      );
+
+    resizeObserver.observe(
+      scrollRegion
+    );
+
+    if (scrollRegion.firstElementChild) {
+      resizeObserver.observe(
+        scrollRegion.firstElementChild
+      );
+    }
+
+    desktopQuery.addEventListener(
+      'change',
+      updateScrollIndicator
+    );
+
+    window.addEventListener(
+      'load',
+      updateScrollIndicator
+    );
+
+    requestAnimationFrame(
+      updateScrollIndicator
+    );
+  }
+</script>
+
 <style>
   /*
    * PAGE
@@ -65,7 +200,10 @@ import { links } from '../data/links';
     grid-template-columns: 1fr 1fr;
 
     width: 100%;
-    min-height: 100vh;
+    height: 100vh;
+    height: 100dvh;
+
+    overflow: hidden;
 
     background: var(--color-bg);
     color: var(--color-fg);
@@ -80,9 +218,34 @@ import { links } from '../data/links';
     flex-direction: column;
 
     min-width: 0;
-    min-height: 100vh;
+    min-height: 0;
+    height: 100%;
 
-    border-right: 1px solid var(--color-border);
+    overflow: hidden;
+
+    border-right:
+      1px
+      solid
+      var(--color-border);
+  }
+
+  /*
+   * INTERNAL SCROLL REGION
+   */
+
+  .links-scroll-region {
+    position: relative;
+
+    flex: 1 1 auto;
+
+    min-width: 0;
+    min-height: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    scrollbar-width: thin;
+    overscroll-behavior: contain;
   }
 
   /*
@@ -104,21 +267,38 @@ import { links } from '../data/links';
     align-items: flex-start;
     justify-content: space-between;
 
-    margin-bottom: clamp(4rem, 10vh, 8rem);
+    margin-bottom:
+      clamp(
+        4rem,
+        10vh,
+        8rem
+      );
   }
 
   .links-header h1 {
     margin: 0;
 
-    font-family: "Space Grotesk Variable", sans-serif;
-    font-size: clamp(5rem, 9vw, 10rem);
+    font-family:
+      "Space Grotesk Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        5rem,
+        9vw,
+        10rem
+      );
+
     font-weight: 700;
     line-height: 0.78;
     letter-spacing: -0.06em;
   }
 
   .links-header span {
-    font-family: "Adwaita Mono", monospace;
+    font-family:
+      "Adwaita Mono",
+      monospace;
+
     font-size: 0.75rem;
     font-weight: 700;
   }
@@ -129,14 +309,24 @@ import { links } from '../data/links';
 
   .links-column-header {
     display: grid;
-    grid-template-columns: 3rem 1fr auto;
+    grid-template-columns:
+      3rem
+      1fr
+      auto;
+
     gap: 1rem;
 
     padding-bottom: 0.5rem;
 
-    border-bottom: 1px solid var(--color-border);
+    border-bottom:
+      1px
+      solid
+      var(--color-border);
 
-    font-family: "Adwaita Mono", monospace;
+    font-family:
+      "Adwaita Mono",
+      monospace;
+
     font-size: 0.7rem;
     font-weight: 700;
   }
@@ -154,6 +344,87 @@ import { links } from '../data/links';
   }
 
   /*
+   * SCROLL INDICATOR
+   */
+
+  .scroll-indicator {
+    position: sticky;
+
+    left: 50%;
+    bottom: 0.8rem;
+
+    z-index: 10;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 2.75rem;
+    height: 2.75rem;
+
+    margin:
+      -2.75rem
+      0
+      0
+      calc(50% - 1.375rem);
+
+    padding: 0;
+
+    border:
+      1px
+      solid
+      rgba(255, 255, 255, 0.28);
+
+    border-radius: 50%;
+
+    background:
+      rgba(0, 0, 0, 0.38);
+
+    color:
+      rgba(255, 255, 255, 0.7);
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    cursor: pointer;
+
+    transition:
+      opacity 0.25s ease-out,
+      visibility 0s linear 0.25s,
+      color 0.15s ease-out,
+      border-color 0.15s ease-out;
+  }
+
+  .scroll-indicator.is-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+
+    transition:
+      opacity 0.25s ease-out,
+      visibility 0s linear 0s,
+      color 0.15s ease-out,
+      border-color 0.15s ease-out;
+  }
+
+  .scroll-indicator:hover,
+  .scroll-indicator:focus-visible {
+    color:
+      rgba(255, 255, 255, 1);
+
+    border-color:
+      rgba(255, 255, 255, 0.7);
+  }
+
+  .scroll-indicator i {
+    font-size: 1.4rem;
+  }
+
+  /*
    * RIGHT VISUAL
    */
 
@@ -161,7 +432,8 @@ import { links } from '../data/links';
     position: relative;
 
     min-width: 0;
-    min-height: 100vh;
+    min-height: 0;
+    height: 100%;
 
     overflow: hidden;
 
@@ -169,18 +441,47 @@ import { links } from '../data/links';
   }
 
   /*
+   * REDUCED MOTION
+   */
+
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-indicator,
+    .scroll-indicator.is-visible {
+      transition: none;
+    }
+  }
+
+  /*
    * MOBILE
+   *
+   * Desktop uses the fixed-panel layout.
+   * Mobile returns to normal document scrolling.
    */
 
   @media (max-width: 700px) {
     .links-page {
-      grid-template-columns: 1fr;
+      display: flex;
+      flex-direction: column;
+
+      height: auto;
+      min-height: 100dvh;
+
+      overflow: visible;
     }
 
     .links-panel {
-      min-height: 100vh;
+      height: auto;
+      min-height: 100dvh;
+
+      overflow: visible;
 
       border-right: 0;
+    }
+
+    .links-scroll-region {
+      flex: none;
+
+      overflow: visible;
     }
 
     .links-content {
@@ -192,13 +493,26 @@ import { links } from '../data/links';
     }
 
     .links-header h1 {
-      font-size: clamp(5rem, 25vw, 8rem);
+      font-size:
+        clamp(
+          5rem,
+          25vw,
+          8rem
+        );
+    }
+
+    .scroll-indicator {
+      display: none;
     }
 
     .links-visual {
       min-height: 70vh;
+      height: 70vh;
 
-      border-top: 1px solid var(--color-border);
+      border-top:
+        1px
+        solid
+        var(--color-border);
     }
   }
 </style>
