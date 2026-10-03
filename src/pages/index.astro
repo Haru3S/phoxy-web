@@ -1,11 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
 import Hero from '../components/hero/Hero.astro';
+
 import MainNav from '../components/navigation/MainNav.astro';
+
 import ProjectCard from '../components/projects/ProjectCard.astro';
+
 import GalleryItem from '../components/gallery/GalleryItem.astro';
 
 import { projects } from '../data/projects';
+
 import { gallery } from '../data/gallery';
 
 const sortedGallery = [...gallery].sort(
@@ -26,7 +31,7 @@ const sortedGallery = [...gallery].sort(
     <section id="about" class="about">
       <div class="about-art">
         <img
-          src="/assets/dev/Debugempty.png"
+          src="/assets/animations/fc3s.gif"
           alt=""
         />
       </div>
@@ -132,7 +137,7 @@ const sortedGallery = [...gallery].sort(
 </Layout>
 
 <script>
-  /*
+  /**
    * SCROLL EMPHASIS
    *
    * Homepage headings form a directional
@@ -167,15 +172,14 @@ const sortedGallery = [...gallery].sort(
   let previousScrollY =
     window.scrollY;
 
-  /*
+  /**
    * The heading activates when its center
    * reaches this percentage of the viewport.
    *
    * Larger number = later / farther down.
    */
 
-  const activationLine = 0.66;
-
+  const activationLine = 0.67;
 
   const deactivateScrollEmphasis = () => {
     if (!activeScrollEmphasis) {
@@ -188,7 +192,6 @@ const sortedGallery = [...gallery].sort(
 
     activeScrollEmphasis = null;
   };
-
 
   const activateScrollEmphasis = (
     element: HTMLElement
@@ -211,7 +214,6 @@ const sortedGallery = [...gallery].sort(
 
     activeScrollEmphasis = element;
   };
-
 
   const updateScrollEmphasis = () => {
     if (
@@ -240,8 +242,7 @@ const sortedGallery = [...gallery].sort(
       viewportHeight *
       activationLine;
 
-
-    /*
+    /**
      * If the active heading has completely
      * left the viewport, return it to rest.
      */
@@ -260,8 +261,7 @@ const sortedGallery = [...gallery].sort(
       }
     }
 
-
-    /*
+    /**
      * New headings can ONLY activate while
      * moving downward.
      */
@@ -284,7 +284,7 @@ const sortedGallery = [...gallery].sort(
           rect.top +
           rect.height / 2;
 
-        /*
+        /**
          * Only consider headings currently
          * visible in the viewport.
          */
@@ -297,7 +297,7 @@ const sortedGallery = [...gallery].sort(
           continue;
         }
 
-        /*
+        /**
          * The heading must have reached the
          * activation line before it can become
          * the active stage of the progression.
@@ -310,7 +310,7 @@ const sortedGallery = [...gallery].sort(
         const distance =
           triggerY - center;
 
-        /*
+        /**
          * Choose the heading that most recently
          * crossed the activation line.
          */
@@ -338,13 +338,11 @@ const sortedGallery = [...gallery].sort(
       }
     }
 
-
     previousScrollY =
       currentScrollY;
   };
 
-
-  /*
+  /**
    * Use requestAnimationFrame so scroll
    * events never directly perform layout
    * work more than once per frame.
@@ -366,7 +364,6 @@ const sortedGallery = [...gallery].sort(
       });
   };
 
-
   if (
     scrollEmphasisElements.length > 0
   ) {
@@ -387,8 +384,7 @@ const sortedGallery = [...gallery].sort(
     );
   }
 
-
-  /*
+  /**
    * GALLERY EDGE DETECTION
    *
    * Enlarged artwork touching either side
@@ -483,7 +479,7 @@ const sortedGallery = [...gallery].sort(
 </script>
 
 <style>
-  /*
+  /**
    * HOMEPAGE LOAD ENTRANCE
    *
    * The homepage itself fades as one document,
@@ -523,8 +519,7 @@ const sortedGallery = [...gallery].sort(
     translate: 0 0;
   }
 
-
-  /*
+  /**
    * WHO AM I
    */
 
@@ -539,7 +534,7 @@ const sortedGallery = [...gallery].sort(
     overflow: hidden;
   }
 
-  /*
+  /**
    * ARTWORK
    */
 
@@ -561,17 +556,24 @@ const sortedGallery = [...gallery].sort(
 
   .about-art img {
     position: absolute;
-    inset: 0;
+
+    inset:
+      50%
+      auto
+      auto
+      50%;
 
     display: block;
 
     width: 100%;
     height: 100%;
 
-    object-fit: cover;
+    object-fit: contain;
+
+    translate: -50% -50%;
   }
 
-  /*
+  /**
    * CONTENT
    */
 
@@ -616,7 +618,7 @@ const sortedGallery = [...gallery].sort(
     letter-spacing: -0.045em;
   }
 
-  /*
+  /**
    * ABOUT HEADING
    */
 
@@ -657,8 +659,7 @@ const sortedGallery = [...gallery].sort(
     transform-origin: left bottom;
   }
 
-
-  /*
+  /**
    * PROJECTS
    */
 
@@ -697,8 +698,7 @@ const sortedGallery = [...gallery].sort(
     letter-spacing: -0.05em;
   }
 
-
-  /*
+  /**
    * GALLERY
    */
 
@@ -747,8 +747,7 @@ const sortedGallery = [...gallery].sort(
     text-align: right;
   }
 
-
-  /*
+  /**
    * SPACE BETWEEN TEXT AND RULE
    */
 
@@ -763,8 +762,7 @@ const sortedGallery = [...gallery].sort(
       );
   }
 
-
-  /*
+  /**
    * SINGLE GALLERY RULE
    */
 
@@ -776,8 +774,7 @@ const sortedGallery = [...gallery].sort(
       var(--foreground, #fff);
   }
 
-
-  /*
+  /**
    * SPACE BETWEEN RULE AND ARTWORK
    */
 
@@ -792,8 +789,7 @@ const sortedGallery = [...gallery].sort(
       );
   }
 
-
-  /*
+  /**
    * ART WALL
    */
 
@@ -826,8 +822,7 @@ const sortedGallery = [...gallery].sort(
       var(--background, #000);
   }
 
-
-  /*
+  /**
    * TILE WIDTHS
    */
 
@@ -847,8 +842,7 @@ const sortedGallery = [...gallery].sort(
     grid-column: span 6;
   }
 
-
-  /*
+  /**
    * REDUCED MOTION
    */
 
@@ -868,8 +862,7 @@ const sortedGallery = [...gallery].sort(
     }
   }
 
-
-  /*
+  /**
    * MOBILE
    */
 
@@ -929,8 +922,7 @@ const sortedGallery = [...gallery].sort(
       transform-origin: left bottom;
     }
 
-
-    /*
+    /**
      * MOBILE GALLERY
      */
 
