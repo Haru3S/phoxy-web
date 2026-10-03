@@ -1,9 +1,690 @@
-<div class="contact">
-  <h2>Contact</h2>
+---
+import ContactVisual from './ContactVisual.astro';
+---
 
-  <div class="contact-links">
-    <a href="mailto:placeholder@example.com">Email</a>
-    <a href="#">GitHub</a>
-    <a href="#">Other</a>
+<section
+  id="contact"
+  class="contact-section"
+>
+  <header class="contact-header">
+    <h2>
+      <span
+        class="lens-text lens-interactive scroll-emphasis"
+        data-text="Contact"
+        data-scroll-emphasis
+      >
+        Contact
+      </span>
+    </h2>
+  </header>
+
+  <div
+    class="contact-rule"
+    aria-hidden="true"
+  ></div>
+
+  <div class="contact-grid">
+    <div class="contact-visual-column">
+      <ContactVisual />
+    </div>
+
+    <div class="contact-information">
+      <div class="contact-primary">
+        <a
+          class="contact-email"
+          href="mailto:phoxyfox@proton.me"
+        >
+          <span class="contact-email-text">
+            Email Me
+          </span>
+
+          <i
+            class="ph ph-paper-plane-tilt"
+            aria-hidden="true"
+          ></i>
+        </a>
+
+        <p class="contact-description">
+          Got a question, project,
+          opportunity, or just something
+          worth talking about? Throw it
+          my way.
+        </p>
+      </div>
+
+      <div class="contact-footer">
+        <div class="contact-status-meta">
+          <span>
+            General Contact
+          </span>
+
+          <span>
+            Email
+          </span>
+        </div>
+
+        <div class="contact-status">
+          <span
+            class="contact-status-dot"
+            aria-hidden="true"
+          ></span>
+
+          <span>
+            Open
+          </span>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
+
+  <div
+    class="contact-rule"
+    aria-hidden="true"
+  ></div>
+</section>
+
+<style>
+  /*
+   * CONTACT
+   */
+
+  .contact-section {
+    width: 100%;
+
+    padding-top:
+      clamp(
+        4rem,
+        10vw,
+        10rem
+      );
+
+    overflow: hidden;
+  }
+
+  /*
+   * HEADING
+   */
+
+  .contact-header {
+    display: flex;
+
+    justify-content: flex-start;
+
+    width: 100%;
+
+    padding:
+      0
+      1.5rem
+      0.2em;
+  }
+
+  .contact-header h2 {
+    margin: 0;
+
+    font-family:
+      "Space Grotesk Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        4rem,
+        10vw,
+        10rem
+      );
+
+    font-weight: 600;
+
+    line-height: 0.85;
+
+    letter-spacing:
+      -0.05em;
+
+    text-align: left;
+  }
+
+  /*
+   * RULES
+   */
+
+  .contact-rule {
+    width: 100%;
+    height: 3px;
+
+    margin: 0;
+
+    background:
+      var(--color-border);
+  }
+
+  /*
+   * GRID
+   */
+
+  .contact-grid {
+    display: grid;
+
+    grid-template-columns:
+      minmax(
+        0,
+        72%
+      )
+      minmax(
+        19rem,
+        28%
+      );
+
+    width: 100%;
+  }
+
+  /*
+   * VISUAL
+   */
+
+  .contact-visual-column {
+    min-width: 0;
+
+    border-right:
+      1px
+      solid
+      var(--color-border);
+  }
+
+  /*
+   * INFORMATION
+   */
+
+  .contact-information {
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 0;
+
+    min-height:
+      clamp(
+        20rem,
+        23vw,
+        25rem
+      );
+
+    padding:
+      clamp(
+        1.6rem,
+        2.15vw,
+        2.35rem
+      );
+
+    background:
+      var(--color-bg);
+
+    color:
+      var(--color-fg);
+  }
+
+  .contact-primary {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    width: 100%;
+    min-width: 0;
+  }
+
+  /*
+   * EMAIL
+   */
+
+  .contact-email {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap:
+      clamp(
+        1rem,
+        1.25vw,
+        1.5rem
+      );
+
+    color:
+      var(--color-fg);
+
+    font-family:
+      "Space Grotesk Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        3rem,
+        3.75vw,
+        5rem
+      );
+
+    font-weight: 700;
+
+    line-height: 0.9;
+
+    letter-spacing:
+      -0.035em;
+
+    font-kerning: normal;
+
+    font-variant-ligatures:
+      common-ligatures
+      contextual;
+
+    font-feature-settings:
+      "kern" 1,
+      "liga" 1,
+      "clig" 1,
+      "calt" 1;
+
+    text-rendering:
+      optimizeLegibility;
+
+    text-decoration: none;
+
+    white-space: nowrap;
+  }
+
+  .contact-email-text {
+    position: relative;
+
+    display: inline-block;
+  }
+
+  /*
+   * UNDERLINE
+   */
+
+  .contact-email-text::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    bottom: -0.08em;
+
+    width: 100%;
+    height: 0.055em;
+
+    background:
+      currentColor;
+
+    transform: scaleX(0);
+    transform-origin: left;
+
+    transition:
+      transform
+      0.1s
+      ease-out;
+  }
+
+  .contact-email:hover
+    .contact-email-text::after,
+  .contact-email:focus-visible
+    .contact-email-text::after {
+    transform: scaleX(1);
+  }
+
+  /*
+   * PAPER PLANE
+   */
+
+  .contact-email i {
+    flex: 0 0 auto;
+
+    font-size: 0.66em;
+
+    translate:
+      0
+      0.035em;
+
+    transition:
+      transform
+      0.14s
+      cubic-bezier(
+        0.22,
+        1,
+        0.36,
+        1
+      );
+  }
+
+  .contact-email:hover i,
+  .contact-email:focus-visible i {
+    transform:
+      translate(
+        0.14em,
+        -0.14em
+      );
+  }
+
+  .contact-email:focus-visible {
+    outline: none;
+  }
+
+  /*
+   * DESCRIPTION
+   */
+
+  .contact-description {
+    width: 100%;
+    max-width: 100%;
+
+    margin:
+      clamp(
+        1.6rem,
+        2vw,
+        2.25rem
+      )
+      0
+      0;
+
+    font-family:
+      "Inter Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        1.65rem,
+        1.9vw,
+        2.15rem
+      );
+
+    font-weight: 400;
+
+    line-height: 1.12;
+
+    letter-spacing:
+      -0.03em;
+
+    font-kerning: normal;
+
+    text-wrap: pretty;
+  }
+
+  /*
+   * LOWER INFORMATION
+   */
+
+  .contact-footer {
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: space-between;
+
+    width: 100%;
+
+    margin-top: auto;
+
+    font-family:
+      "Adwaita Mono",
+      monospace;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+  }
+
+  /*
+   * METADATA
+   */
+
+  .contact-status-meta {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 0.28rem;
+
+    color:
+      var(--color-fg);
+
+    font-size:
+      clamp(
+        0.76rem,
+        0.78vw,
+        0.9rem
+      );
+
+    line-height: 1.15;
+
+    opacity: 0.5;
+  }
+
+  /*
+   * OPEN STATUS
+   *
+   * Horizontal position is the earlier
+   * inset position.
+   *
+   * Vertical position is lifted so the
+   * imaginary guide passes through roughly
+   * the middle of OPEN.
+   */
+
+  .contact-status {
+    display: flex;
+
+    align-items: center;
+
+    gap:
+      clamp(
+        0.55rem,
+        0.65vw,
+        0.75rem
+      );
+
+    color:
+      #94e2d5;
+
+    font-size:
+      clamp(
+        1rem,
+        1.05vw,
+        1.2rem
+      );
+
+    line-height: 1;
+
+    transform:
+      translate(
+        clamp(
+          -3.5rem,
+          -3vw,
+          -2.5rem
+        ),
+        -0.75rem
+      );
+  }
+
+  .contact-status-dot {
+    display: block;
+
+    flex: 0 0 auto;
+
+    width: 0.62em;
+    height: 0.62em;
+
+    border-radius: 50%;
+
+    background:
+      #94e2d5;
+
+    box-shadow:
+      0
+      0
+      0.6rem
+      rgba(
+        148,
+        226,
+        213,
+        0.28
+      );
+  }
+
+  /*
+   * REDUCED MOTION
+   */
+
+  @media (
+    prefers-reduced-motion: reduce
+  ) {
+    .contact-email-text::after,
+    .contact-email i {
+      transition: none;
+    }
+  }
+
+  /*
+   * TABLET
+   */
+
+  @media (
+    min-width: 701px
+  ) and (
+    max-width: 1100px
+  ) {
+    .contact-grid {
+      grid-template-columns:
+        minmax(
+          0,
+          64%
+        )
+        minmax(
+          18rem,
+          36%
+        );
+    }
+
+    .contact-email {
+      font-size:
+        clamp(
+          2.7rem,
+          4.5vw,
+          4rem
+        );
+    }
+
+    .contact-description {
+      width: 100%;
+      max-width: 100%;
+
+      font-size:
+        clamp(
+          1.4rem,
+          2.35vw,
+          1.75rem
+        );
+    }
+
+    .contact-status {
+      transform:
+        translate(
+          -2rem,
+          -0.75rem
+        );
+    }
+  }
+
+  /*
+   * MOBILE
+   */
+
+  @media (max-width: 700px) {
+    .contact-section {
+      padding-top: 4rem;
+    }
+
+    .contact-header {
+      padding:
+        0
+        1rem
+        0.2em;
+    }
+
+    .contact-header h2 {
+      font-size:
+        clamp(
+          4rem,
+          17vw,
+          7rem
+        );
+    }
+
+    .contact-rule {
+      height: 2px;
+    }
+
+    .contact-grid {
+      grid-template-columns:
+        1fr;
+    }
+
+    .contact-visual-column {
+      border-right: 0;
+
+      border-bottom:
+        1px
+        solid
+        var(--color-border);
+    }
+
+    .contact-information {
+      min-height: 20rem;
+
+      padding:
+        1.5rem
+        1rem;
+    }
+
+    .contact-email {
+      gap: 0.85rem;
+
+      font-size:
+        clamp(
+          2.75rem,
+          12vw,
+          4.5rem
+        );
+    }
+
+    .contact-description {
+      width: 100%;
+      max-width: 100%;
+
+      margin-top: 1.5rem;
+
+      font-size:
+        clamp(
+          1.35rem,
+          6vw,
+          1.7rem
+        );
+
+      line-height: 1.15;
+    }
+
+    .contact-footer {
+      gap: 1rem;
+    }
+
+    .contact-status {
+      font-size: 1rem;
+
+      transform:
+        translate(
+          -1rem,
+          -0.65rem
+        );
+    }
+
+    .contact-status-meta {
+      font-size: 0.72rem;
+    }
+  }
+</style>
