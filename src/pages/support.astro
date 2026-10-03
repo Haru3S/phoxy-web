@@ -35,13 +35,26 @@ import TF2Support from '../components/support/TF2Support.astro';
     -->
     <section class="support-content-panel load-enter">
       <div
-        class="support-scroll-region"
-        data-scroll-region
+        class="support-scroll-shell"
+        data-scroll-shell
       >
-        <SupportHome />
-        <CryptoSupport />
-        <TF2Support />
+        <div
+          class="support-scroll-region"
+          data-scroll-region
+        >
+          <SupportHome />
+          <CryptoSupport />
+          <TF2Support />
+        </div>
 
+        <!-- Bottom Scroll Fade -->
+        <div
+          class="scroll-fade"
+          data-scroll-fade
+          aria-hidden="true"
+        ></div>
+
+        <!-- Desktop Scroll Affordance -->
         <button
           class="scroll-indicator"
           type="button"
@@ -102,6 +115,11 @@ import TF2Support from '../components/support/TF2Support.astro';
       '[data-scroll-indicator]'
     );
 
+  const scrollFade =
+    document.querySelector<HTMLElement>(
+      '[data-scroll-fade]'
+    );
+
   const desktopQuery =
     window.matchMedia('(min-width: 701px)');
 
@@ -128,16 +146,24 @@ import TF2Support from '../components/support/TF2Support.astro';
   let pageTransitionActive = false;
 
   /*
-   * SCROLL INDICATOR
+   * SCROLL AFFORDANCES
    */
 
-  const updateScrollIndicator = () => {
-    if (!scrollRegion || !scrollIndicator) {
+  const updateScrollAffordances = () => {
+    if (
+      !scrollRegion ||
+      !scrollIndicator ||
+      !scrollFade
+    ) {
       return;
     }
 
     if (!desktopQuery.matches) {
       scrollIndicator.classList.remove(
+        'is-visible'
+      );
+
+      scrollFade.classList.remove(
         'is-visible'
       );
 
@@ -150,13 +176,21 @@ import TF2Support from '../components/support/TF2Support.astro';
       scrollRegion.scrollHeight >
       scrollRegion.clientHeight + 1;
 
+    const remainingScroll =
+      scrollRegion.scrollHeight -
+      scrollRegion.clientHeight -
+      scrollRegion.scrollTop;
+
     const atBottom =
-      scrollRegion.scrollTop +
-        scrollRegion.clientHeight >=
-      scrollRegion.scrollHeight - 2;
+      remainingScroll <= 2;
 
     const shouldShow =
       overflow && !atBottom;
+
+    scrollFade.classList.toggle(
+      'is-visible',
+      shouldShow
+    );
 
     scrollIndicator.classList.toggle(
       'is-visible',
@@ -268,7 +302,7 @@ import TF2Support from '../components/support/TF2Support.astro';
     }
 
     requestAnimationFrame(() => {
-      updateScrollIndicator();
+      updateScrollAffordances();
 
       focusSupportPage(
         pageName,
@@ -415,7 +449,7 @@ import TF2Support from '../components/support/TF2Support.astro';
 
     pageTransitionActive = false;
 
-    updateScrollIndicator();
+    updateScrollAffordances();
 
     focusSupportPage(
       pageName,
@@ -464,10 +498,14 @@ import TF2Support from '../components/support/TF2Support.astro';
    * SCROLL BEHAVIOR
    */
 
-  if (scrollRegion && scrollIndicator) {
+  if (
+    scrollRegion &&
+    scrollIndicator &&
+    scrollFade
+  ) {
     scrollRegion.addEventListener(
       'scroll',
-      updateScrollIndicator,
+      updateScrollAffordances,
       { passive: true }
     );
 
@@ -489,7 +527,7 @@ import TF2Support from '../components/support/TF2Support.astro';
 
     const resizeObserver =
       new ResizeObserver(
-        updateScrollIndicator
+        updateScrollAffordances
       );
 
     resizeObserver.observe(
@@ -502,16 +540,16 @@ import TF2Support from '../components/support/TF2Support.astro';
 
     desktopQuery.addEventListener(
       'change',
-      updateScrollIndicator
+      updateScrollAffordances
     );
 
     window.addEventListener(
       'load',
-      updateScrollIndicator
+      updateScrollAffordances
     );
 
     requestAnimationFrame(
-      updateScrollIndicator
+      updateScrollAffordances
     );
   }
 </script>
@@ -559,10 +597,6 @@ import TF2Support from '../components/support/TF2Support.astro';
 
   /*
    * SUPPORTER LOAD WRAPPER
-   *
-   * This occupies the exact same first grid
-   * track previously occupied directly by
-   * SupporterDisplay.
    */
 
   .supporter-load {
@@ -577,12 +611,6 @@ import TF2Support from '../components/support/TF2Support.astro';
 
   /*
    * KOI VISUAL LOAD WRAPPER
-   *
-   * The wrapper occupies the original second
-   * grid track so SupportVisual keeps its existing
-   * dimensions and internal behavior.
-   *
-   * Only the wrapper opacity changes.
    */
 
   .support-visual-load {
@@ -610,10 +638,27 @@ import TF2Support from '../components/support/TF2Support.astro';
     overflow: hidden;
   }
 
-  .support-scroll-region {
+  /*
+   * SCROLL SHELL
+   *
+   * The shell owns the fixed overlays.
+   * The content itself scrolls underneath them.
+   */
+
+  .support-scroll-shell {
     position: relative;
 
     flex: 1 1 auto;
+
+    min-width: 0;
+    min-height: 0;
+
+    overflow: hidden;
+  }
+
+  .support-scroll-region {
+    width: 100%;
+    height: 100%;
 
     min-width: 0;
     min-height: 0;
@@ -627,13 +672,6 @@ import TF2Support from '../components/support/TF2Support.astro';
 
   /*
    * MINI-PAGE TRANSITIONS
-   *
-   * Components already control which support
-   * page is visible through .is-active.
-   *
-   * These states temporarily animate whichever
-   * page is currently participating in a view
-   * change.
    */
 
   :global(
@@ -688,14 +726,6 @@ import TF2Support from '../components/support/TF2Support.astro';
   }
 
   :global(
-    [data-support-page]
-      .is-entering-active
-  ) {
-    opacity: 1;
-    translate: 0 0;
-  }
-
-  :global(
     [data-support-page].is-entering-active
   ) {
     opacity: 1;
@@ -703,11 +733,74 @@ import TF2Support from '../components/support/TF2Support.astro';
   }
 
   /*
+   * BOTTOM CONTENT FADE
+   *
+   * Same treatment as Links:
+   *
+   * - long, soft falloff
+   * - content remains visible underneath
+   * - darkest point is 80% black
+   * - disappears at the true bottom
+   */
+
+  .scroll-fade {
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    z-index: 8;
+
+    height:
+      clamp(
+        10rem,
+        22vh,
+        14rem
+      );
+
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.02) 8%,
+        rgba(0, 0, 0, 0.05) 16%,
+        rgba(0, 0, 0, 0.10) 24%,
+        rgba(0, 0, 0, 0.17) 32%,
+        rgba(0, 0, 0, 0.26) 40%,
+        rgba(0, 0, 0, 0.36) 48%,
+        rgba(0, 0, 0, 0.47) 56%,
+        rgba(0, 0, 0, 0.57) 64%,
+        rgba(0, 0, 0, 0.66) 72%,
+        rgba(0, 0, 0, 0.73) 80%,
+        rgba(0, 0, 0, 0.77) 90%,
+        rgba(0, 0, 0, 0.80) 100%
+      );
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition:
+      opacity 0.18s ease-out,
+      visibility 0s linear 0.18s;
+  }
+
+  .scroll-fade.is-visible {
+    opacity: 1;
+    visibility: visible;
+
+    transition:
+      opacity 0.18s ease-out,
+      visibility 0s linear 0s;
+  }
+
+  /*
    * SCROLL INDICATOR
    */
 
   .scroll-indicator {
-    position: sticky;
+    position: absolute;
 
     left: 50%;
     bottom: 0.8rem;
@@ -721,12 +814,7 @@ import TF2Support from '../components/support/TF2Support.astro';
     width: 2.75rem;
     height: 2.75rem;
 
-    margin:
-      -2.75rem
-      0
-      0
-      calc(50% - 1.375rem);
-
+    margin: 0;
     padding: 0;
 
     border:
@@ -737,7 +825,7 @@ import TF2Support from '../components/support/TF2Support.astro';
     border-radius: 50%;
 
     background:
-      rgba(0, 0, 0, 0.38);
+      rgba(0, 0, 0, 0.55);
 
     color:
       rgba(255, 255, 255, 0.7);
@@ -750,6 +838,9 @@ import TF2Support from '../components/support/TF2Support.astro';
     pointer-events: none;
 
     cursor: pointer;
+
+    transform:
+      translateX(-50%);
 
     transition:
       opacity 0.25s ease-out,
@@ -789,7 +880,9 @@ import TF2Support from '../components/support/TF2Support.astro';
 
   @media (prefers-reduced-motion: reduce) {
     .scroll-indicator,
-    .scroll-indicator.is-visible {
+    .scroll-indicator.is-visible,
+    .scroll-fade,
+    .scroll-fade.is-visible {
       transition: none;
     }
 
@@ -836,8 +929,14 @@ import TF2Support from '../components/support/TF2Support.astro';
       overflow: visible;
     }
 
-    .support-scroll-region {
+    .support-scroll-shell {
       flex: none;
+
+      overflow: visible;
+    }
+
+    .support-scroll-region {
+      height: auto;
 
       overflow: visible;
     }
@@ -862,7 +961,8 @@ import TF2Support from '../components/support/TF2Support.astro';
       border-right: 0;
     }
 
-    .scroll-indicator {
+    .scroll-indicator,
+    .scroll-fade {
       display: none;
     }
   }

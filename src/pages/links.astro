@@ -12,38 +12,50 @@ import { links } from '../data/links';
     <!-- Left Side -->
     <section class="links-panel load-enter">
       <div
-        class="links-scroll-region"
-        data-scroll-region
+        class="links-scroll-shell"
+        data-scroll-shell
       >
-        <div class="links-content">
-          <header class="links-header">
-            <h1>
-              <span
-                class="lens-text lens-interactive"
-                data-text="Links"
-              >
-                Links
-              </span>
-            </h1>
+        <div
+          class="links-scroll-region"
+          data-scroll-region
+        >
+          <div class="links-content">
+            <header class="links-header">
+              <h1>
+                <span
+                  class="lens-text lens-interactive"
+                  data-text="Links"
+                >
+                  Links
+                </span>
+              </h1>
 
-            <span>PHOXY / FOX</span>
-          </header>
+              <span>PHOXY / FOX</span>
+            </header>
 
-          <div
-            class="links-column-header"
-            aria-hidden="true"
-          >
-            <span>ICON</span>
-            <span>NAME</span>
-            <span>TYPE</span>
-          </div>
+            <div
+              class="links-column-header"
+              aria-hidden="true"
+            >
+              <span>ICON</span>
+              <span>NAME</span>
+              <span>TYPE</span>
+            </div>
 
-          <div class="links-list">
-            {links.map((link) => (
-              <LinkCard link={link} />
-            ))}
+            <div class="links-list">
+              {links.map((link) => (
+                <LinkCard link={link} />
+              ))}
+            </div>
           </div>
         </div>
+
+        <!-- Bottom Scroll Fade -->
+        <div
+          class="scroll-fade"
+          data-scroll-fade
+          aria-hidden="true"
+        ></div>
 
         <!-- Desktop Scroll Affordance -->
         <button
@@ -86,7 +98,7 @@ import { links } from '../data/links';
 
 <script>
   /*
-   * INTERNAL SCROLL INDICATOR
+   * INTERNAL SCROLL AFFORDANCES
    */
 
   const scrollRegion =
@@ -99,16 +111,29 @@ import { links } from '../data/links';
       '[data-scroll-indicator]'
     );
 
+  const scrollFade =
+    document.querySelector<HTMLElement>(
+      '[data-scroll-fade]'
+    );
+
   const desktopQuery =
     window.matchMedia('(min-width: 701px)');
 
-  const updateScrollIndicator = () => {
-    if (!scrollRegion || !scrollIndicator) {
+  const updateScrollAffordances = () => {
+    if (
+      !scrollRegion ||
+      !scrollIndicator ||
+      !scrollFade
+    ) {
       return;
     }
 
     if (!desktopQuery.matches) {
       scrollIndicator.classList.remove(
+        'is-visible'
+      );
+
+      scrollFade.classList.remove(
         'is-visible'
       );
 
@@ -121,13 +146,26 @@ import { links } from '../data/links';
       scrollRegion.scrollHeight >
       scrollRegion.clientHeight + 1;
 
+    const remainingScroll =
+      scrollRegion.scrollHeight -
+      scrollRegion.clientHeight -
+      scrollRegion.scrollTop;
+
     const atBottom =
-      scrollRegion.scrollTop +
-        scrollRegion.clientHeight >=
-      scrollRegion.scrollHeight - 2;
+      remainingScroll <= 2;
+
+    /*
+     * If there is still content beneath the
+     * visible area, keep both affordances active.
+     */
 
     const shouldShow =
       overflow && !atBottom;
+
+    scrollFade.classList.toggle(
+      'is-visible',
+      shouldShow
+    );
 
     scrollIndicator.classList.toggle(
       'is-visible',
@@ -138,10 +176,14 @@ import { links } from '../data/links';
       shouldShow ? 0 : -1;
   };
 
-  if (scrollRegion && scrollIndicator) {
+  if (
+    scrollRegion &&
+    scrollIndicator &&
+    scrollFade
+  ) {
     scrollRegion.addEventListener(
       'scroll',
-      updateScrollIndicator,
+      updateScrollAffordances,
       { passive: true }
     );
 
@@ -168,7 +210,7 @@ import { links } from '../data/links';
 
     const resizeObserver =
       new ResizeObserver(
-        updateScrollIndicator
+        updateScrollAffordances
       );
 
     resizeObserver.observe(
@@ -183,16 +225,16 @@ import { links } from '../data/links';
 
     desktopQuery.addEventListener(
       'change',
-      updateScrollIndicator
+      updateScrollAffordances
     );
 
     window.addEventListener(
       'load',
-      updateScrollIndicator
+      updateScrollAffordances
     );
 
     requestAnimationFrame(
-      updateScrollIndicator
+      updateScrollAffordances
     );
   }
 </script>
@@ -237,13 +279,27 @@ import { links } from '../data/links';
   }
 
   /*
+   * SCROLL SHELL
+   */
+
+  .links-scroll-shell {
+    position: relative;
+
+    flex: 1 1 auto;
+
+    min-width: 0;
+    min-height: 0;
+
+    overflow: hidden;
+  }
+
+  /*
    * INTERNAL SCROLL REGION
    */
 
   .links-scroll-region {
-    position: relative;
-
-    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
 
     min-width: 0;
     min-height: 0;
@@ -351,11 +407,76 @@ import { links } from '../data/links';
   }
 
   /*
+   * BOTTOM CONTENT FADE
+   *
+   * Softer and longer than the previous version.
+   *
+   * The fade gradually builds toward the bottom
+   * and never becomes darker than 80% black.
+   * Content therefore remains faintly visible
+   * underneath instead of disappearing entirely.
+   */
+
+  .scroll-fade {
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    z-index: 8;
+
+    height:
+      clamp(
+        10rem,
+        22vh,
+        14rem
+      );
+
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.02) 8%,
+        rgba(0, 0, 0, 0.05) 16%,
+        rgba(0, 0, 0, 0.10) 24%,
+        rgba(0, 0, 0, 0.17) 32%,
+        rgba(0, 0, 0, 0.26) 40%,
+        rgba(0, 0, 0, 0.36) 48%,
+        rgba(0, 0, 0, 0.47) 56%,
+        rgba(0, 0, 0, 0.57) 64%,
+        rgba(0, 0, 0, 0.66) 72%,
+        rgba(0, 0, 0, 0.73) 80%,
+        rgba(0, 0, 0, 0.77) 90%,
+        rgba(0, 0, 0, 0.80) 100%
+      );
+
+    opacity: 0;
+
+    visibility: hidden;
+    pointer-events: none;
+
+    transition:
+      opacity 0.18s ease-out,
+      visibility 0s linear 0.18s;
+  }
+
+  .scroll-fade.is-visible {
+    opacity: 1;
+
+    visibility: visible;
+
+    transition:
+      opacity 0.18s ease-out,
+      visibility 0s linear 0s;
+  }
+
+  /*
    * SCROLL INDICATOR
    */
 
   .scroll-indicator {
-    position: sticky;
+    position: absolute;
 
     left: 50%;
     bottom: 0.8rem;
@@ -369,12 +490,7 @@ import { links } from '../data/links';
     width: 2.75rem;
     height: 2.75rem;
 
-    margin:
-      -2.75rem
-      0
-      0
-      calc(50% - 1.375rem);
-
+    margin: 0;
     padding: 0;
 
     border:
@@ -385,7 +501,7 @@ import { links } from '../data/links';
     border-radius: 50%;
 
     background:
-      rgba(0, 0, 0, 0.38);
+      rgba(0, 0, 0, 0.55);
 
     color:
       rgba(255, 255, 255, 0.7);
@@ -399,6 +515,9 @@ import { links } from '../data/links';
 
     cursor: pointer;
 
+    transform:
+      translateX(-50%);
+
     transition:
       opacity 0.25s ease-out,
       visibility 0s linear 0.25s,
@@ -408,6 +527,7 @@ import { links } from '../data/links';
 
   .scroll-indicator.is-visible {
     opacity: 1;
+
     visibility: visible;
     pointer-events: auto;
 
@@ -453,7 +573,9 @@ import { links } from '../data/links';
 
   @media (prefers-reduced-motion: reduce) {
     .scroll-indicator,
-    .scroll-indicator.is-visible {
+    .scroll-indicator.is-visible,
+    .scroll-fade,
+    .scroll-fade.is-visible {
       transition: none;
     }
   }
@@ -485,8 +607,14 @@ import { links } from '../data/links';
       border-right: 0;
     }
 
-    .links-scroll-region {
+    .links-scroll-shell {
       flex: none;
+
+      overflow: visible;
+    }
+
+    .links-scroll-region {
+      height: auto;
 
       overflow: visible;
     }
@@ -508,7 +636,8 @@ import { links } from '../data/links';
         );
     }
 
-    .scroll-indicator {
+    .scroll-indicator,
+    .scroll-fade {
       display: none;
     }
 

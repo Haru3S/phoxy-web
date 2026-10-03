@@ -36,4 +36,10 @@ export const links: LinkEntry[] = [
     type: 'DEV',
     icon: 'cube',
   },
+  {
+    name: 'Pronouns',
+    href: 'https://en.pronouns.page/@Haru_3S',
+    type: 'PROFILE',
+    icon: 'intersect-three',
+  }
 ];
