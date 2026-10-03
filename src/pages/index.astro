@@ -25,11 +25,14 @@ import { gallery } from '../data/gallery';
 
       <div class="about-content">
         <p class="about-intro">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-          Phasellus ante justo, porta faucibus arcu vitae. 
+          Yo, sup! I'm kinda a big deal! Grass grows, sun shines, birds fly, and brotha'—
+          I make stuff, think outside the box!
         </p>
 
-        <h2>Who Am I</h2>
+        <h2 class="about-heading">
+          <span>That's</span>
+          <span>Who I Am</span>
+        </h2>
       </div>
     </section>
 
@@ -153,9 +156,13 @@ import { gallery } from '../data/gallery';
    * HEADING
    */
 
-  .about-content h2 {
+  .about-heading {
     grid-row: 3;
     align-self: end;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 
     margin: 0;
 
@@ -164,6 +171,12 @@ import { gallery } from '../data/gallery';
     font-weight: 700;
     line-height: 0.78;
     letter-spacing: -0.06em;
+  }
+
+  .about-heading span {
+    display: block;
+
+    width: fit-content;
 
     white-space: nowrap;
 
@@ -177,6 +190,7 @@ import { gallery } from '../data/gallery';
 
   .projects-section {
     width: 100%;
+
     padding-top: clamp(4rem, 10vw, 10rem);
   }
 
@@ -226,9 +240,11 @@ import { gallery } from '../data/gallery';
       font-weight: 400;
     }
 
-    .about-content h2 {
+    .about-heading {
       font-size: clamp(4rem, 17vw, 7rem);
+    }
 
+    .about-heading span {
       transform: scaleX(1.08);
       transform-origin: left bottom;
     }
