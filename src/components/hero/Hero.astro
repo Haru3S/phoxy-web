@@ -49,7 +49,9 @@
 <style>
   .hero {
     width: 100%;
+
     overflow: hidden;
+
     background: #FF9500;
   }
 
@@ -115,25 +117,24 @@
   /*
    * HERO SCROLL INDICATOR
    *
-   * The Hero is a true 16:9 canvas and may
-   * extend below the viewport on some screen
-   * shapes.
+   * The Hero itself is a true 16:9 canvas,
+   * which can extend below the viewport.
    *
-   * The indicator therefore belongs to the
-   * viewport rather than the bottom edge of
-   * the image. This keeps the affordance
-   * visible immediately when the page opens.
+   * The scroll affordance therefore belongs
+   * to the viewport rather than the bottom
+   * edge of the Hero artwork.
    */
 
   .hero-scroll-indicator {
     position: fixed;
 
     left: 50%;
+
     bottom:
       clamp(
-        1rem,
-        2vw,
-        2rem
+        3rem,
+        5vh,
+        4rem
       );
 
     z-index: 100;
@@ -199,11 +200,6 @@
 
   /*
    * HIDDEN STATE
-   *
-   * Once the bottom of the Hero has passed
-   * the bottom of the viewport, the user has
-   * reached the actual page content and the
-   * indicator has finished its job.
    */
 
   .hero-scroll-indicator.is-hidden {
@@ -278,14 +274,48 @@
 
   /*
    * HERO PARALLAX
+   *
+   * Pointer position becomes a normalized
+   * value from -1 to +1 across the Hero.
+   *
+   * Horizontal travel is deliberately stronger
+   * than vertical travel so the composition
+   * responds more clearly to side-to-side
+   * movement without feeling like it is floating.
+   *
+   * Smoothing is based on elapsed time rather
+   * than frames. This keeps the movement
+   * consistent across different refresh rates
+   * and makes large displays feel substantially
+   * less stepped or jagged.
    */
 
   if (hero && graffiti && scout) {
+    const GRAFFITI_X = 7;
+    const GRAFFITI_Y = 4;
+
+    const SCOUT_X = 15;
+    const SCOUT_Y = 8;
+
+    /*
+     * Higher value = follows the pointer faster.
+     *
+     * This is expressed as response speed rather
+     * than "percentage per frame", so it behaves
+     * consistently at different frame rates.
+     */
+
+    const FOLLOW_SPEED = 8;
+
     let targetX = 0;
     let targetY = 0;
 
     let currentX = 0;
     let currentY = 0;
+
+    let previousTime:
+      number | null = null;
+
 
     const updateTarget = (
       event: PointerEvent
@@ -318,36 +348,132 @@
           0.5
         ) *
         2;
+
+      /*
+       * Keep the target bounded even if the
+       * pointer event lands fractionally beyond
+       * the element's measured edge.
+       */
+
+      targetX =
+        Math.max(
+          -1,
+          Math.min(
+            1,
+            targetX
+          )
+        );
+
+      targetY =
+        Math.max(
+          -1,
+          Math.min(
+            1,
+            targetY
+          )
+        );
     };
+
 
     const resetTarget = () => {
       targetX = 0;
       targetY = 0;
     };
 
-    const animate = () => {
+
+    const animate = (
+      time: number
+    ) => {
+      if (previousTime === null) {
+        previousTime = time;
+      }
+
+      /*
+       * Clamp very large frame gaps.
+       *
+       * This prevents the artwork from snapping
+       * after switching tabs, resizing, or a
+       * temporary browser stall.
+       */
+
+      const deltaTime =
+        Math.min(
+          (time - previousTime) /
+            1000,
+          0.05
+        );
+
+      previousTime = time;
+
+
+      /*
+       * Exponential smoothing.
+       *
+       * This produces approximately the same
+       * response regardless of whether the
+       * browser is rendering at 60, 120, 144,
+       * or another refresh rate.
+       */
+
+      const smoothing =
+        1 -
+        Math.exp(
+          -FOLLOW_SPEED *
+          deltaTime
+        );
+
+
       currentX +=
-        (targetX - currentX) *
-        0.08;
+        (
+          targetX -
+          currentX
+        ) *
+        smoothing;
 
       currentY +=
-        (targetY - currentY) *
-        0.08;
+        (
+          targetY -
+          currentY
+        ) *
+        smoothing;
+
+
+      /*
+       * The graffiti sits closer to the wall,
+       * so it moves less.
+       */
 
       graffiti.style.transform =
-        `translate(${currentX * 3}px, ${currentY * 3}px)`;
+        `translate3d(
+          ${currentX * GRAFFITI_X}px,
+          ${currentY * GRAFFITI_Y}px,
+          0
+        )`;
+
+
+      /*
+       * Scout is the foreground layer and gets
+       * the strongest movement.
+       */
 
       scout.style.transform =
-        `translate(${currentX * 7}px, ${currentY * 7}px)`;
+        `translate3d(
+          ${currentX * SCOUT_X}px,
+          ${currentY * SCOUT_Y}px,
+          0
+        )`;
+
 
       requestAnimationFrame(
         animate
       );
     };
 
+
     hero.addEventListener(
       'pointermove',
-      updateTarget
+      updateTarget,
+      { passive: true }
     );
 
     hero.addEventListener(
@@ -355,20 +481,14 @@
       resetTarget
     );
 
-    animate();
+    requestAnimationFrame(
+      animate
+    );
   }
 
 
   /*
    * HERO SCROLL INDICATOR
-   *
-   * Because the Hero can be taller than the
-   * viewport, the indicator stays attached to
-   * the bottom-center of the screen.
-   *
-   * Once the bottom edge of the Hero reaches
-   * the bottom edge of the viewport, the
-   * indicator fades away.
    */
 
   if (
@@ -393,12 +513,6 @@
     };
 
 
-    /*
-     * The arrow is a shortcut to the first
-     * actual content section rather than a
-     * fixed-distance scroll.
-     */
-
     heroScrollIndicator.addEventListener(
       'click',
       () => {
@@ -422,11 +536,6 @@
       }
     );
 
-
-    /*
-     * Scroll updates are throttled to one
-     * layout check per animation frame.
-     */
 
     let scrollFrame:
       number | null = null;
@@ -481,6 +590,7 @@
   let currentAudio:
     HTMLAudioElement | null = null;
 
+
   const playRandomScoutLine = () => {
     if (scoutLines.length === 0) {
       return;
@@ -518,8 +628,6 @@
         scoutLines[nextLine]
       );
 
-    // 0.0 = silent, 1.0 = original volume
-    // 0.5 is approximately -6 dB.
     currentAudio.volume = 0.5;
 
     currentAudio
@@ -531,6 +639,7 @@
         );
       });
   };
+
 
   scoutButton?.addEventListener(
     'click',

@@ -16,9 +16,11 @@ const sortedGallery = [...gallery].sort(
 ---
 
 <Layout title="Phoxy">
-  <main>
+  <main class="home-load-enter">
     <!-- Hero -->
-    <Hero />
+    <div class="home-load-motion">
+      <Hero />
+    </div>
 
     <!-- Who Am I -->
     <section id="about" class="about">
@@ -482,6 +484,47 @@ const sortedGallery = [...gallery].sort(
 
 <style>
   /*
+   * HOMEPAGE LOAD ENTRANCE
+   *
+   * The homepage itself fades as one document,
+   * while only the Hero artwork receives the
+   * upward movement.
+   *
+   * This deliberately avoids translating the
+   * <main> element because the Hero contains a
+   * viewport-fixed scroll indicator.
+   */
+
+  :global(.js) .home-load-enter {
+    opacity: 0;
+
+    transition:
+      opacity
+        var(--load-enter-duration)
+        var(--load-enter-easing);
+  }
+
+  :global(.js.page-ready) .home-load-enter {
+    opacity: 1;
+  }
+
+  :global(.js) .home-load-motion {
+    translate:
+      0
+      var(--load-enter-distance);
+
+    transition:
+      translate
+        var(--load-enter-duration)
+        var(--load-enter-easing);
+  }
+
+  :global(.js.page-ready) .home-load-motion {
+    translate: 0 0;
+  }
+
+
+  /*
    * WHO AM I
    */
 
@@ -614,6 +657,7 @@ const sortedGallery = [...gallery].sort(
     transform-origin: left bottom;
   }
 
+
   /*
    * PROJECTS
    */
@@ -652,6 +696,7 @@ const sortedGallery = [...gallery].sort(
     line-height: 0.85;
     letter-spacing: -0.05em;
   }
+
 
   /*
    * GALLERY
@@ -702,6 +747,7 @@ const sortedGallery = [...gallery].sort(
     text-align: right;
   }
 
+
   /*
    * SPACE BETWEEN TEXT AND RULE
    */
@@ -717,6 +763,7 @@ const sortedGallery = [...gallery].sort(
       );
   }
 
+
   /*
    * SINGLE GALLERY RULE
    */
@@ -728,6 +775,7 @@ const sortedGallery = [...gallery].sort(
     background:
       var(--foreground, #fff);
   }
+
 
   /*
    * SPACE BETWEEN RULE AND ARTWORK
@@ -743,6 +791,7 @@ const sortedGallery = [...gallery].sort(
         3.4rem
       );
   }
+
 
   /*
    * ART WALL
@@ -777,6 +826,7 @@ const sortedGallery = [...gallery].sort(
       var(--background, #000);
   }
 
+
   /*
    * TILE WIDTHS
    */
@@ -796,6 +846,28 @@ const sortedGallery = [...gallery].sort(
   .gallery > :global([data-size="large"]) {
     grid-column: span 6;
   }
+
+
+  /*
+   * REDUCED MOTION
+   */
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.js) .home-load-enter,
+    :global(.js.page-ready) .home-load-enter {
+      opacity: 1;
+
+      transition: none;
+    }
+
+    :global(.js) .home-load-motion,
+    :global(.js.page-ready) .home-load-motion {
+      translate: 0 0;
+
+      transition: none;
+    }
+  }
+
 
   /*
    * MOBILE
@@ -856,6 +928,7 @@ const sortedGallery = [...gallery].sort(
       transform: scaleX(1.08);
       transform-origin: left bottom;
     }
+
 
     /*
      * MOBILE GALLERY

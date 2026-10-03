@@ -11,6 +11,43 @@
   --color-border: #fff;
 
   --color-hover: rgba(255, 255, 255, 0.08);
+
+
+  /*
+   * PAGE LOAD MOTION
+   *
+   * Shared entrance language for interface
+   * content that should visually arrive
+   * with the page.
+   *
+   * Individual pages decide which regions use it.
+   */
+
+  --load-enter-distance: 12px;
+  --load-enter-duration: 320ms;
+  --load-enter-easing:
+    cubic-bezier(
+      0.22,
+      1,
+      0.36,
+      1
+    );
+
+
+  /*
+   * PROCEDURAL VISUAL LOAD
+   *
+   * Procedural visuals are allowed to render
+   * immediately while hidden.
+   *
+   * They become visible shortly after the UI
+   * begins entering, creating a deliberate
+   * UI -> visual sequence.
+   */
+
+  --visual-enter-delay: 260ms;
+  --visual-enter-duration: 360ms;
+  --visual-enter-easing: ease-out;
 }
 
 
@@ -35,6 +72,88 @@ body {
   color: var(--color-fg);
 
   font-family: "Inter Variable", sans-serif;
+}
+
+
+/*
+ * PAGE LOAD ENTRANCE
+ *
+ * This is intentionally opt-in.
+ *
+ * Layout.astro adds .js before the body paints,
+ * which establishes the initial hidden state.
+ *
+ * Once the complete page has loaded,
+ * Layout.astro adds .page-ready and participating
+ * regions fade upward into their resting position.
+ *
+ * Without JavaScript, content remains visible.
+ */
+
+.js .load-enter {
+  opacity: 0;
+
+  translate:
+    0
+    var(--load-enter-distance);
+
+  transition:
+    opacity
+      var(--load-enter-duration)
+      var(--load-enter-easing),
+
+    translate
+      var(--load-enter-duration)
+      var(--load-enter-easing);
+
+  will-change:
+    opacity,
+    translate;
+}
+
+.js.page-ready .load-enter {
+  opacity: 1;
+
+  translate: 0 0;
+}
+
+
+/*
+ * Once the transition has completed, the browser
+ * no longer needs to keep these properties
+ * promoted for animation.
+ */
+
+.js.page-ready .load-enter {
+  will-change: auto;
+}
+
+
+/*
+ * PROCEDURAL VISUAL ENTRANCE
+ *
+ * Unlike interface content, procedural visuals
+ * do not move.
+ *
+ * They render normally while invisible and then
+ * fade into view after the UI has already begun
+ * establishing itself.
+ */
+
+.js .visual-enter {
+  opacity: 0;
+
+  transition:
+    opacity
+      var(--visual-enter-duration)
+      var(--visual-enter-easing)
+      var(--visual-enter-delay);
+
+  will-change: opacity;
+}
+
+.js.page-ready .visual-enter {
+  opacity: 1;
 }
 
 
@@ -237,6 +356,38 @@ pre,
  */
 
 @media (prefers-reduced-motion: reduce) {
+  /*
+   * Page load content appears immediately.
+   */
+
+  .js .load-enter,
+  .js.page-ready .load-enter {
+    opacity: 1;
+
+    translate: 0 0;
+
+    transition: none;
+    will-change: auto;
+  }
+
+
+  /*
+   * Procedural visuals also appear immediately.
+   */
+
+  .js .visual-enter,
+  .js.page-ready .visual-enter {
+    opacity: 1;
+
+    transition: none;
+    will-change: auto;
+  }
+
+
+  /*
+   * Lens and scroll interactions.
+   */
+
   .lens-interactive::before,
   .lens-interactive::after,
   .scroll-emphasis {

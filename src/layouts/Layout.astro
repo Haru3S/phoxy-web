@@ -23,13 +23,73 @@ const {
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="description" content={description} />
+
+    <meta
+      name="viewport"
+      content="width=device-width"
+    />
+
+    <meta
+      name="description"
+      content={description}
+    />
 
     <title>{title}</title>
+
+    <!--
+      PAGE LOAD TRANSITION
+
+      Mark JavaScript as available before the
+      body is painted.
+
+      This lets .load-enter begin in its hidden
+      position without briefly flashing visible
+      content first.
+
+      If JavaScript is unavailable, the class is
+      never added and all content remains visible.
+    -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
   </head>
 
   <body>
     <slot />
+
+    <script is:inline>
+      /*
+       * PAGE LOAD TRANSITION
+       *
+       * Wait for the initial document load, then
+       * allow one paint with the entrance state
+       * applied before releasing marked content
+       * into its resting position.
+       *
+       * Pages decide which regions participate by
+       * adding the .load-enter class.
+       */
+
+      const revealPageContent = () => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            document.documentElement.classList.add(
+              'page-ready'
+            );
+          });
+        });
+      };
+
+
+      if (document.readyState === 'complete') {
+        revealPageContent();
+      } else {
+        window.addEventListener(
+          'load',
+          revealPageContent,
+          { once: true }
+        );
+      }
+    </script>
   </body>
 </html>
