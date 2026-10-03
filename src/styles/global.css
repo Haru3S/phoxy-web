@@ -56,3 +56,130 @@ pre,
 .mono {
   font-family: "Adwaita Mono", monospace;
 }
+
+
+/*
+ * CHROMATIC LENS FRINGING
+ *
+ * Shared display-heading treatment.
+ *
+ * The white letterform stays clean while
+ * slightly displaced spectral copies sit
+ * behind it.
+ *
+ * The extremely small blur only blends
+ * the fringe colours together. It should
+ * never read as bloom or glowing text.
+ */
+
+.lens-text {
+  position: relative;
+
+  display: inline-block;
+
+  isolation: isolate;
+
+  color: var(--color-fg);
+}
+
+.lens-text::before,
+.lens-text::after {
+  content: attr(data-text);
+
+  position: absolute;
+  inset: 0;
+
+  z-index: -1;
+
+  pointer-events: none;
+
+  filter: blur(0.004em);
+}
+
+
+/*
+ * COOL FRINGE
+ *
+ * BLUE -> CYAN -> WHITE
+ */
+
+.lens-text::before {
+  color: #00d9ff;
+
+  transform:
+    translateX(-0.017em);
+
+  text-shadow:
+    -0.013em 0
+      #006eff,
+
+    -0.006em 0
+      #00aaff,
+
+    0.004em 0
+      #00f0ff;
+}
+
+
+/*
+ * WARM FRINGE
+ *
+ * WHITE -> YELLOW -> ORANGE -> RED
+ */
+
+.lens-text::after {
+  color: #ffb800;
+
+  transform:
+    translateX(0.017em);
+
+  text-shadow:
+    0.013em 0
+      #ff334c,
+
+    0.006em 0
+      #ff7038,
+
+    -0.004em 0
+      #ffe100;
+}
+
+
+/*
+ * MOBILE LENS FRINGING
+ *
+ * Slightly tighter separation as display
+ * typography gets physically smaller.
+ */
+
+@media (max-width: 700px) {
+  .lens-text::before {
+    transform:
+      translateX(-0.014em);
+
+    text-shadow:
+      -0.01em 0
+        #006eff,
+
+      -0.005em 0
+        #00aaff,
+
+      0.003em 0
+        #00f0ff;
+  }
+
+  .lens-text::after {
+    transform:
+      translateX(0.014em);
+
+    text-shadow:
+      0.01em 0
+        #ff334c,
+
+      0.005em 0
+        #ff7038,
+
+      -0.003em 0
+        #ffe100;
+  }
+}

@@ -17,7 +17,14 @@ import { links } from '../data/links';
       >
         <div class="links-content">
           <header class="links-header">
-            <h1>Links</h1>
+            <h1>
+              <span
+                class="lens-text"
+                data-text="Links"
+              >
+                Links
+              </span>
+            </h1>
 
             <span>PHOXY / FOX</span>
           </header>
@@ -294,7 +301,7 @@ import { links } from '../data/links';
     letter-spacing: -0.06em;
   }
 
-  .links-header span {
+  .links-header > span {
     font-family:
       "Adwaita Mono",
       monospace;

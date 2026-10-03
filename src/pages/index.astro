@@ -36,8 +36,19 @@ const sortedGallery = [...gallery].sort(
         </p>
 
         <h2 class="about-heading">
-          <span>That's</span>
-          <span>Who I Am</span>
+          <span
+            class="lens-text"
+            data-text="That's"
+          >
+            That's
+          </span>
+
+          <span
+            class="lens-text"
+            data-text="Who I Am"
+          >
+            Who I Am
+          </span>
         </h2>
       </div>
     </section>
@@ -47,7 +58,14 @@ const sortedGallery = [...gallery].sort(
 
     <!-- Projects -->
     <section id="projects" class="projects-section">
-      <h2>Projects</h2>
+      <h2>
+        <span
+          class="lens-text"
+          data-text="Projects"
+        >
+          Projects
+        </span>
+      </h2>
 
       <div class="projects">
         {projects.map((project, index) => (
@@ -75,7 +93,14 @@ const sortedGallery = [...gallery].sort(
       class="gallery-section"
     >
       <header class="gallery-header">
-        <h2>Gallery</h2>
+        <h2>
+          <span
+            class="lens-text"
+            data-text="Gallery"
+          >
+            Gallery
+          </span>
+        </h2>
       </header>
 
       <div class="gallery-space"></div>
@@ -289,6 +314,12 @@ const sortedGallery = [...gallery].sort(
 
   /*
    * ABOUT HEADING
+   *
+   * The chromatic lens treatment itself
+   * lives globally in global.css.
+   *
+   * These rules only control the unique
+   * stretched composition used here.
    */
 
   .about-heading {
@@ -317,7 +348,7 @@ const sortedGallery = [...gallery].sort(
     letter-spacing: -0.06em;
   }
 
-  .about-heading span {
+  .about-heading .lens-text {
     display: block;
 
     width: fit-content;
@@ -573,7 +604,7 @@ const sortedGallery = [...gallery].sort(
         );
     }
 
-    .about-heading span {
+    .about-heading .lens-text {
       transform: scaleX(1.08);
       transform-origin: left bottom;
     }
