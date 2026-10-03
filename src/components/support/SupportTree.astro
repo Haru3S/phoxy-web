@@ -1,0 +1,93 @@
+<section
+  class="tree-panel"
+  aria-label="Support tree visualization"
+>
+  <div class="tree-placeholder">
+    <span
+      class="tree-ascii"
+      aria-hidden="true"
+    >{`                 *
+                /|\\
+               / | \\
+              /  |  \\
+             / \\ | / \\
+            /___\\|/___\\
+                ||
+                ||
+               /  \\
+              /____\\`}</span>
+
+    <p>
+      TREE VISUAL / DEVELOPMENT PLACEHOLDER
+    </p>
+  </div>
+</section>
+
+<style>
+  .tree-panel {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 0;
+    min-height: 0;
+
+    overflow: hidden;
+  }
+
+  .tree-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 1.5rem;
+
+    padding: 2rem;
+
+    text-align: center;
+  }
+
+  .tree-ascii {
+    display: block;
+
+    color: var(--color-fg);
+
+    font-family:
+      "Adwaita Mono",
+      monospace;
+
+    font-size:
+      clamp(
+        0.8rem,
+        1.5vw,
+        1.35rem
+      );
+
+    line-height: 1;
+
+    white-space: pre;
+
+    opacity: 0.85;
+  }
+
+  p {
+    margin: 0;
+
+    font-family:
+      "Adwaita Mono",
+      monospace;
+
+    font-size: 0.65rem;
+    font-weight: 700;
+
+    opacity: 0.45;
+  }
+
+  @media (max-width: 700px) {
+    .tree-panel {
+      min-height: 30rem;
+    }
+  }
+</style>

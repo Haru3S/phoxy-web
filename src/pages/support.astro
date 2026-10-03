@@ -1,298 +1,35 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import PageNav from '../components/navigation/PageNav.astro';
+
+import SupporterDisplay from '../components/support/SupporterDisplay.astro';
+import SupportTree from '../components/support/SupportTree.astro';
+import SupportHome from '../components/support/SupportHome.astro';
+import CryptoSupport from '../components/support/CryptoSupport.astro';
+import TF2Support from '../components/support/TF2Support.astro';
 ---
 
 <Layout title="Support — Phoxy">
   <main class="support-page">
-    <!-- Left Side -->
     <section class="support-visual-panel">
-      <!-- Supporter Display -->
-      <section class="supporters">
-        <header class="supporters-header">
-          <span>SUPPORTERS</span>
-
-          <nav
-            class="supporter-tabs"
-            aria-label="Supporter views"
-          >
-            <button
-              type="button"
-              class="supporter-tab is-active"
-              data-support-tab="recent"
-              aria-pressed="true"
-            >
-              Recent
-            </button>
-
-            <button
-              type="button"
-              class="supporter-tab"
-              data-support-tab="total"
-              aria-pressed="false"
-            >
-              Total
-            </button>
-
-            <button
-              type="button"
-              class="supporter-tab"
-              data-support-tab="amount"
-              aria-pressed="false"
-            >
-              Amount
-            </button>
-          </nav>
-        </header>
-
-        <div class="supporter-display">
-          <!-- Recent -->
-          <section
-            class="supporter-view"
-            data-support-view="recent"
-          >
-            <span class="view-status">
-              LIVE DATA UNAVAILABLE
-            </span>
-
-            <h2>
-              Recent support will appear here.
-            </h2>
-
-            <p>
-              This site currently runs without a backend,
-              so verified supporter activity cannot be
-              collected or displayed yet.
-            </p>
-
-            <span class="view-note">
-              DIRECT CRYPTO + ITEM SUPPORT REMAINS AVAILABLE
-            </span>
-          </section>
-
-          <!-- Total -->
-          <section
-            class="supporter-view"
-            data-support-view="total"
-            hidden
-          >
-            <span class="view-status">
-              AGGREGATION UNAVAILABLE
-            </span>
-
-            <h2>
-              Supporter totals need verified records.
-            </h2>
-
-            <p>
-              This static site does not track donation
-              identities. Donation counts will populate
-              here once the server-side supporter system
-              is connected.
-            </p>
-
-            <span class="view-note">
-              PUBLIC USERNAMES WILL REMAIN OPTIONAL
-            </span>
-          </section>
-
-          <!-- Amount -->
-          <section
-            class="supporter-view"
-            data-support-view="amount"
-            hidden
-          >
-            <span class="view-status">
-              VALUATION UNAVAILABLE
-            </span>
-
-            <h2>
-              Support amounts need trusted payment data.
-            </h2>
-
-            <p>
-              Automatic conversion and aggregation require
-              verified transaction information. This view
-              will activate when the backend is online.
-            </p>
-
-            <span class="view-note">
-              UNVERIFIED CLIENT DATA IS NEVER COUNTED
-            </span>
-          </section>
-        </div>
-      </section>
-
-      <!-- Tree -->
-      <section
-        class="tree-panel"
-        aria-label="Support tree visualization"
-      >
-        <div class="tree-placeholder">
-          <span
-            class="tree-ascii"
-            aria-hidden="true"
-          >{`                 *
-                /|\\
-               / | \\
-              /  |  \\
-             / \\ | / \\
-            /___\\|/___\\
-                ||
-                ||
-               /  \\
-              /____\\`}</span>
-
-          <p>
-            TREE VISUAL / DEVELOPMENT PLACEHOLDER
-          </p>
-        </div>
-      </section>
+      <SupporterDisplay />
+      <SupportTree />
     </section>
 
-    <!-- Right Side -->
     <section class="support-content-panel">
       <div
         class="support-scroll-region"
         data-scroll-region
       >
-        <div class="support-content">
-          <header class="support-header">
-            <h1>Support</h1>
+        <SupportHome />
+        <CryptoSupport />
+        <TF2Support />
 
-            <span>PHOXY / FOX</span>
-          </header>
-
-          <div class="support-intro">
-            <p>
-              If you enjoy the stuff I make and want to
-              throw something my way, you can support me
-              here.
-            </p>
-
-            <p>
-              Support is completely optional. Some methods
-              work directly right now, while others need
-              server-side infrastructure before I can safely
-              enable them.
-            </p>
-          </div>
-
-          <!-- Support Methods -->
-          <section
-            class="support-methods"
-            aria-label="Support methods"
-          >
-            <!-- Crypto -->
-            <article class="support-method">
-              <div class="method-index">
-                01
-              </div>
-
-              <div class="method-content">
-                <div class="method-heading">
-                  <h2>Crypto</h2>
-
-                  <span class="method-status available">
-                    AVAILABLE
-                  </span>
-                </div>
-
-                <p>
-                  Send cryptocurrency directly to a wallet.
-                  Litecoin will be supported alongside other
-                  common currencies.
-                </p>
-
-                <span class="method-meta">
-                  LTC + MORE / DIRECT WALLET
-                </span>
-              </div>
-
-              <span
-                class="method-icon"
-                aria-hidden="true"
-              >
-                <i class="ph ph-currency-circle-dollar"></i>
-              </span>
-            </article>
-
-            <!-- TF2 Items -->
-            <article class="support-method">
-              <div class="method-index">
-                02
-              </div>
-
-              <div class="method-content">
-                <div class="method-heading">
-                  <h2>TF2 Items</h2>
-
-                  <span class="method-status available">
-                    AVAILABLE
-                  </span>
-                </div>
-
-                <p>
-                  Donate items directly through a Steam
-                  trade offer. This is for donations only,
-                  not item-for-item trades.
-                </p>
-
-                <span class="method-meta">
-                  STEAM TRADE OFFER
-                </span>
-              </div>
-
-              <span
-                class="method-icon"
-                aria-hidden="true"
-              >
-                <i class="ph ph-steam-logo"></i>
-              </span>
-            </article>
-
-            <!-- Fiat -->
-            <article class="support-method is-disabled">
-              <div class="method-index">
-                03
-              </div>
-
-              <div class="method-content">
-                <div class="method-heading">
-                  <h2>Fiat</h2>
-
-                  <span class="method-status offline">
-                    OFFLINE
-                  </span>
-                </div>
-
-                <p>
-                  Card and international currency support
-                  requires secure server-side payment
-                  processing and is not connected yet.
-                </p>
-
-                <span class="method-meta">
-                  USD + INTERNATIONAL / BACKEND REQUIRED
-                </span>
-              </div>
-
-              <span
-                class="method-icon"
-                aria-hidden="true"
-              >
-                <i class="ph ph-credit-card"></i>
-              </span>
-            </article>
-          </section>
-        </div>
-
-        <!-- Desktop Scroll Affordance -->
         <button
           class="scroll-indicator"
           type="button"
           data-scroll-indicator
-          aria-label="Scroll for more support content"
+          aria-label="Scroll for more content"
           tabindex="-1"
         >
           <i
@@ -320,52 +57,23 @@ import PageNav from '../components/navigation/PageNav.astro';
 
 <script>
   /*
-   * SUPPORTER VIEW SWITCHER
+   * SUPPORT MINI-PAGE NAVIGATION
    */
 
-  const supporterTabs =
-    document.querySelectorAll<HTMLButtonElement>(
-      '[data-support-tab]'
-    );
-
-  const supporterViews =
+  const supportPages =
     document.querySelectorAll<HTMLElement>(
-      '[data-support-view]'
+      '[data-support-page]'
     );
 
-  supporterTabs.forEach((tab) => {
-    tab.addEventListener('click', () => {
-      const selectedView =
-        tab.dataset.supportTab;
+  const openButtons =
+    document.querySelectorAll<HTMLButtonElement>(
+      '[data-open-support-page]'
+    );
 
-      if (!selectedView) return;
-
-      supporterTabs.forEach((otherTab) => {
-        const isSelected =
-          otherTab === tab;
-
-        otherTab.classList.toggle(
-          'is-active',
-          isSelected
-        );
-
-        otherTab.setAttribute(
-          'aria-pressed',
-          String(isSelected)
-        );
-      });
-
-      supporterViews.forEach((view) => {
-        view.hidden =
-          view.dataset.supportView !==
-          selectedView;
-      });
-    });
-  });
-
-  /*
-   * INTERNAL SCROLL INDICATOR
-   */
+  const backButtons =
+    document.querySelectorAll<HTMLButtonElement>(
+      '[data-support-back]'
+    );
 
   const scrollRegion =
     document.querySelector<HTMLElement>(
@@ -379,6 +87,15 @@ import PageNav from '../components/navigation/PageNav.astro';
 
   const desktopQuery =
     window.matchMedia('(min-width: 701px)');
+
+  const reducedMotionQuery =
+    window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    );
+
+  /*
+   * SCROLL INDICATOR
+   */
 
   const updateScrollIndicator = () => {
     if (!scrollRegion || !scrollIndicator) {
@@ -416,6 +133,90 @@ import PageNav from '../components/navigation/PageNav.astro';
       shouldShow ? 0 : -1;
   };
 
+  /*
+   * VIEW SWITCHING
+   */
+
+  const showSupportPage = (
+    pageName: string
+  ) => {
+    let activePage:
+      | HTMLElement
+      | undefined;
+
+    supportPages.forEach((page) => {
+      const isActive =
+        page.dataset.supportPage ===
+        pageName;
+
+      page.classList.toggle(
+        'is-active',
+        isActive
+      );
+
+      page.setAttribute(
+        'aria-hidden',
+        String(!isActive)
+      );
+
+      if (isActive) {
+        activePage = page;
+      }
+    });
+
+    if (scrollRegion) {
+      scrollRegion.scrollTo({
+        top: 0,
+        behavior: 'auto',
+      });
+    }
+
+    requestAnimationFrame(() => {
+      updateScrollIndicator();
+
+      if (
+        activePage &&
+        pageName !== 'home'
+      ) {
+        const backButton =
+          activePage.querySelector<HTMLElement>(
+            '[data-support-back]'
+          );
+
+        backButton?.focus({
+          preventScroll: true,
+        });
+      }
+    });
+  };
+
+  openButtons.forEach((button) => {
+    button.addEventListener(
+      'click',
+      () => {
+        const destination =
+          button.dataset.openSupportPage;
+
+        if (!destination) return;
+
+        showSupportPage(destination);
+      }
+    );
+  });
+
+  backButtons.forEach((button) => {
+    button.addEventListener(
+      'click',
+      () => {
+        showSupportPage('home');
+      }
+    );
+  });
+
+  /*
+   * SCROLL BEHAVIOR
+   */
+
   if (scrollRegion && scrollIndicator) {
     scrollRegion.addEventListener(
       'scroll',
@@ -426,18 +227,13 @@ import PageNav from '../components/navigation/PageNav.astro';
     scrollIndicator.addEventListener(
       'click',
       () => {
-        const reducedMotion =
-          window.matchMedia(
-            '(prefers-reduced-motion: reduce)'
-          ).matches;
-
         scrollRegion.scrollBy({
           top:
             scrollRegion.clientHeight *
             0.65,
 
           behavior:
-            reducedMotion
+            reducedMotionQuery.matches
               ? 'auto'
               : 'smooth',
         });
@@ -453,11 +249,9 @@ import PageNav from '../components/navigation/PageNav.astro';
       scrollRegion
     );
 
-    if (scrollRegion.firstElementChild) {
-      resizeObserver.observe(
-        scrollRegion.firstElementChild
-      );
-    }
+    supportPages.forEach((page) => {
+      resizeObserver.observe(page);
+    });
 
     desktopQuery.addEventListener(
       'change',
@@ -477,7 +271,7 @@ import PageNav from '../components/navigation/PageNav.astro';
 
 <style>
   /*
-   * PAGE
+   * PAGE SHELL
    */
 
   .support-page {
@@ -517,280 +311,6 @@ import PageNav from '../components/navigation/PageNav.astro';
   }
 
   /*
-   * SUPPORTERS
-   */
-
-  .supporters {
-    display: flex;
-    flex-direction: column;
-
-    min-width: 0;
-    min-height: 0;
-
-    overflow: hidden;
-
-    border-bottom:
-      1px
-      solid
-      var(--color-border);
-  }
-
-  .supporters-header {
-    flex: 0 0 auto;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 1rem;
-
-    width: 100%;
-
-    padding: 0.65rem 0.75rem;
-
-    border-bottom:
-      1px
-      solid
-      var(--color-border);
-  }
-
-  .supporters-header > span {
-    font-family:
-      "Adwaita Mono",
-      monospace;
-
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-  }
-
-  /*
-   * SUPPORTER TABS
-   */
-
-  .supporter-tabs {
-    display: flex;
-    align-items: center;
-
-    gap: 1rem;
-  }
-
-  .supporter-tab {
-    position: relative;
-
-    padding: 0;
-
-    border: 0;
-
-    background: transparent;
-    color: var(--color-fg);
-
-    font-family:
-      "Adwaita Mono",
-      monospace;
-
-    font-size: 0.7rem;
-    font-weight: 700;
-
-    cursor: pointer;
-  }
-
-  .supporter-tab::after {
-    content: "";
-
-    position: absolute;
-
-    left: 0;
-    bottom: -0.2rem;
-
-    width: 100%;
-    height: 1px;
-
-    background: currentColor;
-
-    transform: scaleX(0);
-    transform-origin: left;
-
-    transition:
-      transform
-      0.1s
-      ease-out;
-  }
-
-  .supporter-tab:hover::after,
-  .supporter-tab:focus-visible::after,
-  .supporter-tab.is-active::after {
-    transform: scaleX(1);
-  }
-
-  /*
-   * SUPPORTER VIEWS
-   */
-
-  .supporter-display {
-    flex: 1 1 auto;
-
-    display: flex;
-    align-items: center;
-
-    min-width: 0;
-    min-height: 0;
-
-    overflow-y: auto;
-    overflow-x: hidden;
-
-    scrollbar-width: thin;
-  }
-
-  .supporter-view {
-    width: 100%;
-    max-width: 42rem;
-
-    padding:
-      clamp(1.25rem, 2.5vw, 2.5rem)
-      0.75rem;
-  }
-
-  .supporter-view[hidden] {
-    display: none;
-  }
-
-  .view-status,
-  .view-note {
-    display: block;
-
-    font-family:
-      "Adwaita Mono",
-      monospace;
-
-    font-size: 0.65rem;
-    font-weight: 700;
-
-    letter-spacing: 0.03em;
-  }
-
-  .view-status {
-    margin-bottom: 0.75rem;
-
-    opacity: 0.5;
-  }
-
-  .supporter-view h2 {
-    max-width: 16ch;
-
-    margin:
-      0
-      0
-      0.75rem;
-
-    font-family:
-      "Space Grotesk Variable",
-      sans-serif;
-
-    font-size:
-      clamp(
-        1.8rem,
-        3vw,
-        3.4rem
-      );
-
-    font-weight: 600;
-    line-height: 0.95;
-    letter-spacing: -0.045em;
-  }
-
-  .supporter-view p {
-    max-width: 42ch;
-
-    margin:
-      0
-      0
-      1.5rem;
-
-    font-family:
-      "Inter Variable",
-      sans-serif;
-
-    font-size:
-      clamp(
-        0.9rem,
-        1.1vw,
-        1.1rem
-      );
-
-    line-height: 1.25;
-  }
-
-  .view-note {
-    opacity: 0.7;
-  }
-
-  /*
-   * TREE
-   */
-
-  .tree-panel {
-    position: relative;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    min-width: 0;
-    min-height: 0;
-
-    overflow: hidden;
-  }
-
-  .tree-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    gap: 1.5rem;
-
-    padding: 2rem;
-
-    text-align: center;
-  }
-
-  .tree-ascii {
-    display: block;
-
-    color: var(--color-fg);
-
-    font-family:
-      "Adwaita Mono",
-      monospace;
-
-    font-size:
-      clamp(
-        0.8rem,
-        1.5vw,
-        1.35rem
-      );
-
-    line-height: 1;
-
-    white-space: pre;
-
-    opacity: 0.85;
-  }
-
-  .tree-placeholder p {
-    margin: 0;
-
-    font-family:
-      "Adwaita Mono",
-      monospace;
-
-    font-size: 0.65rem;
-    font-weight: 700;
-
-    opacity: 0.45;
-  }
-
-  /*
    * RIGHT SIDE
    */
 
@@ -805,10 +325,6 @@ import PageNav from '../components/navigation/PageNav.astro';
     overflow: hidden;
   }
 
-  /*
-   * DESKTOP INTERNAL SCROLL REGION
-   */
-
   .support-scroll-region {
     position: relative;
 
@@ -822,240 +338,6 @@ import PageNav from '../components/navigation/PageNav.astro';
 
     scrollbar-width: thin;
     overscroll-behavior: contain;
-  }
-
-  .support-content {
-    width: 100%;
-
-    padding: 0.75rem;
-  }
-
-  /*
-   * HEADER
-   */
-
-  .support-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-
-    gap: 1rem;
-
-    margin-bottom:
-      clamp(
-        3rem,
-        7vh,
-        6rem
-      );
-  }
-
-  .support-header h1 {
-    margin: 0;
-
-    font-family:
-      "Space Grotesk Variable",
-      sans-serif;
-
-    font-size:
-      clamp(
-        5rem,
-        9vw,
-        10rem
-      );
-
-    font-weight: 700;
-    line-height: 0.78;
-    letter-spacing: -0.06em;
-  }
-
-  .support-header span {
-    font-family:
-      "Adwaita Mono",
-      monospace;
-
-    font-size: 0.75rem;
-    font-weight: 700;
-  }
-
-  /*
-   * INTRO
-   */
-
-  .support-intro {
-    display: flex;
-    flex-direction: column;
-
-    gap: 1rem;
-
-    max-width: 34rem;
-
-    margin-bottom:
-      clamp(
-        2.5rem,
-        5vh,
-        4rem
-      );
-  }
-
-  .support-intro p {
-    margin: 0;
-
-    font-family:
-      "Inter Variable",
-      sans-serif;
-
-    font-size:
-      clamp(
-        1.1rem,
-        1.5vw,
-        1.55rem
-      );
-
-    line-height: 1.08;
-    letter-spacing: -0.025em;
-  }
-
-  /*
-   * SUPPORT METHODS
-   */
-
-  .support-methods {
-    width: 100%;
-
-    border-top:
-      1px
-      solid
-      var(--color-border);
-  }
-
-  .support-method {
-    display: grid;
-    grid-template-columns:
-      2rem
-      minmax(0, 1fr)
-      auto;
-
-    gap: 1rem;
-
-    align-items: start;
-
-    width: 100%;
-
-    padding:
-      0.85rem
-      0;
-
-    border-bottom:
-      1px
-      solid
-      var(--color-border);
-  }
-
-  .method-index,
-  .method-meta,
-  .method-status {
-    font-family:
-      "Adwaita Mono",
-      monospace;
-
-    font-size: 0.65rem;
-    font-weight: 700;
-  }
-
-  .method-index {
-    padding-top: 0.2rem;
-
-    opacity: 0.4;
-  }
-
-  .method-content {
-    min-width: 0;
-  }
-
-  .method-heading {
-    display: flex;
-    align-items: baseline;
-
-    gap: 0.75rem;
-
-    margin-bottom: 0.4rem;
-  }
-
-  .method-heading h2 {
-    margin: 0;
-
-    font-family:
-      "Space Grotesk Variable",
-      sans-serif;
-
-    font-size:
-      clamp(
-        1.6rem,
-        2.2vw,
-        2.5rem
-      );
-
-    font-weight: 600;
-    line-height: 0.9;
-    letter-spacing: -0.04em;
-  }
-
-  .method-status {
-    opacity: 0.75;
-  }
-
-  .method-status::before {
-    content: "●";
-
-    margin-right: 0.35rem;
-
-    font-size: 0.7em;
-  }
-
-  .method-status.offline {
-    opacity: 0.35;
-  }
-
-  .method-content p {
-    max-width: 46ch;
-
-    margin:
-      0
-      0
-      0.7rem;
-
-    font-family:
-      "Inter Variable",
-      sans-serif;
-
-    font-size: 0.9rem;
-    line-height: 1.25;
-  }
-
-  .method-meta {
-    display: block;
-
-    opacity: 0.45;
-  }
-
-  .method-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding:
-      0.1rem
-      0.25rem
-      0
-      0;
-  }
-
-  .method-icon i {
-    font-size: 1.5rem;
-  }
-
-  .support-method.is-disabled {
-    opacity: 0.55;
   }
 
   /*
@@ -1139,15 +421,7 @@ import PageNav from '../components/navigation/PageNav.astro';
     font-size: 1.4rem;
   }
 
-  /*
-   * REDUCED MOTION
-   */
-
   @media (prefers-reduced-motion: reduce) {
-    .supporter-tab::after {
-      transition: none;
-    }
-
     .scroll-indicator,
     .scroll-indicator.is-visible {
       transition: none;
@@ -1202,60 +476,6 @@ import PageNav from '../components/navigation/PageNav.astro';
         var(--color-border);
 
       border-right: 0;
-    }
-
-    .support-header {
-      margin-bottom: 4rem;
-    }
-
-    .support-header h1 {
-      font-size:
-        clamp(
-          4.5rem,
-          22vw,
-          8rem
-        );
-    }
-
-    .supporters {
-      min-height: 24rem;
-    }
-
-    .supporters-header {
-      align-items: flex-start;
-      flex-direction: column;
-
-      gap: 0.75rem;
-    }
-
-    .supporter-tabs {
-      width: 100%;
-
-      justify-content: space-between;
-    }
-
-    .supporter-display {
-      min-height: 20rem;
-    }
-
-    .support-method {
-      grid-template-columns:
-        1.75rem
-        minmax(0, 1fr)
-        auto;
-
-      gap: 0.75rem;
-    }
-
-    .method-heading {
-      align-items: flex-start;
-      flex-direction: column;
-
-      gap: 0.35rem;
-    }
-
-    .tree-panel {
-      min-height: 30rem;
     }
 
     .scroll-indicator {

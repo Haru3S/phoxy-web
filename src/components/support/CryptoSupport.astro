@@ -1,0 +1,640 @@
+---
+const currencies = [
+  {
+    name: 'Litecoin',
+    symbol: 'LTC',
+    network: 'Litecoin',
+    address: 'LcUtH8fceM2hMvwtZ43MKQWbaUb7KM8ZVC',
+    preferred: true,
+  },
+  {
+    name: 'Bitcoin',
+    symbol: 'BTC',
+    network: 'Bitcoin',
+    address: 'bc1qae8fscuztwn2f0ccha8p4hvfle45z0cpptt5pd',
+  },
+  {
+    name: 'Ethereum',
+    symbol: 'ETH',
+    network: 'Ethereum',
+    address: '0x90027CEEa4fed03f3eA319A0f3a5cA8Cd606b410',
+  },
+  {
+    name: 'USD Coin',
+    symbol: 'USDC',
+    network: 'Solana',
+    address: '2t6BARR6UrwuGKPbH4y7A8TPVXY4nDA7M7KPr7m8qteK',
+  },
+  {
+    name: 'Tether',
+    symbol: 'USDT',
+    network: 'Solana',
+    address: '2t6BARR6UrwuGKPbH4y7A8TPVXY4nDA7M7KPr7m8qteK',
+  },
+  {
+    name: 'Solana',
+    symbol: 'SOL',
+    network: 'Solana',
+    address: '2t6BARR6UrwuGKPbH4y7A8TPVXY4nDA7M7KPr7m8qteK',
+  },
+  {
+    name: 'Dogecoin',
+    symbol: 'DOGE',
+    network: 'Dogecoin',
+    address: 'DGjFZBCfVHQP2osQc3gVS585NFBTapWRHF',
+  },
+];
+---
+
+<section
+  class="support-view"
+  data-support-page="crypto"
+  aria-hidden="true"
+>
+  <header class="detail-toolbar">
+    <button
+      class="back-button"
+      type="button"
+      data-support-back
+    >
+      <i
+        class="ph ph-arrow-left"
+        aria-hidden="true"
+      ></i>
+
+      <span>Back</span>
+    </button>
+
+    <span>CRYPTO / DIRECT</span>
+  </header>
+
+  <div class="detail-heading">
+    <h1>Crypto</h1>
+
+    <p>
+      Choose a currency below to support me through
+      a direct wallet transfer.
+    </p>
+  </div>
+
+  <div class="currency-list">
+    {currencies.map((currency) => (
+      <article
+        class:list={[
+          'currency',
+          {
+            'is-preferred':
+              currency.preferred,
+          },
+        ]}
+      >
+        <div class="currency-heading">
+          <div class="currency-name">
+            <h2>
+              {currency.name}
+            </h2>
+
+            {currency.preferred && (
+              <span class="preferred">
+                PREFERRED
+              </span>
+            )}
+          </div>
+
+          <span class="currency-symbol">
+            {currency.symbol}
+          </span>
+        </div>
+
+        <div class="address-row">
+          <code class="wallet-address">
+            {currency.address}
+          </code>
+
+          <button
+            class="copy-button"
+            type="button"
+            data-copy-address={currency.address}
+            aria-label={`Copy ${currency.name} wallet address`}
+          >
+            <i
+              class="ph ph-copy"
+              aria-hidden="true"
+            ></i>
+
+            <span data-copy-label>
+              COPY
+            </span>
+          </button>
+        </div>
+
+        <div class="network-row">
+          <span>NETWORK</span>
+
+          <span>
+            {currency.network.toUpperCase()}
+          </span>
+        </div>
+      </article>
+    ))}
+  </div>
+
+  <p class="detail-note">
+    Always verify the currency, network, and wallet
+    address before sending funds.
+  </p>
+</section>
+
+<script>
+  const copyButtons =
+    document.querySelectorAll<HTMLButtonElement>(
+      '[data-copy-address]'
+    );
+
+  const fallbackCopy = (
+    text: string
+  ) => {
+    const textarea =
+      document.createElement(
+        'textarea'
+      );
+
+    textarea.value = text;
+
+    textarea.style.position =
+      'fixed';
+
+    textarea.style.opacity =
+      '0';
+
+    textarea.style.pointerEvents =
+      'none';
+
+    document.body.appendChild(
+      textarea
+    );
+
+    textarea.focus();
+    textarea.select();
+
+    const copied =
+      document.execCommand(
+        'copy'
+      );
+
+    textarea.remove();
+
+    return copied;
+  };
+
+  copyButtons.forEach(
+    (button) => {
+      button.addEventListener(
+        'click',
+        async () => {
+          const address =
+            button.dataset
+              .copyAddress;
+
+          const label =
+            button.querySelector<HTMLElement>(
+              '[data-copy-label]'
+            );
+
+          const icon =
+            button.querySelector<HTMLElement>(
+              'i'
+            );
+
+          if (
+            !address ||
+            !label
+          ) {
+            return;
+          }
+
+          let copied = false;
+
+          try {
+            if (
+              navigator.clipboard &&
+              window.isSecureContext
+            ) {
+              await navigator
+                .clipboard
+                .writeText(
+                  address
+                );
+
+              copied = true;
+            } else {
+              copied =
+                fallbackCopy(
+                  address
+                );
+            }
+          } catch {
+            copied =
+              fallbackCopy(
+                address
+              );
+          }
+
+          if (!copied) {
+            label.textContent =
+              'FAILED';
+
+            window.setTimeout(
+              () => {
+                label.textContent =
+                  'COPY';
+              },
+              1600
+            );
+
+            return;
+          }
+
+          label.textContent =
+            'COPIED';
+
+          if (icon) {
+            icon.className =
+              'ph ph-check';
+          }
+
+          window.setTimeout(
+            () => {
+              label.textContent =
+                'COPY';
+
+              if (icon) {
+                icon.className =
+                  'ph ph-copy';
+              }
+            },
+            1600
+          );
+        }
+      );
+    }
+  );
+</script>
+
+<style>
+  .support-view {
+    display: none;
+
+    width: 100%;
+
+    padding: 0.75rem;
+  }
+
+  .support-view.is-active {
+    display: block;
+  }
+
+  .detail-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 1rem;
+
+    margin-bottom:
+      clamp(
+        1.5rem,
+        2.5vh,
+        2.25rem
+      );
+
+    font-family:
+      "Adwaita Mono",
+      monospace;
+
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+
+  .back-button {
+    display: flex;
+    align-items: center;
+
+    gap: 0.45rem;
+
+    padding: 0;
+
+    border: 0;
+
+    background: transparent;
+    color: var(--color-fg);
+
+    font: inherit;
+
+    cursor: pointer;
+  }
+
+  .back-button span {
+    position: relative;
+  }
+
+  .back-button span::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    bottom: -0.15rem;
+
+    width: 100%;
+    height: 1px;
+
+    background: currentColor;
+
+    transform: scaleX(0);
+    transform-origin: left;
+
+    transition:
+      transform
+      0.1s
+      ease-out;
+  }
+
+  .back-button:hover
+    span::after,
+  .back-button:focus-visible
+    span::after {
+    transform: scaleX(1);
+  }
+
+  .detail-heading {
+    margin-bottom:
+      clamp(
+        2.5rem,
+        5vh,
+        4rem
+      );
+  }
+
+  .detail-heading h1 {
+    margin:
+      0
+      0
+      clamp(
+        3rem,
+        7vh,
+        6rem
+      );
+
+    font-family:
+      "Space Grotesk Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        5rem,
+        9vw,
+        10rem
+      );
+
+    font-weight: 700;
+    line-height: 0.78;
+    letter-spacing: -0.06em;
+  }
+
+  .detail-heading p {
+    max-width: 36rem;
+
+    margin: 0;
+
+    font-family:
+      "Inter Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        1.1rem,
+        1.5vw,
+        1.55rem
+      );
+
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+  }
+
+  .currency-list {
+    width: 100%;
+
+    border-top:
+      1px
+      solid
+      var(--color-border);
+  }
+
+  .currency {
+    padding: 1rem 0;
+
+    border-bottom:
+      1px
+      solid
+      var(--color-border);
+  }
+
+  .currency-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+
+    gap: 1rem;
+
+    margin-bottom: 1rem;
+  }
+
+  .currency-name {
+    display: flex;
+    align-items: baseline;
+
+    gap: 0.75rem;
+
+    min-width: 0;
+  }
+
+  .currency-heading h2 {
+    margin: 0;
+
+    font-family:
+      "Space Grotesk Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        1.8rem,
+        2.5vw,
+        3rem
+      );
+
+    font-weight: 600;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+  }
+
+  .preferred,
+  .currency-symbol,
+  .wallet-address,
+  .copy-button,
+  .network-row,
+  .detail-note {
+    font-family:
+      "Adwaita Mono",
+      monospace;
+
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+
+  /*
+   * Catppuccin Mocha Yellow.
+   * Only the semantic preferred marker gets it.
+   */
+
+  .preferred {
+    color: #f9e2af;
+  }
+
+  .preferred::before {
+    content: "●";
+
+    margin-right: 0.35rem;
+
+    font-size: 0.7em;
+  }
+
+  .address-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    gap: 0.85rem;
+
+    min-width: 0;
+  }
+
+  .wallet-address {
+    display: block;
+
+    min-width: 0;
+
+    overflow-wrap: anywhere;
+
+    background: transparent;
+    color: var(--color-fg);
+
+    opacity: 0.65;
+  }
+
+  .copy-button {
+    display: flex;
+    align-items: center;
+
+    flex: 0 0 auto;
+
+    gap: 0.4rem;
+
+    padding: 0;
+
+    border: 0;
+
+    background: transparent;
+    color: var(--color-fg);
+
+    cursor: pointer;
+
+    opacity: 0.65;
+
+    transition:
+      opacity
+      0.1s
+      ease-out;
+  }
+
+  .copy-button:hover,
+  .copy-button:focus-visible {
+    opacity: 1;
+  }
+
+  .copy-button i {
+    font-size: 1rem;
+  }
+
+  .network-row {
+    display: flex;
+    align-items: center;
+
+    gap: 0.5rem;
+
+    margin-top: 0.65rem;
+
+    opacity: 0.35;
+  }
+
+  .network-row
+    span:first-child::after {
+    content: " /";
+  }
+
+  .detail-note {
+    max-width: 58ch;
+
+    margin:
+      1.5rem
+      0
+      0;
+
+    line-height: 1.35;
+
+    opacity: 0.5;
+  }
+
+  @media (
+    prefers-reduced-motion:
+      reduce
+  ) {
+    .back-button span::after,
+    .copy-button {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .detail-toolbar {
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-heading h1 {
+      font-size:
+        clamp(
+          4.5rem,
+          22vw,
+          8rem
+        );
+    }
+
+    .currency-name {
+      align-items: flex-start;
+      flex-direction: column;
+
+      gap: 0.35rem;
+    }
+
+    .address-row {
+      align-items: flex-start;
+      flex-direction: column;
+
+      gap: 0.65rem;
+    }
+
+    .copy-button {
+      width: fit-content;
+    }
+  }
+</style>

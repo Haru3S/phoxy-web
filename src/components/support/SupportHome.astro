@@ -1,0 +1,468 @@
+<section
+  class="support-view is-active"
+  data-support-page="home"
+>
+  <header class="support-header">
+    <h1>Support</h1>
+
+    <span>PHOXY / FOX</span>
+  </header>
+
+  <div class="support-intro">
+    <p>
+      If you enjoy the stuff I make and want to
+      throw something my way, you can support me
+      here.
+    </p>
+
+    <p>
+      Support is completely optional. Some methods
+      work directly right now, while others need
+      server-side infrastructure before I can safely
+      enable them.
+    </p>
+  </div>
+
+  <section
+    class="support-methods"
+    aria-label="Support methods"
+  >
+    <button
+      class="support-method"
+      type="button"
+      data-open-support-page="crypto"
+    >
+      <span class="method-index">
+        01
+      </span>
+
+      <span class="method-content">
+        <span class="method-heading">
+          <span class="method-title">
+            Crypto
+          </span>
+
+          <span class="method-status">
+            AVAILABLE
+          </span>
+        </span>
+
+        <span class="method-description">
+          I accept various commonly used
+          cryptocurrencies. More obscure currencies
+          aren't supported.
+        </span>
+
+        <span class="method-meta">
+          DIRECT WALLET
+        </span>
+      </span>
+
+      <span
+        class="method-icon"
+        aria-hidden="true"
+      >
+        <i class="ph ph-arrow-right"></i>
+      </span>
+    </button>
+
+    <button
+      class="support-method"
+      type="button"
+      data-open-support-page="tf2"
+    >
+      <span class="method-index">
+        02
+      </span>
+
+      <span class="method-content">
+        <span class="method-heading">
+          <span class="method-title">
+            TF2 Items
+          </span>
+
+          <span class="method-status">
+            AVAILABLE
+          </span>
+        </span>
+
+        <span class="method-description">
+          Donate items directly through a Steam
+          trade offer. This is for donations only,
+          not item-for-item trades.
+        </span>
+
+        <span class="method-meta">
+          STEAM TRADE OFFER
+        </span>
+      </span>
+
+      <span
+        class="method-icon"
+        aria-hidden="true"
+      >
+        <i class="ph ph-arrow-right"></i>
+      </span>
+    </button>
+
+    <div
+      class="support-method is-disabled"
+      aria-disabled="true"
+    >
+      <span class="method-index">
+        03
+      </span>
+
+      <span class="method-content">
+        <span class="method-heading">
+          <span class="method-title">
+            Fiat
+          </span>
+
+          <span class="method-status offline">
+            OFFLINE
+          </span>
+        </span>
+
+        <span class="method-description">
+          Card and international currency support
+          requires secure server-side payment
+          processing and is not connected yet.
+        </span>
+
+        <span class="method-meta">
+          USD + INTERNATIONAL / BACKEND REQUIRED
+        </span>
+      </span>
+
+      <span
+        class="method-icon"
+        aria-hidden="true"
+      >
+        <i class="ph ph-credit-card"></i>
+      </span>
+    </div>
+  </section>
+</section>
+
+<style>
+  .support-view {
+    display: none;
+
+    width: 100%;
+
+    padding: 0.75rem;
+  }
+
+  .support-view.is-active {
+    display: block;
+  }
+
+  .support-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 1rem;
+
+    margin-bottom:
+      clamp(
+        3rem,
+        7vh,
+        6rem
+      );
+  }
+
+  .support-header h1 {
+    margin: 0;
+
+    font-family:
+      "Space Grotesk Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        5rem,
+        9vw,
+        10rem
+      );
+
+    font-weight: 700;
+    line-height: 0.78;
+    letter-spacing: -0.06em;
+  }
+
+  .support-header > span {
+    font-family:
+      "Adwaita Mono",
+      monospace;
+
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .support-intro {
+    display: flex;
+    flex-direction: column;
+
+    gap: 1rem;
+
+    max-width: 34rem;
+
+    margin-bottom:
+      clamp(
+        2.5rem,
+        5vh,
+        4rem
+      );
+  }
+
+  .support-intro p {
+    margin: 0;
+
+    font-family:
+      "Inter Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        1.1rem,
+        1.5vw,
+        1.55rem
+      );
+
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+  }
+
+  .support-methods {
+    width: 100%;
+
+    border-top:
+      1px
+      solid
+      var(--color-border);
+  }
+
+  .support-method {
+    display: grid;
+
+    grid-template-columns:
+      2rem
+      minmax(0, 1fr)
+      auto;
+
+    gap: 1rem;
+
+    align-items: start;
+
+    width: 100%;
+
+    padding: 0.85rem 0;
+
+    border: 0;
+
+    border-bottom:
+      1px
+      solid
+      var(--color-border);
+
+    background: transparent;
+    color: var(--color-fg);
+
+    text-align: left;
+  }
+
+  button.support-method {
+    cursor: pointer;
+
+    transition:
+      background
+      0.1s
+      ease-out;
+  }
+
+  button.support-method:hover,
+  button.support-method:focus-visible {
+    background: var(--color-hover);
+  }
+
+  .method-index,
+  .method-meta,
+  .method-status {
+    font-family:
+      "Adwaita Mono",
+      monospace;
+
+    font-size: 0.65rem;
+    font-weight: 700;
+  }
+
+  .method-index {
+    padding-top: 0.2rem;
+
+    opacity: 0.4;
+  }
+
+  .method-content {
+    display: block;
+
+    min-width: 0;
+  }
+
+  .method-heading {
+    display: flex;
+    align-items: baseline;
+
+    gap: 0.75rem;
+
+    margin-bottom: 0.4rem;
+  }
+
+  .method-title {
+    font-family:
+      "Space Grotesk Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        1.6rem,
+        2.2vw,
+        2.5rem
+      );
+
+    font-weight: 600;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+  }
+
+  /*
+   * Catppuccin Mocha semantic accents.
+   */
+
+  .method-status {
+    color: #94e2d5;
+  }
+
+  .method-status::before {
+    content: "●";
+
+    margin-right: 0.35rem;
+
+    font-size: 0.7em;
+  }
+
+  .method-status.offline {
+    color: #f38ba8;
+
+    opacity: 0.65;
+  }
+
+  .method-description {
+    display: block;
+
+    max-width: 46ch;
+
+    margin-bottom: 0.7rem;
+
+    font-family:
+      "Inter Variable",
+      sans-serif;
+
+    font-size: 0.9rem;
+    line-height: 1.25;
+  }
+
+  .method-meta {
+    display: block;
+
+    opacity: 0.45;
+  }
+
+  .method-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding:
+      0.1rem
+      0.25rem
+      0
+      0;
+  }
+
+  .method-icon i {
+    font-size: 1.5rem;
+
+    transition:
+      transform
+      0.1s
+      ease-out;
+  }
+
+  button.support-method:hover
+    .method-icon i,
+  button.support-method:focus-visible
+    .method-icon i {
+    transform:
+      translateX(
+        0.2rem
+      );
+  }
+
+  /*
+   * Keep unavailable methods visibly disabled
+   * without muting the red status into oblivion.
+   */
+
+  .support-method.is-disabled
+    .method-index,
+  .support-method.is-disabled
+    .method-title,
+  .support-method.is-disabled
+    .method-description,
+  .support-method.is-disabled
+    .method-meta,
+  .support-method.is-disabled
+    .method-icon {
+    opacity: 0.35;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    button.support-method,
+    .method-icon i {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .support-header {
+      margin-bottom: 4rem;
+    }
+
+    .support-header h1 {
+      font-size:
+        clamp(
+          4.5rem,
+          22vw,
+          8rem
+        );
+    }
+
+    .support-method {
+      grid-template-columns:
+        1.75rem
+        minmax(0, 1fr)
+        auto;
+
+      gap: 0.75rem;
+    }
+
+    .method-heading {
+      align-items: flex-start;
+      flex-direction: column;
+
+      gap: 0.35rem;
+    }
+  }
+</style>
