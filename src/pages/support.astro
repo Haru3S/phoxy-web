@@ -111,6 +111,23 @@ import TF2Support from '../components/support/TF2Support.astro';
     );
 
   /*
+   * MINI-PAGE TRANSITION TIMING
+   *
+   * Current content fades away first.
+   *
+   * The destination is then activated and
+   * enters horizontally:
+   *
+   * Forward -> from the right
+   * Back    -> from the left
+   */
+
+  const PAGE_FADE_OUT_DURATION = 150;
+  const PAGE_ENTER_DURATION = 240;
+
+  let pageTransitionActive = false;
+
+  /*
    * SCROLL INDICATOR
    */
 
@@ -151,10 +168,32 @@ import TF2Support from '../components/support/TF2Support.astro';
   };
 
   /*
-   * VIEW SWITCHING
+   * ACTIVE PAGE HELPERS
    */
 
-  const showSupportPage = (
+  const getActiveSupportPage = () => {
+    return Array.from(
+      supportPages
+    ).find((page) =>
+      page.classList.contains(
+        'is-active'
+      )
+    );
+  };
+
+  const getSupportPage = (
+    pageName: string
+  ) => {
+    return Array.from(
+      supportPages
+    ).find(
+      (page) =>
+        page.dataset.supportPage ===
+        pageName
+    );
+  };
+
+  const activateSupportPage = (
     pageName: string
   ) => {
     let activePage:
@@ -181,6 +220,46 @@ import TF2Support from '../components/support/TF2Support.astro';
       }
     });
 
+    return activePage;
+  };
+
+  /*
+   * PAGE FOCUS
+   */
+
+  const focusSupportPage = (
+    pageName: string,
+    activePage?: HTMLElement
+  ) => {
+    if (
+      !activePage ||
+      pageName === 'home'
+    ) {
+      return;
+    }
+
+    const backButton =
+      activePage.querySelector<HTMLElement>(
+        '[data-support-back]'
+      );
+
+    backButton?.focus({
+      preventScroll: true,
+    });
+  };
+
+  /*
+   * INSTANT VIEW SWITCH
+   *
+   * Used when reduced motion is enabled.
+   */
+
+  const showSupportPageInstantly = (
+    pageName: string
+  ) => {
+    const activePage =
+      activateSupportPage(pageName);
+
     if (scrollRegion) {
       scrollRegion.scrollTo({
         top: 0,
@@ -191,21 +270,162 @@ import TF2Support from '../components/support/TF2Support.astro';
     requestAnimationFrame(() => {
       updateScrollIndicator();
 
-      if (
-        activePage &&
-        pageName !== 'home'
-      ) {
-        const backButton =
-          activePage.querySelector<HTMLElement>(
-            '[data-support-back]'
-          );
-
-        backButton?.focus({
-          preventScroll: true,
-        });
-      }
+      focusSupportPage(
+        pageName,
+        activePage
+      );
     });
   };
+
+  /*
+   * ANIMATED VIEW SWITCH
+   */
+
+  const showSupportPage = async (
+    pageName: string,
+    direction:
+      | 'forward'
+      | 'back'
+  ) => {
+    if (pageTransitionActive) {
+      return;
+    }
+
+    const currentPage =
+      getActiveSupportPage();
+
+    const destinationPage =
+      getSupportPage(pageName);
+
+    if (
+      !destinationPage ||
+      destinationPage === currentPage
+    ) {
+      return;
+    }
+
+    if (
+      reducedMotionQuery.matches ||
+      !currentPage
+    ) {
+      showSupportPageInstantly(
+        pageName
+      );
+
+      return;
+    }
+
+    pageTransitionActive = true;
+
+    /*
+     * PHASE 1
+     *
+     * Fade the current page out without
+     * moving it.
+     */
+
+    currentPage.classList.add(
+      'is-transitioning-out'
+    );
+
+    await new Promise<void>(
+      (resolve) => {
+        window.setTimeout(
+          resolve,
+          PAGE_FADE_OUT_DURATION
+        );
+      }
+    );
+
+    currentPage.classList.remove(
+      'is-transitioning-out'
+    );
+
+    /*
+     * Swap pages only after the old page
+     * has disappeared.
+     */
+
+    const activePage =
+      activateSupportPage(pageName);
+
+    if (!activePage) {
+      pageTransitionActive = false;
+
+      return;
+    }
+
+    if (scrollRegion) {
+      scrollRegion.scrollTo({
+        top: 0,
+        behavior: 'auto',
+      });
+    }
+
+    /*
+     * PHASE 2
+     *
+     * Put the new page just outside its
+     * resting position.
+     *
+     * Forward navigation enters from right.
+     * Back navigation enters from left.
+     */
+
+    activePage.classList.add(
+      direction === 'forward'
+        ? 'is-entering-right'
+        : 'is-entering-left'
+    );
+
+    /*
+     * Force the browser to paint the initial
+     * offset state before asking it to move
+     * into the resting state.
+     */
+
+    await new Promise<void>(
+      (resolve) => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(
+            resolve
+          );
+        });
+      }
+    );
+
+    activePage.classList.add(
+      'is-entering-active'
+    );
+
+    await new Promise<void>(
+      (resolve) => {
+        window.setTimeout(
+          resolve,
+          PAGE_ENTER_DURATION
+        );
+      }
+    );
+
+    activePage.classList.remove(
+      'is-entering-right',
+      'is-entering-left',
+      'is-entering-active'
+    );
+
+    pageTransitionActive = false;
+
+    updateScrollIndicator();
+
+    focusSupportPage(
+      pageName,
+      activePage
+    );
+  };
+
+  /*
+   * FORWARD NAVIGATION
+   */
 
   openButtons.forEach((button) => {
     button.addEventListener(
@@ -216,16 +436,26 @@ import TF2Support from '../components/support/TF2Support.astro';
 
         if (!destination) return;
 
-        showSupportPage(destination);
+        showSupportPage(
+          destination,
+          'forward'
+        );
       }
     );
   });
+
+  /*
+   * BACK NAVIGATION
+   */
 
   backButtons.forEach((button) => {
     button.addEventListener(
       'click',
       () => {
-        showSupportPage('home');
+        showSupportPage(
+          'home',
+          'back'
+        );
       }
     );
   });
@@ -396,6 +626,83 @@ import TF2Support from '../components/support/TF2Support.astro';
   }
 
   /*
+   * MINI-PAGE TRANSITIONS
+   *
+   * Components already control which support
+   * page is visible through .is-active.
+   *
+   * These states temporarily animate whichever
+   * page is currently participating in a view
+   * change.
+   */
+
+  :global(
+    [data-support-page]
+      .is-transitioning-out
+  ) {
+    opacity: 0;
+  }
+
+  :global(
+    [data-support-page].is-transitioning-out
+  ) {
+    opacity: 0;
+
+    transition:
+      opacity 150ms ease-out;
+  }
+
+  :global(
+    [data-support-page].is-entering-right
+  ),
+  :global(
+    [data-support-page].is-entering-left
+  ) {
+    opacity: 0;
+
+    transition:
+      opacity 240ms ease-out,
+      translate 240ms
+        cubic-bezier(
+          0.22,
+          1,
+          0.36,
+          1
+        );
+
+    will-change:
+      opacity,
+      translate;
+  }
+
+  :global(
+    [data-support-page].is-entering-right
+  ) {
+    translate: 26px 0;
+  }
+
+  :global(
+    [data-support-page].is-entering-left
+  ) {
+    translate: -26px 0;
+  }
+
+  :global(
+    [data-support-page]
+      .is-entering-active
+  ) {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  :global(
+    [data-support-page].is-entering-active
+  ) {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  /*
    * SCROLL INDICATOR
    */
 
@@ -476,10 +783,32 @@ import TF2Support from '../components/support/TF2Support.astro';
     font-size: 1.4rem;
   }
 
+  /*
+   * REDUCED MOTION
+   */
+
   @media (prefers-reduced-motion: reduce) {
     .scroll-indicator,
     .scroll-indicator.is-visible {
       transition: none;
+    }
+
+    :global(
+      [data-support-page].is-transitioning-out
+    ),
+    :global(
+      [data-support-page].is-entering-right
+    ),
+    :global(
+      [data-support-page].is-entering-left
+    ),
+    :global(
+      [data-support-page].is-entering-active
+    ) {
+      opacity: 1;
+      translate: 0 0;
+      transition: none;
+      will-change: auto;
     }
   }
 

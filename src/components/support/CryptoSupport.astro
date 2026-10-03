@@ -69,7 +69,14 @@ const currencies = [
   </header>
 
   <div class="detail-heading">
-    <h1>Crypto</h1>
+    <h1>
+      <span
+        class="lens-text lens-interactive"
+        data-text="Crypto"
+      >
+        Crypto
+      </span>
+    </h1>
 
     <p>
       Choose a currency below to support me through
@@ -108,7 +115,9 @@ const currencies = [
 
         <div class="address-row">
           <code class="wallet-address">
-            {currency.address}
+            <span class="wallet-address-text">
+              {currency.address}
+            </span>
           </code>
 
           <button
@@ -519,6 +528,13 @@ const currencies = [
     min-width: 0;
   }
 
+  /*
+   * WALLET ADDRESS
+   *
+   * Same quick left-to-right underline language
+   * used throughout the site.
+   */
+
   .wallet-address {
     display: block;
 
@@ -530,6 +546,42 @@ const currencies = [
     color: var(--color-fg);
 
     opacity: 0.65;
+  }
+
+  .wallet-address-text {
+    position: relative;
+
+    display: inline;
+
+    background-image:
+      linear-gradient(
+        currentColor,
+        currentColor
+      );
+
+    background-repeat: no-repeat;
+
+    background-position:
+      left
+      bottom;
+
+    background-size:
+      0%
+      1px;
+
+    transition:
+      background-size
+      0.1s
+      ease-out;
+  }
+
+  .address-row:hover
+    .wallet-address-text,
+  .address-row:focus-within
+    .wallet-address-text {
+    background-size:
+      100%
+      1px;
   }
 
   .copy-button {
@@ -600,6 +652,7 @@ const currencies = [
       reduce
   ) {
     .back-button span::after,
+    .wallet-address-text,
     .copy-button {
       transition: none;
     }
