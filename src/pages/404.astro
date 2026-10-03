@@ -1,15 +1,499 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import NotFoundVisual from '../components/404/404Visual.astro';
 ---
 
 <Layout
   title="404 | Phoxy"
   description="That page doesn't exist."
 >
-  <main>
-    <h1>404</h1>
-    <p>Whatever you were looking for isn't here.</p>
+  <main class="not-found-page">
+    <NotFoundVisual />
 
-    <a href="/">Back Home</a>
+    <a
+      class="home-link"
+      href="/"
+      aria-label="Return home"
+    >
+      <i
+        class="ph ph-arrow-left"
+        aria-hidden="true"
+      ></i>
+
+      <span>Home</span>
+    </a>
+
+    <section
+      class="not-found-content"
+      aria-labelledby="not-found-title"
+    >
+      <h1
+        id="not-found-title"
+        class="glitch-title lens-text lens-extreme"
+        data-text="404"
+        data-glitch-text="404"
+      >
+        404
+      </h1>
+
+      <p
+        class="glitch-subtitle"
+        data-glitch-text="welcome to the twilight zone."
+      >
+        welcome to the twilight zone.
+      </p>
+    </section>
   </main>
 </Layout>
+
+<script>
+  /*
+   * TEXT OBFUSCATION
+   *
+   * Both the 404 and subtitle can corrupt.
+   *
+   * Only elements using the lens system need
+   * their data-text attribute updated alongside
+   * their visible text.
+   */
+
+  const glitchElements =
+    document.querySelectorAll<HTMLElement>(
+      '[data-glitch-text]'
+    );
+
+  const glitchCharacters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&@!?▓▒░';
+
+  const randomCharacter = () => {
+    return glitchCharacters[
+      Math.floor(
+        Math.random() *
+        glitchCharacters.length
+      )
+    ];
+  };
+
+  const corruptText = (
+    text: string,
+    intensity: number
+  ) => {
+    return Array.from(text)
+      .map((character) => {
+        /*
+         * Preserve whitespace so the basic silhouette
+         * of each line survives the corruption.
+         */
+
+        if (character === ' ') {
+          return ' ';
+        }
+
+        if (
+          Math.random() <
+          intensity
+        ) {
+          return randomCharacter();
+        }
+
+        return character;
+      })
+      .join('');
+  };
+
+  const setGlitchText = (
+    element: HTMLElement,
+    text: string
+  ) => {
+    element.textContent = text;
+
+    /*
+     * Only lens elements use data-text for their
+     * chromatic pseudo-element copies.
+     */
+
+    if (
+      element.classList.contains(
+        'lens-text'
+      )
+    ) {
+      element.dataset.text = text;
+    }
+  };
+
+  const restoreText = () => {
+    glitchElements.forEach(
+      (element) => {
+        const original =
+          element.dataset.glitchText;
+
+        if (original) {
+          setGlitchText(
+            element,
+            original
+          );
+        }
+
+        element.classList.remove(
+          'is-glitching'
+        );
+      }
+    );
+  };
+
+  const glitchFrame = (
+    intensity: number
+  ) => {
+    glitchElements.forEach(
+      (element) => {
+        const original =
+          element.dataset.glitchText;
+
+        if (!original) {
+          return;
+        }
+
+        const corrupted =
+          corruptText(
+            original,
+            intensity
+          );
+
+        setGlitchText(
+          element,
+          corrupted
+        );
+
+        element.classList.add(
+          'is-glitching'
+        );
+      }
+    );
+  };
+
+  const runGlitch = () => {
+    glitchFrame(0.28);
+
+    window.setTimeout(
+      () => glitchFrame(0.55),
+      55
+    );
+
+    window.setTimeout(
+      () => glitchFrame(0.35),
+      105
+    );
+
+    window.setTimeout(
+      restoreText,
+      165
+    );
+  };
+
+  const reducedMotionQuery =
+    window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    );
+
+  let glitchTimer:
+    number | undefined;
+
+  const scheduleGlitch = () => {
+    if (
+      reducedMotionQuery.matches
+    ) {
+      return;
+    }
+
+    const delay =
+      2800 +
+      Math.random() * 5200;
+
+    glitchTimer =
+      window.setTimeout(
+        () => {
+          runGlitch();
+          scheduleGlitch();
+        },
+        delay
+      );
+  };
+
+  scheduleGlitch();
+
+  reducedMotionQuery.addEventListener(
+    'change',
+    () => {
+      if (
+        reducedMotionQuery.matches
+      ) {
+        if (
+          glitchTimer !==
+          undefined
+        ) {
+          window.clearTimeout(
+            glitchTimer
+          );
+        }
+
+        restoreText();
+      } else {
+        scheduleGlitch();
+      }
+    }
+  );
+</script>
+
+<style>
+  .not-found-page {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+
+    overflow: hidden;
+
+    background: var(--color-bg);
+    color: var(--color-fg);
+  }
+
+
+  /*
+   * HOME
+   */
+
+  .home-link {
+    position: absolute;
+
+    top: 0.75rem;
+    left: 0.75rem;
+
+    z-index: 20;
+
+    display: flex;
+    align-items: center;
+
+    gap: 0.45rem;
+
+    padding: 0;
+
+    color: var(--color-fg);
+
+    font-family:
+      "Adwaita Mono",
+      monospace;
+
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1;
+
+    text-decoration: none;
+  }
+
+  .home-link span {
+    position: relative;
+  }
+
+  .home-link span::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    bottom: -0.15rem;
+
+    width: 100%;
+    height: 1px;
+
+    background: currentColor;
+
+    transform: scaleX(0);
+    transform-origin: left;
+
+    transition:
+      transform
+      0.1s
+      ease-out;
+  }
+
+  .home-link:hover
+    span::after,
+  .home-link:focus-visible
+    span::after {
+    transform: scaleX(1);
+  }
+
+
+  /*
+   * CENTERPIECE
+   */
+
+  .not-found-content {
+    position: relative;
+
+    z-index: 10;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width:
+      min(
+        92vw,
+        90rem
+      );
+
+    text-align: center;
+  }
+
+  .glitch-title {
+    margin: 0;
+
+    padding-right: 0.07em;
+
+    font-family:
+      "Space Grotesk Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        10rem,
+        30vw,
+        34rem
+      );
+
+    font-weight: 700;
+
+    line-height: 0.7;
+    letter-spacing: -0.09em;
+
+    color: #fff;
+  }
+
+  .glitch-subtitle {
+    margin:
+      clamp(
+        2rem,
+        5vh,
+        4rem
+      )
+      0
+      0;
+
+    font-family:
+      "Adwaita Mono",
+      monospace;
+
+    font-size:
+      clamp(
+        0.75rem,
+        1vw,
+        1rem
+      );
+
+    font-weight: 400;
+    line-height: 1;
+
+    letter-spacing: 0.02em;
+
+    color:
+      rgba(
+        255,
+        255,
+        255,
+        0.42
+      );
+  }
+
+
+  /*
+   * 404 GLITCH BURST
+   *
+   * Static lens separation is handled globally.
+   *
+   * During corruption the spectral copies tear
+   * farther outward for a brief signal failure.
+   */
+
+  .glitch-title.is-glitching::before {
+    transform:
+      translateX(-0.12em);
+
+    text-shadow:
+      -0.13em 0
+        #004cff,
+
+      -0.085em 0
+        #008cff,
+
+      -0.045em 0
+        #00d9ff,
+
+      -0.018em 0
+        #00ffff;
+  }
+
+  .glitch-title.is-glitching::after {
+    transform:
+      translateX(0.12em);
+
+    text-shadow:
+      0.13em 0
+        #ff003c,
+
+      0.085em 0
+        #ff2638,
+
+      0.045em 0
+        #ff542e,
+
+      0.018em 0
+        #ff9a1f;
+  }
+
+
+  /*
+   * REDUCED MOTION
+   */
+
+  @media (
+    prefers-reduced-motion:
+      reduce
+  ) {
+    .home-link span::after {
+      transition: none;
+    }
+  }
+
+
+  /*
+   * MOBILE
+   */
+
+  @media (max-width: 700px) {
+    .glitch-title {
+      font-size:
+        clamp(
+          8rem,
+          43vw,
+          15rem
+        );
+    }
+
+    .glitch-subtitle {
+      margin-top: 1.75rem;
+
+      font-size:
+        clamp(
+          0.65rem,
+          3vw,
+          0.85rem
+        );
+    }
+  }
+</style>

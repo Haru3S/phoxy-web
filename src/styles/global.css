@@ -318,6 +318,168 @@ pre,
 
 
 /*
+ * EXTREME LENS
+ *
+ * Aggressive version of the same chromatic
+ * language.
+ *
+ * Intended for intentionally unstable display
+ * typography such as the 404 page.
+ *
+ * The white core remains fixed and readable.
+ * Only the spectral copies spread outward.
+ */
+
+.lens-extreme::before,
+.lens-extreme::after {
+  filter:
+    blur(0.006em);
+
+  opacity: 0.95;
+}
+
+
+/*
+ * EXTREME COOL FRINGE
+ *
+ * ELECTRIC BLUE -> CYAN
+ *
+ * These colours are deliberately brighter than
+ * the normal lens so they remain visible against
+ * a pure black background.
+ */
+
+.lens-extreme::before {
+  color: #00eaff;
+
+  transform:
+    translateX(-0.038em);
+
+  text-shadow:
+    -0.042em 0
+      #0066ff,
+
+    -0.025em 0
+      #00a8ff,
+
+    -0.011em 0
+      #00d9ff,
+
+    0.008em 0
+      #7df9ff;
+}
+
+
+/*
+ * EXTREME WARM FRINGE
+ *
+ * HOT ORANGE -> RED
+ *
+ * Less yellow than the normal site lens.
+ * The stronger red/orange contrast survives
+ * much better against the black void.
+ */
+
+.lens-extreme::after {
+  color: #ff5a36;
+
+  transform:
+    translateX(0.038em);
+
+  text-shadow:
+    0.042em 0
+      #ff174d,
+
+    0.025em 0
+      #ff3b30,
+
+    0.011em 0
+      #ff6a2a,
+
+    -0.008em 0
+      #ffb000;
+}
+
+
+/*
+ * EXTREME INTERACTION
+ *
+ * Much wider than the ordinary hover lens.
+ * This is intentionally excessive.
+ */
+
+.lens-extreme.lens-interactive::before,
+.lens-extreme.lens-interactive::after {
+  transition:
+    transform 0.38s
+      cubic-bezier(
+        0.22,
+        1,
+        0.36,
+        1
+      ),
+
+    text-shadow 0.38s
+      cubic-bezier(
+        0.22,
+        1,
+        0.36,
+        1
+      ),
+
+    filter 0.38s ease-out;
+}
+
+.lens-extreme.lens-interactive:hover::before {
+  transform:
+    translateX(-0.085em);
+
+  text-shadow:
+    -0.09em 0
+      #004cff,
+
+    -0.062em 0
+      #007dff,
+
+    -0.036em 0
+      #00bfff,
+
+    -0.016em 0
+      #00f0ff,
+
+    0.012em 0
+      #a5ffff;
+
+  filter:
+    blur(0.009em);
+}
+
+.lens-extreme.lens-interactive:hover::after {
+  transform:
+    translateX(0.085em);
+
+  text-shadow:
+    0.09em 0
+      #ff003c,
+
+    0.062em 0
+      #ff2738,
+
+    0.036em 0
+      #ff542e,
+
+    0.016em 0
+      #ff8526,
+
+    -0.012em 0
+      #ffc21a;
+
+  filter:
+    blur(0.009em);
+}
+
+
+/*
  * SCROLL EMPHASIS
  *
  * Separate from the lens interaction.
@@ -424,6 +586,57 @@ pre,
         #ffe100;
   }
 
+
+  /*
+   * Extreme lens keeps its stronger static
+   * separation but does not animate farther
+   * outward on hover.
+   */
+
+  .lens-extreme.lens-interactive::before,
+  .lens-extreme.lens-interactive:hover::before {
+    transform:
+      translateX(-0.038em);
+
+    text-shadow:
+      -0.042em 0
+        #0066ff,
+
+      -0.025em 0
+        #00a8ff,
+
+      -0.011em 0
+        #00d9ff,
+
+      0.008em 0
+        #7df9ff;
+
+    filter:
+      blur(0.006em);
+  }
+
+  .lens-extreme.lens-interactive::after,
+  .lens-extreme.lens-interactive:hover::after {
+    transform:
+      translateX(0.038em);
+
+    text-shadow:
+      0.042em 0
+        #ff174d,
+
+      0.025em 0
+        #ff3b30,
+
+      0.011em 0
+        #ff6a2a,
+
+      -0.008em 0
+        #ffb000;
+
+    filter:
+      blur(0.006em);
+  }
+
   .scroll-emphasis.is-scroll-active {
     translate: 0 0;
     scale: 1;
@@ -502,5 +715,92 @@ pre,
 
       -0.005em 0
         #ffe100;
+  }
+
+
+  /*
+   * EXTREME MOBILE LENS
+   *
+   * Still significantly wider than the normal
+   * lens, just restrained enough to keep giant
+   * display text inside smaller screens.
+   */
+
+  .lens-extreme::before {
+    transform:
+      translateX(-0.03em);
+
+    text-shadow:
+      -0.033em 0
+        #0066ff,
+
+      -0.019em 0
+        #00a8ff,
+
+      -0.009em 0
+        #00d9ff,
+
+      0.006em 0
+        #7df9ff;
+  }
+
+  .lens-extreme::after {
+    transform:
+      translateX(0.03em);
+
+    text-shadow:
+      0.033em 0
+        #ff174d,
+
+      0.019em 0
+        #ff3b30,
+
+      0.009em 0
+        #ff6a2a,
+
+      -0.006em 0
+        #ffb000;
+  }
+
+  .lens-extreme.lens-interactive:hover::before {
+    transform:
+      translateX(-0.065em);
+
+    text-shadow:
+      -0.068em 0
+        #004cff,
+
+      -0.047em 0
+        #007dff,
+
+      -0.027em 0
+        #00bfff,
+
+      -0.012em 0
+        #00f0ff,
+
+      0.009em 0
+        #a5ffff;
+  }
+
+  .lens-extreme.lens-interactive:hover::after {
+    transform:
+      translateX(0.065em);
+
+    text-shadow:
+      0.068em 0
+        #ff003c,
+
+      0.047em 0
+        #ff2738,
+
+      0.027em 0
+        #ff542e,
+
+      0.012em 0
+        #ff8526,
+
+      -0.009em 0
+        #ffc21a;
   }
 }
