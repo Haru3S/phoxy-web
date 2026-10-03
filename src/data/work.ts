@@ -15,4 +15,28 @@ export const work: WorkEntry[] = [
     type: 'Education',
     issuer: 'Austin Community College',
   },
+  {
+    title: 'Blender',
+    type: 'Experience',
+    description:
+      '3D Modeling / Animation / Rendering',
+  },
+  {
+    title: 'DaVinci Resolve',
+    type: 'Experience',
+    description:
+      'Video Editing / Color / Post-Production',
+  },
+  {
+    title: 'Figma',
+    type: 'Experience',
+    description:
+      'Graphic Design / Visual Assets',
+  },
+  {
+    title: 'Clip Studio Paint',
+    type: 'Experience',
+    description:
+      'Illustration / Digital Art',
+  },
 ];

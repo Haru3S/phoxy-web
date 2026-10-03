@@ -54,9 +54,12 @@ import ContactVisual from './ContactVisual.astro';
 
       <div class="contact-footer">
         <div class="contact-status-meta">
-          <span>
-            General Contact
-          </span>
+          <time
+            data-phoxy-time
+            datetime=""
+          >
+            --:-- | --:-- -- CDT
+          </time>
 
           <span>
             Email
@@ -82,6 +85,107 @@ import ContactVisual from './ContactVisual.astro';
     aria-hidden="true"
   ></div>
 </section>
+
+<script>
+  /*
+   * PHOXY'S LOCAL TIME
+   *
+   * Always displays the current time in
+   * America/Chicago.
+   *
+   * Both clock formats are shown:
+   *
+   *   18:26 | 6:26 PM CDT
+   *
+   * This avoids trying to infer a visitor's
+   * preferred clock format from their browser.
+   */
+
+  const timeElement =
+    document.querySelector<HTMLTimeElement>(
+      '[data-phoxy-time]'
+    );
+
+  const twentyFourHourFormatter =
+    new Intl.DateTimeFormat(
+      'en-US',
+      {
+        timeZone:
+          'America/Chicago',
+
+        hour:
+          '2-digit',
+
+        minute:
+          '2-digit',
+
+        hourCycle:
+          'h23',
+      }
+    );
+
+  const twelveHourFormatter =
+    new Intl.DateTimeFormat(
+      'en-US',
+      {
+        timeZone:
+          'America/Chicago',
+
+        hour:
+          'numeric',
+
+        minute:
+          '2-digit',
+
+        hourCycle:
+          'h12',
+
+        timeZoneName:
+          'short',
+      }
+    );
+
+
+  const updatePhoxyTime = () => {
+    if (!timeElement) {
+      return;
+    }
+
+    const now =
+      new Date();
+
+    const twentyFourHourTime =
+      twentyFourHourFormatter.format(
+        now
+      );
+
+    const twelveHourTime =
+      twelveHourFormatter.format(
+        now
+      );
+
+    timeElement.textContent =
+      `${twentyFourHourTime} | ${twelveHourTime}`;
+
+    timeElement.dateTime =
+      now.toISOString();
+  };
+
+
+  if (timeElement) {
+    updatePhoxyTime();
+
+    /*
+     * Update regularly enough that the minute
+     * display never sits noticeably behind.
+     */
+
+    window.setInterval(
+      updatePhoxyTime,
+      30_000
+    );
+  }
+</script>
 
 <style>
   /*
@@ -456,15 +560,16 @@ import ContactVisual from './ContactVisual.astro';
     opacity: 0.5;
   }
 
+  .contact-status-meta time {
+    font: inherit;
+
+    color: inherit;
+
+    white-space: nowrap;
+  }
+
   /*
    * OPEN STATUS
-   *
-   * Horizontal position is the earlier
-   * inset position.
-   *
-   * Vertical position is lifted so the
-   * imaginary guide passes through roughly
-   * the middle of OPEN.
    */
 
   .contact-status {
