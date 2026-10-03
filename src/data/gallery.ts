@@ -39,7 +39,7 @@ export const gallery: GalleryEntry[] = [
   {
     title: 'A Climate Change',
     src: '/assets/artwork/A_Climage_Change.webp',
-    alt: 'A Climate Change',
+    alt: 'Organic Brutalism',
     date: '2025-08-23',
     type: 'artwork',
     size: 'wide',
@@ -47,7 +47,7 @@ export const gallery: GalleryEntry[] = [
   {
     title: 'Battle Engineering',
     src: '/assets/artwork/Battle_Engineering.webp',
-    alt: 'Battle Engineering',
+    alt: 'None',
     date: '2026-01-19',
     type: 'artwork',
     size: 'square',
@@ -55,7 +55,7 @@ export const gallery: GalleryEntry[] = [
   {
     title: 'How It FEELS To Play Scout',
     src: '/assets/artwork/How_It_FEELS_To_Play_Scout.webp',
-    alt: 'How It FEELS To Play Scout',
+    alt: "Can't you tell I love scout!",
     date: '2026-09-12',
     type: 'artwork',
     size: 'wide',
@@ -63,7 +63,7 @@ export const gallery: GalleryEntry[] = [
   {
     title: 'Kick It Root Down',
     src: '/assets/artwork/Kick_It_Root_Down.webp',
-    alt: 'Kick It Root Down',
+    alt: 'None',
     date: '2026-05-09',
     type: 'artwork',
     size: 'square',
@@ -71,7 +71,7 @@ export const gallery: GalleryEntry[] = [
   {
     title: 'The Only Thing I Know For Real',
     src: '/assets/artwork/Raiden_Scout.webp',
-    alt: 'The Only Thing I Know For Real',
+    alt: 'Scout x Metal Gears Rising',
     date: '2026-06-03',
     type: 'artwork',
     size: 'wide',
@@ -79,7 +79,7 @@ export const gallery: GalleryEntry[] = [
   {
     title: 'Soldiers Of Mann',
     src: '/assets/artwork/Soldiers_Of_Mann.webp',
-    alt: 'Soldiers Of Mann',
+    alt: 'None',
     date: '2026-06-28',
     type: 'artwork',
     size: 'square',

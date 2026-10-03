@@ -70,11 +70,12 @@ const sortedGallery = [...gallery].sort(
     </section>
 
     <!-- Gallery -->
-    <section id="gallery" class="gallery-section">
+    <section
+      id="gallery"
+      class="gallery-section"
+    >
       <header class="gallery-header">
         <h2>Gallery</h2>
-
-        <span>SELECTED WORK</span>
       </header>
 
       <div class="gallery-space"></div>
@@ -86,7 +87,10 @@ const sortedGallery = [...gallery].sort(
 
       <div class="gallery-wall-space"></div>
 
-      <div class="gallery">
+      <div
+        class="gallery"
+        data-gallery
+      >
         {sortedGallery.map((item) => (
           <GalleryItem item={item} />
         ))}
@@ -94,6 +98,101 @@ const sortedGallery = [...gallery].sort(
     </section>
   </main>
 </Layout>
+
+<script>
+  /*
+   * GALLERY EDGE DETECTION
+   *
+   * Enlarged artwork touching either side
+   * of the viewport grows inward instead
+   * of spilling off-screen.
+   */
+
+  const gallery =
+    document.querySelector<HTMLElement>(
+      '[data-gallery]'
+    );
+
+  if (gallery) {
+    const updateGalleryEdges = () => {
+      const items =
+        gallery.querySelectorAll<HTMLElement>(
+          '.gallery-item'
+        );
+
+      const galleryRect =
+        gallery.getBoundingClientRect();
+
+      const tolerance = 2;
+
+      for (const item of items) {
+        const rect =
+          item.getBoundingClientRect();
+
+        const touchesLeft =
+          Math.abs(
+            rect.left -
+            galleryRect.left
+          ) <= tolerance;
+
+        const touchesRight =
+          Math.abs(
+            rect.right -
+            galleryRect.right
+          ) <= tolerance;
+
+        if (
+          touchesLeft &&
+          touchesRight
+        ) {
+          item.style.setProperty(
+            '--gallery-transform-origin',
+            'center center'
+          );
+
+          continue;
+        }
+
+        if (touchesLeft) {
+          item.style.setProperty(
+            '--gallery-transform-origin',
+            'left center'
+          );
+
+          continue;
+        }
+
+        if (touchesRight) {
+          item.style.setProperty(
+            '--gallery-transform-origin',
+            'right center'
+          );
+
+          continue;
+        }
+
+        item.style.setProperty(
+          '--gallery-transform-origin',
+          'center center'
+        );
+      }
+    };
+
+    updateGalleryEdges();
+
+    const resizeObserver =
+      new ResizeObserver(() => {
+        updateGalleryEdges();
+      });
+
+    resizeObserver.observe(gallery);
+
+    window.addEventListener(
+      'resize',
+      updateGalleryEdges
+    );
+  }
+</script>
 
 <style>
   /*
@@ -285,18 +384,21 @@ const sortedGallery = [...gallery].sort(
 
   /*
    * GALLERY HEADER
+   *
+   * Match the Projects heading inset while
+   * keeping the artwork wall edge-to-edge.
    */
 
   .gallery-header {
     display: flex;
     align-items: flex-end;
-    justify-content: space-between;
+    justify-content: flex-end;
 
     width: 100%;
 
     padding:
       0
-      0.75rem
+      1.5rem
       0.35rem;
   }
 
@@ -317,19 +419,8 @@ const sortedGallery = [...gallery].sort(
     font-weight: 600;
     line-height: 0.82;
     letter-spacing: -0.06em;
-  }
 
-  .gallery-header span {
-    padding-bottom: 0.15rem;
-
-    font-family:
-      "Adwaita Mono",
-      monospace;
-
-    font-size: 0.75rem;
-    font-weight: 700;
-
-    white-space: nowrap;
+    text-align: right;
   }
 
   /*
@@ -361,9 +452,6 @@ const sortedGallery = [...gallery].sort(
 
   /*
    * SPACE BETWEEN RULE AND ARTWORK
-   *
-   * Slightly tighter than the space
-   * between the header and the rule.
    */
 
   .gallery-wall-space {
@@ -379,10 +467,6 @@ const sortedGallery = [...gallery].sort(
 
   /*
    * ART WALL
-   *
-   * Edge-to-edge.
-   * Natural artwork aspect ratios.
-   * 1px seams between pieces.
    */
 
   .gallery {
@@ -408,15 +492,14 @@ const sortedGallery = [...gallery].sort(
     gap:
       var(--gallery-gap);
 
+    overflow: visible;
+
     background:
       var(--background, #000);
   }
 
   /*
    * TILE WIDTHS
-   *
-   * Height is determined by each
-   * artwork's natural aspect ratio.
    */
 
   .gallery > :global([data-size="square"]) {
@@ -504,9 +587,11 @@ const sortedGallery = [...gallery].sort(
     }
 
     .gallery-header {
+      justify-content: flex-end;
+
       padding:
         0
-        0.5rem
+        1rem
         0.3rem;
     }
 
@@ -517,10 +602,8 @@ const sortedGallery = [...gallery].sort(
           22vw,
           8rem
         );
-    }
 
-    .gallery-header span {
-      font-size: 0.65rem;
+      text-align: right;
     }
 
     .gallery-space {
