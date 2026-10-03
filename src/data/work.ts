@@ -19,7 +19,7 @@ export const work: WorkEntry[] = [
     title: 'Blender',
     type: 'Experience',
     description:
-      '3D Modeling / Animation / Rendering',
+      'Animation / Rendering',
   },
   {
     title: 'DaVinci Resolve',
