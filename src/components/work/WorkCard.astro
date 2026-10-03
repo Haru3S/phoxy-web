@@ -1,0 +1,407 @@
+---
+import type { WorkEntry } from '../../data/work';
+
+interface Props {
+  entry: WorkEntry;
+  index: number;
+}
+
+const {
+  entry,
+  index,
+} = Astro.props;
+
+const workNumber =
+  String(index + 1).padStart(2, '0');
+---
+
+<article
+  class="work-card"
+  data-work-card
+>
+  <div class="work-card-meta">
+    <span class="work-card-number">
+      {workNumber}
+    </span>
+
+    <span class="work-card-type">
+      {entry.type}
+    </span>
+  </div>
+
+  <div class="work-card-body">
+    <h3>
+      {entry.title}
+    </h3>
+
+    {entry.issuer && (
+      <p class="work-card-issuer">
+        {entry.issuer}
+      </p>
+    )}
+
+    {entry.date && (
+      <p class="work-card-date">
+        {entry.date}
+      </p>
+    )}
+
+    {entry.description && (
+      <p class="work-card-description">
+        {entry.description}
+      </p>
+    )}
+
+    {entry.href && (
+      <a
+        class="work-card-link"
+        href={entry.href}
+        aria-label={`Open ${entry.title}`}
+      >
+        <span>
+          View
+        </span>
+
+        <i
+          class="ph ph-arrow-square-out"
+          aria-hidden="true"
+        ></i>
+      </a>
+    )}
+  </div>
+</article>
+
+<style>
+  .work-card {
+    display: grid;
+
+    grid-template-rows:
+      auto
+      1fr;
+
+    flex:
+      0
+      0
+      clamp(
+        20rem,
+        38vw,
+        42rem
+      );
+
+    width:
+      clamp(
+        20rem,
+        38vw,
+        42rem
+      );
+
+    height:
+      clamp(
+        17rem,
+        24vw,
+        26rem
+      );
+
+    padding:
+      clamp(
+        0.8rem,
+        1.2vw,
+        1.25rem
+      );
+
+    border:
+      1px
+      solid
+      var(--color-border);
+
+    background:
+      var(--color-bg);
+
+    color:
+      var(--color-fg);
+
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /*
+   * METADATA
+   */
+
+  .work-card-meta {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 1rem;
+
+    font-family:
+      "Adwaita Mono",
+      monospace;
+
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1;
+
+    text-transform: uppercase;
+  }
+
+  /*
+   * BODY
+   */
+
+  .work-card-body {
+    display: flex;
+
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+
+    min-width: 0;
+  }
+
+  /*
+   * TITLE
+   *
+   * Unlike the oversized section headings,
+   * card titles use Space Grotesk's natural
+   * kerning and ligature behavior.
+   *
+   * The section headings benefit from
+   * aggressive negative tracking because
+   * they're being treated compositionally.
+   * Longer readable titles do not.
+   */
+
+  .work-card h3 {
+    max-width: 12ch;
+
+    margin: 0;
+
+    font-family:
+      "Space Grotesk Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        2.8rem,
+        4.4vw,
+        5.5rem
+      );
+
+    font-weight: 600;
+
+    line-height: 0.92;
+
+    letter-spacing: normal;
+
+    font-kerning: normal;
+
+    font-variant-ligatures:
+      common-ligatures
+      contextual;
+
+    font-feature-settings:
+      "kern" 1,
+      "liga" 1,
+      "clig" 1,
+      "calt" 1;
+
+    text-rendering:
+      optimizeLegibility;
+  }
+
+  /*
+   * ISSUER
+   */
+
+  .work-card-issuer {
+    margin:
+      0.9rem
+      0
+      0;
+
+    font-family:
+      "Inter Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        0.9rem,
+        1vw,
+        1.1rem
+      );
+
+    font-weight: 400;
+
+    line-height: 1.2;
+
+    letter-spacing: normal;
+
+    font-kerning: normal;
+  }
+
+  /*
+   * DATE
+   */
+
+  .work-card-date {
+    margin:
+      0.35rem
+      0
+      0;
+
+    font-family:
+      "Adwaita Mono",
+      monospace;
+
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  /*
+   * DESCRIPTION
+   */
+
+  .work-card-description {
+    max-width: 34rem;
+
+    margin:
+      1rem
+      0
+      0;
+
+    font-family:
+      "Inter Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        0.9rem,
+        1vw,
+        1.05rem
+      );
+
+    line-height: 1.35;
+  }
+
+  /*
+   * OPTIONAL LINK
+   */
+
+  .work-card-link {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 0.35rem;
+
+    margin-top: 1rem;
+
+    color:
+      var(--color-fg);
+
+    font-family:
+      "Adwaita Mono",
+      monospace;
+
+    font-size: 0.9rem;
+    font-weight: 700;
+
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .work-card-link span {
+    position: relative;
+
+    display: inline-block;
+  }
+
+  .work-card-link span::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    bottom: -0.08em;
+
+    width: 100%;
+    height: 0.06em;
+
+    background: currentColor;
+
+    transform: scaleX(0);
+    transform-origin: left;
+
+    transition:
+      transform
+      0.1s
+      ease-out;
+  }
+
+  .work-card-link:hover span::after,
+  .work-card-link:focus-visible span::after {
+    transform: scaleX(1);
+  }
+
+  .work-card-link i {
+    font-size: 1.1rem;
+  }
+
+  /*
+   * REDUCED MOTION
+   */
+
+  @media (
+    prefers-reduced-motion: reduce
+  ) {
+    .work-card-link span::after {
+      transition: none;
+    }
+  }
+
+  /*
+   * MOBILE
+   */
+
+  @media (max-width: 700px) {
+    .work-card {
+      flex-basis:
+        min(
+          82vw,
+          24rem
+        );
+
+      width:
+        min(
+          82vw,
+          24rem
+        );
+
+      height:
+        clamp(
+          15rem,
+          62vw,
+          20rem
+        );
+
+      padding: 0.8rem;
+    }
+
+    .work-card h3 {
+      max-width: 11ch;
+
+      font-size:
+        clamp(
+          2.35rem,
+          11vw,
+          4.25rem
+        );
+
+      line-height: 0.94;
+    }
+  }
+</style>

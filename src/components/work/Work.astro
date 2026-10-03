@@ -1,0 +1,1252 @@
+---
+import {
+  work,
+  type WorkEntry,
+} from '../../data/work';
+
+import WorkCard from './WorkCard.astro';
+
+interface Props {
+  entries?: WorkEntry[];
+}
+
+const {
+  entries = work,
+} = Astro.props;
+
+/*
+ * Multiple identical copies allow the track
+ * to be silently rebased while moving.
+ */
+
+const reelSets =
+  Array.from(
+    { length: 5 },
+    (_, index) => index
+  );
+---
+
+<section
+  id="work"
+  class="work-section"
+  data-work
+>
+  <header class="work-header">
+    <h2>
+      <span
+        class="lens-text lens-interactive scroll-emphasis"
+        data-text="Work"
+        data-scroll-emphasis
+      >
+        Work
+      </span>
+    </h2>
+  </header>
+
+  <div
+    class="work-rule"
+    aria-hidden="true"
+  ></div>
+
+  <div class="work-reel-shell">
+    <button
+      class="work-arrow work-arrow-left"
+      type="button"
+      aria-label="Scroll work left"
+      data-work-arrow="left"
+    >
+      <i
+        class="ph ph-caret-left"
+        aria-hidden="true"
+      ></i>
+    </button>
+
+    <div
+      class="work-viewport"
+      data-work-viewport
+    >
+      <div
+        class="work-track"
+        data-work-track
+      >
+        {reelSets.map((setIndex) => (
+          <div
+            class="work-set"
+            data-work-set
+            aria-hidden={
+              setIndex !== 2
+                ? 'true'
+                : undefined
+            }
+          >
+            {entries.map(
+              (entry, entryIndex) => (
+                <WorkCard
+                  entry={entry}
+                  index={entryIndex}
+                />
+              )
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <button
+      class="work-arrow work-arrow-right"
+      type="button"
+      aria-label="Scroll work right"
+      data-work-arrow="right"
+    >
+      <i
+        class="ph ph-caret-right"
+        aria-hidden="true"
+      ></i>
+    </button>
+  </div>
+
+  <div
+    class="work-rule"
+    aria-hidden="true"
+  ></div>
+</section>
+
+<script>
+  const workSections =
+    document.querySelectorAll<HTMLElement>(
+      '[data-work]'
+    );
+
+  for (
+    const workSection
+    of workSections
+  ) {
+    const viewport =
+      workSection
+        .querySelector<HTMLElement>(
+          '[data-work-viewport]'
+        );
+
+    const track =
+      workSection
+        .querySelector<HTMLElement>(
+          '[data-work-track]'
+        );
+
+    const sets =
+      Array.from(
+        workSection
+          .querySelectorAll<HTMLElement>(
+            '[data-work-set]'
+          )
+      );
+
+    const leftArrow =
+      workSection
+        .querySelector<HTMLButtonElement>(
+          '[data-work-arrow="left"]'
+        );
+
+    const rightArrow =
+      workSection
+        .querySelector<HTMLButtonElement>(
+          '[data-work-arrow="right"]'
+        );
+
+    if (
+      !viewport ||
+      !track ||
+      sets.length < 5 ||
+      !leftArrow ||
+      !rightArrow
+    ) {
+      continue;
+    }
+
+    const reducedMotion =
+      window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+      );
+
+    /*
+     * PHYSICS
+     */
+
+    const DRAG_THRESHOLD = 5;
+
+    const INERTIA_THRESHOLD =
+      0.085;
+
+    const MAX_RELEASE_VELOCITY =
+      4.25;
+
+    /*
+     * Lower = longer glide.
+     *
+     * Still intentionally heavier than an
+     * ice-like/free-spinning carousel.
+     */
+
+    const INERTIA_FRICTION =
+      3.65;
+
+    /*
+     * Arrow clicks give the reel a useful
+     * shove rather than moving only slightly.
+     */
+
+    const ARROW_PUSH_VELOCITY =
+      2.35;
+
+    const VELOCITY_SMOOTHING =
+      0.5;
+
+    const RELEASE_IDLE_TIME =
+      70;
+
+    /*
+     * Horizontal touch intent must become
+     * clear before we take over the gesture.
+     */
+
+    const TOUCH_DIRECTION_THRESHOLD =
+      7;
+
+    /*
+     * POSITION
+     */
+
+    let position = 0;
+    let setWidth = 0;
+
+    /*
+     * POINTER
+     */
+
+    let pointerId:
+      number | null = null;
+
+    let pointerType = '';
+
+    let pointerStartX = 0;
+    let pointerStartY = 0;
+
+    let pointerLastX = 0;
+    let pointerLastY = 0;
+
+    let pointerLastTime = 0;
+
+    let dragging = false;
+
+    /*
+     * A touch begins undecided.
+     *
+     * horizontal = reel owns it
+     * vertical   = browser/page owns it
+     */
+
+    let touchDirection:
+      'pending' |
+      'horizontal' |
+      'vertical' =
+        'pending';
+
+    /*
+     * px / ms
+     */
+
+    let velocity = 0;
+
+    /*
+     * ANIMATION
+     */
+
+    let animationFrame:
+      number | null = null;
+
+    let previousFrameTime = 0;
+
+    /*
+     * RENDER
+     */
+
+    const renderPosition = () => {
+      track.style.transform =
+        `translate3d(${position}px, 0, 0)`;
+    };
+
+    /*
+     * LOOPING
+     */
+
+    const rebasePosition = () => {
+      if (setWidth <= 0) {
+        return;
+      }
+
+      const leftBoundary =
+        -setWidth * 3;
+
+      const rightBoundary =
+        -setWidth;
+
+      while (
+        position <= leftBoundary
+      ) {
+        position += setWidth;
+      }
+
+      while (
+        position >= rightBoundary
+      ) {
+        position -= setWidth;
+      }
+    };
+
+    const updatePosition = (
+      delta: number
+    ) => {
+      position += delta;
+
+      rebasePosition();
+      renderPosition();
+    };
+
+    /*
+     * MEASURE
+     */
+
+    const measure = () => {
+      const referenceSet =
+        sets[2];
+
+      if (!referenceSet) {
+        return;
+      }
+
+      const previousSetWidth =
+        setWidth;
+
+      setWidth =
+        referenceSet
+          .getBoundingClientRect()
+          .width;
+
+      if (setWidth <= 0) {
+        return;
+      }
+
+      if (
+        previousSetWidth === 0
+      ) {
+        position =
+          -setWidth * 2;
+
+        renderPosition();
+
+        return;
+      }
+
+      const relativePosition =
+        position /
+        previousSetWidth;
+
+      position =
+        relativePosition *
+        setWidth;
+
+      rebasePosition();
+      renderPosition();
+    };
+
+    /*
+     * ARROW VISIBILITY
+     */
+
+    const hideArrows = () => {
+      workSection
+        .classList
+        .add('is-dragging');
+    };
+
+    const showArrows = () => {
+      workSection
+        .classList
+        .remove('is-dragging');
+    };
+
+    /*
+     * ANIMATION CONTROL
+     */
+
+    const stopAnimation = () => {
+      if (
+        animationFrame !== null
+      ) {
+        cancelAnimationFrame(
+          animationFrame
+        );
+
+        animationFrame = null;
+      }
+
+      previousFrameTime = 0;
+    };
+
+    const stopInertia = () => {
+      stopAnimation();
+
+      velocity = 0;
+    };
+
+    /*
+     * INERTIA
+     */
+
+    const inertiaFrame = (
+      currentTime: number
+    ) => {
+      if (
+        pointerId !== null ||
+        reducedMotion.matches
+      ) {
+        stopInertia();
+
+        return;
+      }
+
+      if (
+        previousFrameTime === 0
+      ) {
+        previousFrameTime =
+          currentTime;
+      }
+
+      const deltaTime =
+        Math.min(
+          (
+            currentTime -
+            previousFrameTime
+          ) /
+            1000,
+          0.05
+        );
+
+      previousFrameTime =
+        currentTime;
+
+      updatePosition(
+        velocity *
+          deltaTime *
+          1000
+      );
+
+      velocity *=
+        Math.exp(
+          -INERTIA_FRICTION *
+            deltaTime
+        );
+
+      if (
+        Math.abs(velocity) <
+        INERTIA_THRESHOLD
+      ) {
+        stopInertia();
+
+        return;
+      }
+
+      animationFrame =
+        requestAnimationFrame(
+          inertiaFrame
+        );
+    };
+
+    const startInertia = () => {
+      stopAnimation();
+
+      if (
+        reducedMotion.matches ||
+        Math.abs(velocity) <
+          INERTIA_THRESHOLD
+      ) {
+        velocity = 0;
+
+        return;
+      }
+
+      velocity =
+        Math.max(
+          -MAX_RELEASE_VELOCITY,
+          Math.min(
+            MAX_RELEASE_VELOCITY,
+            velocity
+          )
+        );
+
+      previousFrameTime = 0;
+
+      animationFrame =
+        requestAnimationFrame(
+          inertiaFrame
+        );
+    };
+
+    /*
+     * POINTER DOWN
+     */
+
+    const beginPointer = (
+      event: PointerEvent
+    ) => {
+      if (
+        event.pointerType === 'mouse' &&
+        event.button !== 0
+      ) {
+        return;
+      }
+
+      stopInertia();
+
+      pointerId =
+        event.pointerId;
+
+      pointerType =
+        event.pointerType;
+
+      pointerStartX =
+        event.clientX;
+
+      pointerStartY =
+        event.clientY;
+
+      pointerLastX =
+        event.clientX;
+
+      pointerLastY =
+        event.clientY;
+
+      pointerLastTime =
+        event.timeStamp;
+
+      dragging = false;
+      velocity = 0;
+
+      touchDirection =
+        event.pointerType === 'touch'
+          ? 'pending'
+          : 'horizontal';
+
+      /*
+       * Mouse/pen can be captured immediately.
+       *
+       * Touch waits until horizontal intent is
+       * known so vertical page scrolling isn't
+       * unnecessarily stolen.
+       */
+
+      if (
+        event.pointerType !== 'touch'
+      ) {
+        viewport.setPointerCapture(
+          event.pointerId
+        );
+      }
+    };
+
+    /*
+     * POINTER MOVE
+     */
+
+    const movePointer = (
+      event: PointerEvent
+    ) => {
+      if (
+        pointerId !==
+        event.pointerId
+      ) {
+        return;
+      }
+
+      const currentX =
+        event.clientX;
+
+      const currentY =
+        event.clientY;
+
+      const totalX =
+        currentX -
+        pointerStartX;
+
+      const totalY =
+        currentY -
+        pointerStartY;
+
+      /*
+       * TOUCH DIRECTION LOCK
+       *
+       * We don't interfere until the user has
+       * moved enough to reveal intent.
+       */
+
+      if (
+        pointerType === 'touch' &&
+        touchDirection === 'pending'
+      ) {
+        const distance =
+          Math.hypot(
+            totalX,
+            totalY
+          );
+
+        if (
+          distance <
+          TOUCH_DIRECTION_THRESHOLD
+        ) {
+          return;
+        }
+
+        if (
+          Math.abs(totalX) >
+          Math.abs(totalY)
+        ) {
+          touchDirection =
+            'horizontal';
+
+          if (
+            !viewport.hasPointerCapture(
+              event.pointerId
+            )
+          ) {
+            viewport.setPointerCapture(
+              event.pointerId
+            );
+          }
+        } else {
+          touchDirection =
+            'vertical';
+
+          pointerId = null;
+          velocity = 0;
+
+          return;
+        }
+      }
+
+      if (
+        touchDirection === 'vertical'
+      ) {
+        return;
+      }
+
+      const deltaX =
+        currentX -
+        pointerLastX;
+
+      const deltaTime =
+        Math.max(
+          event.timeStamp -
+            pointerLastTime,
+          1
+        );
+
+      if (
+        !dragging &&
+        Math.abs(totalX) >=
+          DRAG_THRESHOLD
+      ) {
+        dragging = true;
+
+        hideArrows();
+      }
+
+      if (dragging) {
+        /*
+         * Once touch has clearly become a
+         * horizontal reel gesture, stop the
+         * browser interpreting this movement
+         * as page manipulation.
+         */
+
+        if (
+          event.cancelable
+        ) {
+          event.preventDefault();
+        }
+
+        updatePosition(
+          deltaX
+        );
+
+        const instantaneousVelocity =
+          deltaX /
+          deltaTime;
+
+        velocity =
+          velocity *
+            VELOCITY_SMOOTHING +
+          instantaneousVelocity *
+            (
+              1 -
+              VELOCITY_SMOOTHING
+            );
+      }
+
+      pointerLastX =
+        currentX;
+
+      pointerLastY =
+        currentY;
+
+      pointerLastTime =
+        event.timeStamp;
+    };
+
+    /*
+     * POINTER RELEASE
+     */
+
+    const finishPointer = (
+      event: PointerEvent
+    ) => {
+      if (
+        pointerId !==
+        event.pointerId
+      ) {
+        return;
+      }
+
+      const wasDragging =
+        dragging;
+
+      const releaseDelay =
+        event.timeStamp -
+        pointerLastTime;
+
+      if (
+        releaseDelay >
+        RELEASE_IDLE_TIME
+      ) {
+        velocity = 0;
+      }
+
+      pointerId = null;
+      pointerType = '';
+
+      dragging = false;
+
+      touchDirection =
+        'pending';
+
+      showArrows();
+
+      if (
+        viewport.hasPointerCapture(
+          event.pointerId
+        )
+      ) {
+        viewport.releasePointerCapture(
+          event.pointerId
+        );
+      }
+
+      if (!wasDragging) {
+        velocity = 0;
+
+        return;
+      }
+
+      startInertia();
+    };
+
+    viewport.addEventListener(
+      'pointerdown',
+      beginPointer
+    );
+
+    viewport.addEventListener(
+      'pointermove',
+      movePointer
+    );
+
+    viewport.addEventListener(
+      'pointerup',
+      finishPointer
+    );
+
+    viewport.addEventListener(
+      'pointercancel',
+      finishPointer
+    );
+
+    viewport.addEventListener(
+      'dragstart',
+      (event) => {
+        event.preventDefault();
+      }
+    );
+
+    /*
+     * ARROW PUSH
+     */
+
+    const pushReel = (
+      direction: -1 | 1
+    ) => {
+      stopInertia();
+
+      if (
+        reducedMotion.matches
+      ) {
+        const card =
+          workSection
+            .querySelector<HTMLElement>(
+              '[data-work-card]'
+            );
+
+        const cardWidth =
+          card
+            ?.getBoundingClientRect()
+            .width ?? 0;
+
+        updatePosition(
+          direction *
+            cardWidth
+        );
+
+        return;
+      }
+
+      velocity =
+        direction *
+        ARROW_PUSH_VELOCITY;
+
+      previousFrameTime = 0;
+
+      animationFrame =
+        requestAnimationFrame(
+          inertiaFrame
+        );
+    };
+
+    leftArrow.addEventListener(
+      'click',
+      () => {
+        pushReel(1);
+      }
+    );
+
+    rightArrow.addEventListener(
+      'click',
+      () => {
+        pushReel(-1);
+      }
+    );
+
+    /*
+     * RESIZE
+     */
+
+    const resizeObserver =
+      new ResizeObserver(() => {
+        measure();
+      });
+
+    resizeObserver.observe(
+      viewport
+    );
+
+    resizeObserver.observe(
+      sets[2]
+    );
+
+    /*
+     * REDUCED MOTION
+     */
+
+    reducedMotion.addEventListener(
+      'change',
+      () => {
+        stopInertia();
+        showArrows();
+      }
+    );
+
+    /*
+     * INITIAL POSITION
+     */
+
+    requestAnimationFrame(() => {
+      measure();
+    });
+  }
+</script>
+
+<style>
+  /*
+   * SECTION
+   *
+   * Same large section rhythm used by
+   * Projects immediately above it.
+   */
+
+  .work-section {
+    width: 100%;
+
+    padding-top:
+      clamp(
+        4rem,
+        10vw,
+        10rem
+      );
+
+    overflow: hidden;
+  }
+
+  /*
+   * HEADING
+   *
+   * Typography values intentionally match
+   * Projects exactly.
+   */
+
+  .work-header {
+    display: flex;
+
+    justify-content: flex-end;
+
+    width: 100%;
+
+    padding:
+      0
+      1.5rem
+      0.2em;
+  }
+
+  .work-header h2 {
+    margin: 0;
+
+    font-family:
+      "Space Grotesk Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        4rem,
+        10vw,
+        10rem
+      );
+
+    font-weight: 600;
+    line-height: 0.85;
+    letter-spacing: -0.05em;
+
+    text-align: right;
+  }
+
+  /*
+   * FULL-WIDTH RULES
+   */
+
+  .work-rule {
+    width: 100%;
+    height: 3px;
+
+    margin: 0;
+
+    background:
+      var(--color-border);
+  }
+
+  /*
+   * REEL
+   *
+   * Vertical padding now gives the cards
+   * real separation from BOTH rules.
+   *
+   * This prevents the bottom card border
+   * from visually merging into the section
+   * boundary.
+   */
+
+  .work-reel-shell {
+    position: relative;
+
+    width: 100%;
+
+    padding:
+      clamp(
+        1.5rem,
+        2vw,
+        2rem
+      )
+      0;
+
+    overflow: hidden;
+  }
+
+  .work-viewport {
+    position: relative;
+
+    width: 100%;
+
+    overflow: hidden;
+
+    cursor: grab;
+
+    /*
+     * Vertical page scrolling remains native.
+     * Horizontal movement is handled by the
+     * reel's pointer logic.
+     */
+
+    touch-action: pan-y;
+
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .work-viewport:active {
+    cursor: grabbing;
+  }
+
+  .work-track {
+    display: flex;
+
+    width: max-content;
+
+    transform:
+      translate3d(
+        0,
+        0,
+        0
+      );
+
+    will-change: transform;
+  }
+
+  .work-set {
+    display: flex;
+
+    flex: 0 0 auto;
+
+    gap:
+      clamp(
+        0.5rem,
+        0.6vw,
+        0.7rem
+      );
+
+    padding-right:
+      clamp(
+        0.5rem,
+        0.6vw,
+        0.7rem
+      );
+  }
+
+  /*
+   * ARROWS
+   */
+
+  .work-arrow {
+    position: absolute;
+
+    top: 50%;
+
+    z-index: 10;
+
+    display: grid;
+
+    place-items: center;
+
+    width:
+      clamp(
+        2.25rem,
+        2.8vw,
+        3rem
+      );
+
+    height:
+      clamp(
+        2.25rem,
+        2.8vw,
+        3rem
+      );
+
+    padding: 0;
+
+    border:
+      1px
+      solid
+      var(--color-border);
+
+    border-radius: 50%;
+
+    background:
+      rgba(
+        0,
+        0,
+        0,
+        0.68
+      );
+
+    color:
+      var(--color-fg);
+
+    font-size:
+      clamp(
+        0.9rem,
+        1.1vw,
+        1.15rem
+      );
+
+    cursor: pointer;
+
+    opacity: 1;
+
+    translate:
+      0
+      -50%;
+
+    transition:
+      opacity 150ms ease-out,
+      background 100ms ease-out;
+
+    backdrop-filter:
+      blur(8px);
+
+    -webkit-backdrop-filter:
+      blur(8px);
+  }
+
+  .work-arrow:hover,
+  .work-arrow:focus-visible {
+    background:
+      rgba(
+        255,
+        255,
+        255,
+        0.1
+      );
+  }
+
+  .work-arrow:focus-visible {
+    outline:
+      1px
+      solid
+      var(--color-fg);
+
+    outline-offset: 3px;
+  }
+
+  .work-arrow-left {
+    left:
+      clamp(
+        0.75rem,
+        1.25vw,
+        1.25rem
+      );
+  }
+
+  .work-arrow-right {
+    right:
+      clamp(
+        0.75rem,
+        1.25vw,
+        1.25rem
+      );
+  }
+
+  /*
+   * DIRECT MANIPULATION
+   */
+
+  .work-section.is-dragging
+    .work-arrow {
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition-duration: 100ms;
+  }
+
+  /*
+   * REDUCED MOTION
+   */
+
+  @media (
+    prefers-reduced-motion: reduce
+  ) {
+    .work-arrow,
+    .work-section.is-dragging
+      .work-arrow {
+      transition: none;
+    }
+
+    .work-track {
+      will-change: auto;
+    }
+  }
+
+  /*
+   * MOBILE
+   */
+
+  @media (max-width: 700px) {
+    .work-section {
+      padding-top: 4rem;
+    }
+
+    .work-header {
+      padding:
+        0
+        1rem
+        0.2em;
+    }
+
+    /*
+     * Same mobile scale as Projects.
+     */
+
+    .work-header h2 {
+      font-size:
+        clamp(
+          4rem,
+          17vw,
+          7rem
+        );
+    }
+
+    .work-rule {
+      height: 2px;
+    }
+
+    .work-reel-shell {
+      padding:
+        1rem
+        0;
+    }
+
+    .work-set {
+      gap: 0.5rem;
+
+      padding-right: 0.5rem;
+    }
+
+    .work-arrow {
+      width: 2.25rem;
+      height: 2.25rem;
+
+      font-size: 0.9rem;
+    }
+
+    .work-arrow-left {
+      left: 0.6rem;
+    }
+
+    .work-arrow-right {
+      right: 0.6rem;
+    }
+  }
+</style>

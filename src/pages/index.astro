@@ -7,6 +7,8 @@ import MainNav from '../components/navigation/MainNav.astro';
 
 import ProjectCard from '../components/projects/ProjectCard.astro';
 
+import Work from '../components/work/Work.astro';
+
 import GalleryItem from '../components/gallery/GalleryItem.astro';
 
 import { projects } from '../data/projects';
@@ -87,6 +89,9 @@ const sortedGallery = [...gallery].sort(
         ))}
       </div>
     </section>
+
+    <!-- Work -->
+    <Work />
 
     <!-- Contact -->
     <section id="contact">
