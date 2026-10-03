@@ -7,6 +7,12 @@ import GalleryItem from '../components/gallery/GalleryItem.astro';
 
 import { projects } from '../data/projects';
 import { gallery } from '../data/gallery';
+
+const sortedGallery = [...gallery].sort(
+  (a, b) =>
+    new Date(`${b.date}T00:00:00`).getTime() -
+    new Date(`${a.date}T00:00:00`).getTime()
+);
 ---
 
 <Layout title="Phoxy">
@@ -71,8 +77,17 @@ import { gallery } from '../data/gallery';
         <span>SELECTED WORK</span>
       </header>
 
+      <div class="gallery-space"></div>
+
+      <div
+        class="gallery-rule"
+        aria-hidden="true"
+      ></div>
+
+      <div class="gallery-wall-space"></div>
+
       <div class="gallery">
-        {gallery.map((item) => (
+        {sortedGallery.map((item) => (
           <GalleryItem item={item} />
         ))}
       </div>
@@ -110,7 +125,10 @@ import { gallery } from '../data/gallery';
 
     overflow: hidden;
 
-    border-right: 1px solid var(--border, #111);
+    border-right:
+      1px
+      solid
+      var(--border, #111);
   }
 
   .about-art img {
@@ -138,7 +156,12 @@ import { gallery } from '../data/gallery';
     min-width: 0;
     min-height: 0;
 
-    padding: clamp(0.5rem, 0.7vw, 0.875rem);
+    padding:
+      clamp(
+        0.5rem,
+        0.7vw,
+        0.875rem
+      );
   }
 
   .about-intro {
@@ -149,8 +172,17 @@ import { gallery } from '../data/gallery';
 
     margin: 0;
 
-    font-family: "Inter Variable", sans-serif;
-    font-size: clamp(2.5rem, 3.5vw, 4.5rem);
+    font-family:
+      "Inter Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        2.5rem,
+        3.5vw,
+        4.5rem
+      );
+
     font-weight: 400;
     line-height: 0.98;
     letter-spacing: -0.045em;
@@ -170,8 +202,17 @@ import { gallery } from '../data/gallery';
 
     margin: 0;
 
-    font-family: "Space Grotesk Variable", sans-serif;
-    font-size: clamp(5rem, 8.5vw, 10rem);
+    font-family:
+      "Space Grotesk Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        5rem,
+        8.5vw,
+        10rem
+      );
+
     font-weight: 700;
     line-height: 0.78;
     letter-spacing: -0.06em;
@@ -195,7 +236,12 @@ import { gallery } from '../data/gallery';
   .projects-section {
     width: 100%;
 
-    padding-top: clamp(4rem, 10vw, 10rem);
+    padding-top:
+      clamp(
+        4rem,
+        10vw,
+        10rem
+      );
   }
 
   .projects-section > h2 {
@@ -206,8 +252,17 @@ import { gallery } from '../data/gallery';
       1.5rem
       0.2em;
 
-    font-family: "Space Grotesk Variable", sans-serif;
-    font-size: clamp(4rem, 10vw, 10rem);
+    font-family:
+      "Space Grotesk Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        4rem,
+        10vw,
+        10rem
+      );
+
     font-weight: 600;
     line-height: 0.85;
     letter-spacing: -0.05em;
@@ -220,7 +275,12 @@ import { gallery } from '../data/gallery';
   .gallery-section {
     width: 100%;
 
-    padding-top: clamp(5rem, 12vw, 12rem);
+    padding-top:
+      clamp(
+        2rem,
+        3vw,
+        3rem
+      );
   }
 
   /*
@@ -236,27 +296,36 @@ import { gallery } from '../data/gallery';
 
     padding:
       0
-      1rem
-      0.75rem;
-
-    border-bottom:
-      1px
-      solid
-      var(--border, #111);
+      0.75rem
+      0.35rem;
   }
 
   .gallery-header h2 {
     margin: 0;
 
-    font-family: "Space Grotesk Variable", sans-serif;
-    font-size: clamp(5rem, 12vw, 12rem);
+    font-family:
+      "Space Grotesk Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        5rem,
+        12vw,
+        12rem
+      );
+
     font-weight: 600;
-    line-height: 0.75;
+    line-height: 0.82;
     letter-spacing: -0.06em;
   }
 
   .gallery-header span {
-    font-family: "Adwaita Mono", monospace;
+    padding-bottom: 0.15rem;
+
+    font-family:
+      "Adwaita Mono",
+      monospace;
+
     font-size: 0.75rem;
     font-weight: 700;
 
@@ -264,74 +333,106 @@ import { gallery } from '../data/gallery';
   }
 
   /*
+   * SPACE BETWEEN TEXT AND RULE
+   */
+
+  .gallery-space {
+    width: 100%;
+
+    height:
+      clamp(
+        2.25rem,
+        3.5vw,
+        4rem
+      );
+  }
+
+  /*
+   * SINGLE GALLERY RULE
+   */
+
+  .gallery-rule {
+    width: 100%;
+    height: 3px;
+
+    background:
+      var(--foreground, #fff);
+  }
+
+  /*
+   * SPACE BETWEEN RULE AND ARTWORK
+   *
+   * Slightly tighter than the space
+   * between the header and the rule.
+   */
+
+  .gallery-wall-space {
+    width: 100%;
+
+    height:
+      clamp(
+        2rem,
+        3vw,
+        3.4rem
+      );
+  }
+
+  /*
    * ART WALL
    *
-   * Six-column base grid gives us enough
-   * resolution for irregular compositions
-   * without turning the layout into chaos.
+   * Edge-to-edge.
+   * Natural artwork aspect ratios.
+   * 1px seams between pieces.
    */
 
   .gallery {
+    --gallery-gap: 1px;
+
     display: grid;
 
     grid-template-columns:
-      repeat(6, minmax(0, 1fr));
+      repeat(
+        12,
+        minmax(0, 1fr)
+      );
 
     grid-auto-flow: dense;
 
-    grid-auto-rows:
-      clamp(110px, 11vw, 210px);
+    align-items: start;
 
     width: 100%;
 
-    gap: 1px;
+    margin: 0;
+    padding: 0;
+
+    gap:
+      var(--gallery-gap);
 
     background:
-      var(--border, #111);
+      var(--background, #000);
   }
 
   /*
-   * SQUARE
+   * TILE WIDTHS
    *
-   * 2 columns × 2 rows
+   * Height is determined by each
+   * artwork's natural aspect ratio.
    */
 
   .gallery > :global([data-size="square"]) {
-    grid-column: span 2;
-    grid-row: span 2;
+    grid-column: span 3;
   }
-
-  /*
-   * WIDE
-   *
-   * 4 columns × 2 rows
-   */
 
   .gallery > :global([data-size="wide"]) {
-    grid-column: span 4;
-    grid-row: span 2;
+    grid-column: span 6;
   }
-
-  /*
-   * TALL
-   *
-   * 2 columns × 3 rows
-   */
 
   .gallery > :global([data-size="tall"]) {
-    grid-column: span 2;
-    grid-row: span 3;
+    grid-column: span 3;
   }
 
-  /*
-   * LARGE
-   *
-   * 4 columns × 3 rows
-   */
-
   .gallery > :global([data-size="large"]) {
-    grid-column: span 4;
-    grid-row: span 3;
+    grid-column: span 6;
   }
 
   /*
@@ -350,6 +451,7 @@ import { gallery } from '../data/gallery';
 
     .about-art {
       height: auto;
+
       aspect-ratio: 4 / 3;
 
       border-right: 0;
@@ -389,22 +491,23 @@ import { gallery } from '../data/gallery';
     }
 
     .about-heading span {
-      transform:
-        scaleX(1.08);
-
-      transform-origin:
-        left bottom;
+      transform: scaleX(1.08);
+      transform-origin: left bottom;
     }
 
     /*
      * MOBILE GALLERY
      */
 
+    .gallery-section {
+      padding-top: 2rem;
+    }
+
     .gallery-header {
       padding:
         0
-        0.75rem
-        0.6rem;
+        0.5rem
+        0.3rem;
     }
 
     .gallery-header h2 {
@@ -416,39 +519,38 @@ import { gallery } from '../data/gallery';
         );
     }
 
+    .gallery-header span {
+      font-size: 0.65rem;
+    }
+
+    .gallery-space {
+      height: 2rem;
+    }
+
+    .gallery-rule {
+      height: 2px;
+    }
+
+    .gallery-wall-space {
+      height: 1.75rem;
+    }
+
     .gallery {
       grid-template-columns:
         repeat(
-          2,
+          4,
           minmax(0, 1fr)
         );
-
-      grid-auto-rows:
-        clamp(
-          120px,
-          32vw,
-          190px
-        );
     }
 
-    .gallery > :global([data-size="square"]) {
-      grid-column: span 1;
-      grid-row: span 2;
-    }
-
-    .gallery > :global([data-size="wide"]) {
-      grid-column: span 2;
-      grid-row: span 2;
-    }
-
+    .gallery > :global([data-size="square"]),
     .gallery > :global([data-size="tall"]) {
-      grid-column: span 1;
-      grid-row: span 3;
+      grid-column: span 2;
     }
 
+    .gallery > :global([data-size="wide"]),
     .gallery > :global([data-size="large"]) {
-      grid-column: span 2;
-      grid-row: span 3;
+      grid-column: span 4;
     }
   }
 </style>
