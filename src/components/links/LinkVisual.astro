@@ -26,14 +26,42 @@
       white: [255, 255, 255],
     } as const;
 
-    type RGB = readonly [number, number, number];
-    type Vec3 = [number, number, number];
+    type RGB =
+      readonly [
+        number,
+        number,
+        number,
+      ];
+
+    type Vec3 =
+      [
+        number,
+        number,
+        number,
+      ];
 
     interface Cell {
       x: number;
       y: number;
       z: number;
       light: number;
+    }
+
+    interface PointerState {
+      targetX: number;
+      targetY: number;
+
+      x: number;
+      y: number;
+
+      previousX: number;
+      previousY: number;
+
+      velocityX: number;
+      velocityY: number;
+
+      targetStrength: number;
+      strength: number;
     }
 
     /*
@@ -47,13 +75,36 @@
     const MINOR_STEPS = 110;
 
     /*
+     * CURSOR DISTORTION
+     *
+     * Larger field than before.
+     * Radius is measured in Textmode
+     * grid cells, not CSS pixels.
+     */
+
+    const DISTORTION_RADIUS = 22;
+    const DISTORTION_FORCE = 6.0;
+    const DISTORTION_DRAG = 2.2;
+
+    const pointer: PointerState = {
+      targetX: 0,
+      targetY: 0,
+
+      x: 0,
+      y: 0,
+
+      previousX: 0,
+      previousY: 0,
+
+      velocityX: 0,
+      velocityY: 0,
+
+      targetStrength: 0,
+      strength: 0,
+    };
+
+    /*
      * LIGHT
-     *
-     * Think of this as a soft light mounted
-     * above the camera.
-     *
-     * -Y = above
-     * +Z = toward camera
      */
 
     const LIGHT: Vec3 = [
@@ -73,7 +124,10 @@
     ) =>
       Math.max(
         min,
-        Math.min(max, value),
+        Math.min(
+          max,
+          value,
+        ),
       );
 
     function mix(
@@ -81,7 +135,8 @@
       b: RGB,
       amount: number,
     ): Vec3 {
-      const n = clamp(amount);
+      const n =
+        clamp(amount);
 
       return [
         Math.round(
@@ -111,14 +166,23 @@
       ay: number,
       az: number,
     ): Vec3 {
-      const sx = Math.sin(ax);
-      const cx = Math.cos(ax);
+      const sx =
+        Math.sin(ax);
 
-      const sy = Math.sin(ay);
-      const cy = Math.cos(ay);
+      const cx =
+        Math.cos(ax);
 
-      const sz = Math.sin(az);
-      const cz = Math.cos(az);
+      const sy =
+        Math.sin(ay);
+
+      const cy =
+        Math.cos(ay);
+
+      const sz =
+        Math.sin(az);
+
+      const cz =
+        Math.cos(az);
 
       const y1 =
         y * cx -
@@ -232,6 +296,266 @@
     }
 
     /*
+     * POINTER
+     */
+
+    function pointerToGrid(
+      event: PointerEvent,
+    ) {
+      const rect =
+        container.getBoundingClientRect();
+
+      const normalizedX =
+        (
+          event.clientX -
+          rect.left
+        ) /
+        rect.width;
+
+      const normalizedY =
+        (
+          event.clientY -
+          rect.top
+        ) /
+        rect.height;
+
+      return {
+        x:
+          (
+            normalizedX -
+            0.5
+          ) *
+          t.grid.cols,
+
+        y:
+          (
+            normalizedY -
+            0.5
+          ) *
+          t.grid.rows,
+      };
+    }
+
+    function updatePointer() {
+      pointer.x +=
+        (
+          pointer.targetX -
+          pointer.x
+        ) *
+        0.18;
+
+      pointer.y +=
+        (
+          pointer.targetY -
+          pointer.y
+        ) *
+        0.18;
+
+      const movementX =
+        pointer.x -
+        pointer.previousX;
+
+      const movementY =
+        pointer.y -
+        pointer.previousY;
+
+      pointer.velocityX =
+        pointer.velocityX *
+          0.72 +
+        movementX *
+          0.28;
+
+      pointer.velocityY =
+        pointer.velocityY *
+          0.72 +
+        movementY *
+          0.28;
+
+      pointer.previousX =
+        pointer.x;
+
+      pointer.previousY =
+        pointer.y;
+
+      pointer.strength +=
+        (
+          pointer.targetStrength -
+          pointer.strength
+        ) *
+        0.1;
+    }
+
+    /*
+     * DISTORTION
+     */
+
+    function distort(
+      x: number,
+      y: number,
+    ) {
+      if (
+        pointer.strength <
+        0.001
+      ) {
+        return {
+          x,
+          y,
+        };
+      }
+
+      const dx =
+        x -
+        pointer.x;
+
+      const dy =
+        y -
+        pointer.y;
+
+      const distance =
+        Math.hypot(
+          dx,
+          dy,
+        );
+
+      if (
+        distance >=
+        DISTORTION_RADIUS
+      ) {
+        return {
+          x,
+          y,
+        };
+      }
+
+      const normalized =
+        1 -
+        distance /
+          DISTORTION_RADIUS;
+
+      const falloff =
+        normalized *
+        normalized *
+        (
+          3 -
+          2 * normalized
+        );
+
+      const safeDistance =
+        Math.max(
+          distance,
+          0.001,
+        );
+
+      const nx =
+        dx /
+        safeDistance;
+
+      const ny =
+        dy /
+        safeDistance;
+
+      const push =
+        falloff *
+        DISTORTION_FORCE *
+        pointer.strength;
+
+      const dragX =
+        pointer.velocityX *
+        falloff *
+        DISTORTION_DRAG *
+        pointer.strength;
+
+      const dragY =
+        pointer.velocityY *
+        falloff *
+        DISTORTION_DRAG *
+        pointer.strength;
+
+      return {
+        x:
+          x +
+          nx * push +
+          dragX,
+
+        y:
+          y +
+          ny * push +
+          dragY,
+      };
+    }
+
+    const reducedMotion =
+      window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      );
+
+    container.addEventListener(
+      'pointerenter',
+      (event) => {
+        if (
+          reducedMotion.matches
+        ) {
+          return;
+        }
+
+        const position =
+          pointerToGrid(event);
+
+        pointer.targetX =
+          position.x;
+
+        pointer.targetY =
+          position.y;
+
+        pointer.x =
+          position.x;
+
+        pointer.y =
+          position.y;
+
+        pointer.previousX =
+          position.x;
+
+        pointer.previousY =
+          position.y;
+
+        pointer.velocityX = 0;
+        pointer.velocityY = 0;
+
+        pointer.targetStrength = 1;
+      },
+    );
+
+    container.addEventListener(
+      'pointermove',
+      (event) => {
+        if (
+          reducedMotion.matches
+        ) {
+          return;
+        }
+
+        const position =
+          pointerToGrid(event);
+
+        pointer.targetX =
+          position.x;
+
+        pointer.targetY =
+          position.y;
+
+        pointer.targetStrength = 1;
+      },
+    );
+
+    container.addEventListener(
+      'pointerleave',
+      () => {
+        pointer.targetStrength = 0;
+      },
+    );
+
+    /*
      * DRAW
      */
 
@@ -239,7 +563,15 @@
       t.background(0);
 
       const time =
-        t.frameCount / 60;
+        reducedMotion.matches
+          ? 0
+          : t.frameCount / 60;
+
+      if (
+        !reducedMotion.matches
+      ) {
+        updatePointer();
+      }
 
       /*
        * ROTATION
@@ -367,30 +699,38 @@
               pz
             );
 
+          const baseScreenX =
+            px *
+            perspective *
+            scale;
+
+          const baseScreenY =
+            py *
+            perspective *
+            scale;
+
+          /*
+           * CURSOR DISTORTION
+           */
+
+          const distorted =
+            distort(
+              baseScreenX,
+              baseScreenY,
+            );
+
           const screenX =
             Math.round(
-              px *
-              perspective *
-              scale,
+              distorted.x,
             );
 
           const screenY =
             Math.round(
-              py *
-              perspective *
-              scale,
+              distorted.y,
             );
 
           /*
            * CAMERA-BIASED OVERHEAD LIGHT
-           *
-           * Unlike the previous revision,
-           * there is no fake self-shadow.
-           *
-           * The light lives above and near
-           * the viewer, so visible surfaces
-           * remain readable while the lower
-           * surfaces still fall into purple.
            */
 
           const diffuse =
@@ -401,35 +741,17 @@
               nz * LIGHT[2],
             );
 
-          /*
-           * Broad, strong light.
-           */
-
           const broadLight =
             Math.pow(
               diffuse,
               0.72,
             );
 
-          /*
-           * Smaller bright core.
-           */
-
           const highlight =
             Math.pow(
               diffuse,
               5,
             );
-
-          /*
-           * Front-facing surfaces receive
-           * a tiny amount of fill light.
-           *
-           * This prevents large visible
-           * areas from becoming uniformly
-           * dark purple without creating
-           * another bright underside patch.
-           */
 
           const cameraFill =
             Math.pow(
