@@ -61,15 +61,10 @@ pre,
 /*
  * CHROMATIC LENS FRINGING
  *
- * Shared display-heading treatment.
+ * Base visual treatment only.
  *
- * The white letterform stays clean while
- * slightly displaced spectral copies sit
- * behind it.
- *
- * The extremely small blur only blends
- * the fringe colours together. It should
- * never read as bloom or glowing text.
+ * No hover movement.
+ * No scroll movement.
  */
 
 .lens-text {
@@ -146,6 +141,146 @@ pre,
 
 
 /*
+ * INTERACTIVE LENS
+ *
+ * Optional hover behavior.
+ *
+ * This ONLY changes chromatic dispersion.
+ * The actual text does not move or scale.
+ *
+ * Deliberately slower than the navigation
+ * interactions elsewhere on the site.
+ */
+
+.lens-interactive::before,
+.lens-interactive::after {
+  transition:
+    transform 0.32s ease-out,
+    text-shadow 0.32s ease-out;
+}
+
+
+/*
+ * HOVER DISPERSION
+ *
+ * Pull the spectral fringes outward while
+ * leaving the white core completely still.
+ */
+
+.lens-interactive:hover::before {
+  transform:
+    translateX(-0.026em);
+
+  text-shadow:
+    -0.021em 0
+      #006eff,
+
+    -0.011em 0
+      #00aaff,
+
+    0.006em 0
+      #00f0ff;
+}
+
+.lens-interactive:hover::after {
+  transform:
+    translateX(0.026em);
+
+  text-shadow:
+    0.021em 0
+      #ff334c,
+
+    0.011em 0
+      #ff7038,
+
+    -0.006em 0
+      #ffe100;
+}
+
+
+/*
+ * SCROLL EMPHASIS
+ *
+ * Separate from the lens interaction.
+ *
+ * Adding .is-scroll-active activates the
+ * movement. JavaScript on the index page
+ * will control that state based on scroll
+ * position.
+ *
+ * Individual translate / scale properties
+ * allow this to coexist with transforms
+ * such as the scaleX() used by the About
+ * heading.
+ */
+
+.scroll-emphasis {
+  translate: 0 0;
+  scale: 1;
+
+  transition:
+    translate 0.22s ease-out,
+    scale 0.22s ease-out;
+}
+
+.scroll-emphasis.is-scroll-active {
+  translate: 0 -0.055em;
+  scale: 1.025;
+}
+
+
+/*
+ * REDUCED MOTION
+ *
+ * Preserve the static chromatic appearance,
+ * but disable animated interaction.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  .lens-interactive::before,
+  .lens-interactive::after,
+  .scroll-emphasis {
+    transition: none;
+  }
+
+  .lens-interactive:hover::before {
+    transform:
+      translateX(-0.017em);
+
+    text-shadow:
+      -0.013em 0
+        #006eff,
+
+      -0.006em 0
+        #00aaff,
+
+      0.004em 0
+        #00f0ff;
+  }
+
+  .lens-interactive:hover::after {
+    transform:
+      translateX(0.017em);
+
+    text-shadow:
+      0.013em 0
+        #ff334c,
+
+      0.006em 0
+        #ff7038,
+
+      -0.004em 0
+        #ffe100;
+  }
+
+  .scroll-emphasis.is-scroll-active {
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+
+/*
  * MOBILE LENS FRINGING
  *
  * Slightly tighter separation as display
@@ -180,6 +315,41 @@ pre,
         #ff7038,
 
       -0.003em 0
+        #ffe100;
+  }
+
+
+  /*
+   * MOBILE HOVER DISPERSION
+   */
+
+  .lens-interactive:hover::before {
+    transform:
+      translateX(-0.021em);
+
+    text-shadow:
+      -0.016em 0
+        #006eff,
+
+      -0.008em 0
+        #00aaff,
+
+      0.005em 0
+        #00f0ff;
+  }
+
+  .lens-interactive:hover::after {
+    transform:
+      translateX(0.021em);
+
+    text-shadow:
+      0.016em 0
+        #ff334c,
+
+      0.008em 0
+        #ff7038,
+
+      -0.005em 0
         #ffe100;
   }
 }

@@ -1,4 +1,8 @@
-<section class="hero" aria-labelledby="hero-title">
+<section
+  class="hero"
+  aria-labelledby="hero-title"
+  data-hero
+>
   <div class="hero-canvas">
     <div class="hero-fill"></div>
 
@@ -27,6 +31,18 @@
     </button>
   </div>
 
+  <button
+    class="hero-scroll-indicator"
+    type="button"
+    aria-label="Scroll to Who I Am"
+    data-hero-scroll
+  >
+    <i
+      class="ph ph-caret-down"
+      aria-hidden="true"
+    ></i>
+  </button>
+
   <h1 id="hero-title" class="sr-only">Phoxy</h1>
 </section>
 
@@ -39,8 +55,11 @@
 
   .hero-canvas {
     position: relative;
+
     width: 100%;
+
     aspect-ratio: 16 / 9;
+
     overflow: hidden;
   }
 
@@ -48,6 +67,7 @@
   .hero-layer {
     position: absolute;
     inset: 0;
+
     width: 100%;
     height: 100%;
   }
@@ -58,6 +78,7 @@
 
   .hero-layer {
     object-fit: contain;
+
     user-select: none;
     pointer-events: none;
   }
@@ -66,14 +87,21 @@
     mix-blend-mode: screen;
   }
 
+
+  /*
+   * SCOUT
+   */
+
   .scout-button {
     position: absolute;
     inset: 0;
+
     width: 100%;
     height: 100%;
 
     padding: 0;
     border: 0;
+
     background: transparent;
 
     cursor: pointer;
@@ -82,39 +110,214 @@
   .hero-scout {
     pointer-events: none;
   }
+
+
+  /*
+   * HERO SCROLL INDICATOR
+   *
+   * The Hero is a true 16:9 canvas and may
+   * extend below the viewport on some screen
+   * shapes.
+   *
+   * The indicator therefore belongs to the
+   * viewport rather than the bottom edge of
+   * the image. This keeps the affordance
+   * visible immediately when the page opens.
+   */
+
+  .hero-scroll-indicator {
+    position: fixed;
+
+    left: 50%;
+    bottom:
+      clamp(
+        1rem,
+        2vw,
+        2rem
+      );
+
+    z-index: 100;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 2.75rem;
+    height: 2.75rem;
+
+    padding: 0;
+
+    border:
+      1px
+      solid
+      rgba(255, 255, 255, 0.28);
+
+    border-radius: 50%;
+
+    background:
+      rgba(0, 0, 0, 0.38);
+
+    color:
+      rgba(255, 255, 255, 0.7);
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    transform:
+      translateX(-50%);
+
+    opacity: 1;
+    visibility: visible;
+
+    cursor: pointer;
+
+    transition:
+      opacity 0.25s ease-out,
+      color 0.15s ease-out,
+      border-color 0.15s ease-out,
+      transform 0.15s ease-out,
+      visibility 0s linear 0s;
+  }
+
+  .hero-scroll-indicator:hover,
+  .hero-scroll-indicator:focus-visible {
+    color:
+      rgba(255, 255, 255, 1);
+
+    border-color:
+      rgba(255, 255, 255, 0.7);
+
+    transform:
+      translateX(-50%)
+      translateY(0.15rem);
+  }
+
+  .hero-scroll-indicator i {
+    font-size: 1.4rem;
+  }
+
+
+  /*
+   * HIDDEN STATE
+   *
+   * Once the bottom of the Hero has passed
+   * the bottom of the viewport, the user has
+   * reached the actual page content and the
+   * indicator has finished its job.
+   */
+
+  .hero-scroll-indicator.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+
+    pointer-events: none;
+
+    transition:
+      opacity 0.25s ease-out,
+      color 0.15s ease-out,
+      border-color 0.15s ease-out,
+      transform 0.15s ease-out,
+      visibility 0s linear 0.25s;
+  }
+
+
+  /*
+   * REDUCED MOTION
+   */
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-scroll-indicator,
+    .hero-scroll-indicator.is-hidden {
+      transition: none;
+    }
+
+    .hero-scroll-indicator:hover,
+    .hero-scroll-indicator:focus-visible {
+      transform:
+        translateX(-50%);
+    }
+  }
 </style>
 
 <script>
-  const hero = document.querySelector<HTMLElement>('.hero-canvas');
-  const graffiti = document.querySelector<HTMLElement>('.hero-graffiti');
-  const scout = document.querySelector<HTMLElement>('.hero-scout');
+  const hero =
+    document.querySelector<HTMLElement>(
+      '.hero-canvas'
+    );
+
+  const heroSection =
+    document.querySelector<HTMLElement>(
+      '[data-hero]'
+    );
+
+  const graffiti =
+    document.querySelector<HTMLElement>(
+      '.hero-graffiti'
+    );
+
+  const scout =
+    document.querySelector<HTMLElement>(
+      '.hero-scout'
+    );
+
   const scoutButton =
-    document.querySelector<HTMLButtonElement>('.scout-button');
+    document.querySelector<HTMLButtonElement>(
+      '.scout-button'
+    );
+
+  const heroScrollIndicator =
+    document.querySelector<HTMLButtonElement>(
+      '[data-hero-scroll]'
+    );
+
+  const reducedMotion =
+    window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    );
+
 
   /*
    * HERO PARALLAX
    */
 
   if (hero && graffiti && scout) {
-    const reducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)'
-    );
-
     let targetX = 0;
     let targetY = 0;
+
     let currentX = 0;
     let currentY = 0;
 
-    const updateTarget = (event: PointerEvent) => {
-      if (reducedMotion.matches) return;
+    const updateTarget = (
+      event: PointerEvent
+    ) => {
+      if (reducedMotion.matches) {
+        return;
+      }
 
-      const rect = hero.getBoundingClientRect();
+      const rect =
+        hero.getBoundingClientRect();
 
       targetX =
-        ((event.clientX - rect.left) / rect.width - 0.5) * 2;
+        (
+          (
+            event.clientX -
+            rect.left
+          ) /
+          rect.width -
+          0.5
+        ) *
+        2;
 
       targetY =
-        ((event.clientY - rect.top) / rect.height - 0.5) * 2;
+        (
+          (
+            event.clientY -
+            rect.top
+          ) /
+          rect.height -
+          0.5
+        ) *
+        2;
     };
 
     const resetTarget = () => {
@@ -123,8 +326,13 @@
     };
 
     const animate = () => {
-      currentX += (targetX - currentX) * 0.08;
-      currentY += (targetY - currentY) * 0.08;
+      currentX +=
+        (targetX - currentX) *
+        0.08;
+
+      currentY +=
+        (targetY - currentY) *
+        0.08;
 
       graffiti.style.transform =
         `translate(${currentX * 3}px, ${currentY * 3}px)`;
@@ -132,14 +340,125 @@
       scout.style.transform =
         `translate(${currentX * 7}px, ${currentY * 7}px)`;
 
-      requestAnimationFrame(animate);
+      requestAnimationFrame(
+        animate
+      );
     };
 
-    hero.addEventListener('pointermove', updateTarget);
-    hero.addEventListener('pointerleave', resetTarget);
+    hero.addEventListener(
+      'pointermove',
+      updateTarget
+    );
+
+    hero.addEventListener(
+      'pointerleave',
+      resetTarget
+    );
 
     animate();
   }
+
+
+  /*
+   * HERO SCROLL INDICATOR
+   *
+   * Because the Hero can be taller than the
+   * viewport, the indicator stays attached to
+   * the bottom-center of the screen.
+   *
+   * Once the bottom edge of the Hero reaches
+   * the bottom edge of the viewport, the
+   * indicator fades away.
+   */
+
+  if (
+    heroSection &&
+    heroScrollIndicator
+  ) {
+    const updateHeroScrollIndicator = () => {
+      const rect =
+        heroSection.getBoundingClientRect();
+
+      const viewportHeight =
+        window.innerHeight;
+
+      const shouldHide =
+        rect.bottom <=
+        viewportHeight;
+
+      heroScrollIndicator.classList.toggle(
+        'is-hidden',
+        shouldHide
+      );
+    };
+
+
+    /*
+     * The arrow is a shortcut to the first
+     * actual content section rather than a
+     * fixed-distance scroll.
+     */
+
+    heroScrollIndicator.addEventListener(
+      'click',
+      () => {
+        const about =
+          document.querySelector<HTMLElement>(
+            '#about'
+          );
+
+        if (!about) {
+          return;
+        }
+
+        about.scrollIntoView({
+          behavior:
+            reducedMotion.matches
+              ? 'auto'
+              : 'smooth',
+
+          block: 'start',
+        });
+      }
+    );
+
+
+    /*
+     * Scroll updates are throttled to one
+     * layout check per animation frame.
+     */
+
+    let scrollFrame:
+      number | null = null;
+
+    const requestIndicatorUpdate = () => {
+      if (scrollFrame !== null) {
+        return;
+      }
+
+      scrollFrame =
+        requestAnimationFrame(() => {
+          updateHeroScrollIndicator();
+
+          scrollFrame = null;
+        });
+    };
+
+
+    window.addEventListener(
+      'scroll',
+      requestIndicatorUpdate,
+      { passive: true }
+    );
+
+    window.addEventListener(
+      'resize',
+      requestIndicatorUpdate
+    );
+
+    updateHeroScrollIndicator();
+  }
+
 
   /*
    * SCOUT VOICE LINES
@@ -158,45 +477,59 @@
   ];
 
   let previousLine = -1;
-  let currentAudio: HTMLAudioElement | null = null;
+
+  let currentAudio:
+    HTMLAudioElement | null = null;
 
   const playRandomScoutLine = () => {
-    if (scoutLines.length === 0) return;
+    if (scoutLines.length === 0) {
+      return;
+    }
 
-    let nextLine = previousLine;
+    let nextLine =
+      previousLine;
 
     while (
       nextLine === previousLine &&
       scoutLines.length > 1
     ) {
-      nextLine = Math.floor(
-        Math.random() * scoutLines.length
-      );
+      nextLine =
+        Math.floor(
+          Math.random() *
+          scoutLines.length
+        );
     }
 
     if (scoutLines.length === 1) {
       nextLine = 0;
     }
 
-    previousLine = nextLine;
+    previousLine =
+      nextLine;
 
     if (currentAudio) {
       currentAudio.pause();
+
       currentAudio.currentTime = 0;
     }
 
-    currentAudio = new Audio(scoutLines[nextLine]);
+    currentAudio =
+      new Audio(
+        scoutLines[nextLine]
+      );
 
     // 0.0 = silent, 1.0 = original volume
     // 0.5 is approximately -6 dB.
     currentAudio.volume = 0.5;
 
-    currentAudio.play().catch((error) => {
-      console.error(
-        'Could not play Scout voice line:',
-        error
-      );
-    });
+    currentAudio
+      .play()
+      .catch((error) => {
+        console.error(
+          'Could not play Scout voice line:',
+          error
+        );
+      });
   };
 
   scoutButton?.addEventListener(
