@@ -304,6 +304,9 @@ const currencies = [
   }
 
   .detail-toolbar {
+    position: relative;
+    z-index: 10;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -325,6 +328,8 @@ const currencies = [
 
     font-size: 0.7rem;
     font-weight: 700;
+
+    user-select: none;
   }
 
   .back-button {
@@ -595,7 +600,8 @@ const currencies = [
 
     gap: 0.4rem;
 
-    padding: 0;
+    padding: 0.55rem 0.65rem;
+    margin: -0.55rem -0.65rem;
 
     border: 0;
 
