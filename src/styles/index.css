@@ -1,0 +1,60 @@
+/*
+ * HOMEPAGE LOAD ENTRANCE
+ *
+ * The homepage itself fades as one document,
+ * while only the Hero artwork receives the
+ * upward movement.
+ *
+ * This deliberately avoids translating the
+ * <main> element because the Hero contains a
+ * viewport-fixed scroll indicator.
+ */
+
+.js .home-load-enter {
+  opacity: 0;
+
+  transition:
+    opacity
+      var(--load-enter-duration)
+      var(--load-enter-easing);
+}
+
+.js.page-ready .home-load-enter {
+  opacity: 1;
+}
+
+.js .home-load-motion {
+  translate:
+    0
+    var(--load-enter-distance);
+
+  transition:
+    translate
+      var(--load-enter-duration)
+      var(--load-enter-easing);
+}
+
+.js.page-ready .home-load-motion {
+  translate: 0 0;
+}
+
+
+/*
+ * REDUCED MOTION
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  .js .home-load-enter,
+  .js.page-ready .home-load-enter {
+    opacity: 1;
+
+    transition: none;
+  }
+
+  .js .home-load-motion,
+  .js.page-ready .home-load-motion {
+    translate: 0 0;
+
+    transition: none;
+  }
+}

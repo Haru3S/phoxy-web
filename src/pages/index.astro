@@ -8,6 +8,8 @@ import Projects from '../components/projects/Projects.astro';
 import Work from '../components/work/Work.astro';
 import Contact from '../components/contact/Contact.astro';
 import Gallery from '../components/gallery/Gallery.astro';
+
+import '../styles/index.css';
 ---
 
 <Layout title="Phoxy">
@@ -47,65 +49,3 @@ import Gallery from '../components/gallery/Gallery.astro';
 <script>
   import '../scripts/scrollEmphasis.ts';
 </script>
-
-<style>
-  /*
-   * HOMEPAGE LOAD ENTRANCE
-   *
-   * The homepage itself fades as one document,
-   * while only the Hero artwork receives the
-   * upward movement.
-   *
-   * This deliberately avoids translating the
-   * <main> element because the Hero contains a
-   * viewport-fixed scroll indicator.
-   */
-
-  :global(.js) .home-load-enter {
-    opacity: 0;
-
-    transition:
-      opacity
-        var(--load-enter-duration)
-        var(--load-enter-easing);
-  }
-
-  :global(.js.page-ready) .home-load-enter {
-    opacity: 1;
-  }
-
-  :global(.js) .home-load-motion {
-    translate:
-      0
-      var(--load-enter-distance);
-
-    transition:
-      translate
-        var(--load-enter-duration)
-        var(--load-enter-easing);
-  }
-
-  :global(.js.page-ready) .home-load-motion {
-    translate: 0 0;
-  }
-
-  /*
-   * REDUCED MOTION
-   */
-
-  @media (prefers-reduced-motion: reduce) {
-    :global(.js) .home-load-enter,
-    :global(.js.page-ready) .home-load-enter {
-      opacity: 1;
-
-      transition: none;
-    }
-
-    :global(.js) .home-load-motion,
-    :global(.js.page-ready) .home-load-motion {
-      translate: 0 0;
-
-      transition: none;
-    }
-  }
-</style>
