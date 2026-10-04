@@ -3210,7 +3210,7 @@
         },
         {
           rootMargin:
-            '300px 0px',
+            '10px 0px',
           threshold: 0,
         }
       );
