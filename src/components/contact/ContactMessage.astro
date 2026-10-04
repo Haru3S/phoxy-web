@@ -1,0 +1,176 @@
+---
+import '../../styles/contact/contactMessage.css';
+---
+
+<dialog
+  class="contact-message-dialog"
+  data-contact-message
+  aria-labelledby="contact-message-title"
+>
+  <div
+    class="contact-message-window"
+    data-contact-message-window
+  >
+    <header class="contact-message-titlebar">
+      <div class="contact-message-title">
+        <span
+          class="contact-message-indicator"
+          aria-hidden="true"
+        ></span>
+
+        <span id="contact-message-title">
+          PHX://MESSAGE
+        </span>
+      </div>
+
+      <button
+        class="contact-message-close"
+        type="button"
+        data-contact-message-close
+        aria-label="Close message window"
+      >
+        <i
+          class="ph ph-x"
+          aria-hidden="true"
+        ></i>
+      </button>
+    </header>
+
+    <form
+      class="contact-message-form"
+      data-contact-message-form
+      novalidate
+    >
+      <div class="contact-message-field">
+        <label for="contact-message-name">
+          YOUR NAME
+        </label>
+
+        <input
+          id="contact-message-name"
+          name="name"
+          type="text"
+          autocomplete="name"
+          maxlength="100"
+          placeholder="NAME / ALIAS"
+        />
+
+        <span
+          class="contact-message-error"
+          data-error-for="name"
+          aria-live="polite"
+        ></span>
+      </div>
+
+      <div class="contact-message-field">
+        <label for="contact-message-email">
+          YOUR EMAIL
+        </label>
+
+        <input
+          id="contact-message-email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          maxlength="254"
+          placeholder="YOU@EXAMPLE.COM"
+          required
+        />
+
+        <span
+          class="contact-message-error"
+          data-error-for="email"
+          aria-live="polite"
+        ></span>
+      </div>
+
+      <div class="contact-message-field">
+        <label for="contact-message-subject">
+          SUBJECT
+        </label>
+
+        <input
+          id="contact-message-subject"
+          name="subject"
+          type="text"
+          maxlength="160"
+          placeholder="WHAT'S UP?"
+          required
+        />
+
+        <span
+          class="contact-message-error"
+          data-error-for="subject"
+          aria-live="polite"
+        ></span>
+      </div>
+
+      <div
+        class="contact-message-field
+               contact-message-field-message"
+      >
+        <label for="contact-message-body">
+          MESSAGE
+        </label>
+
+        <textarea
+          id="contact-message-body"
+          name="message"
+          rows="7"
+          maxlength="5000"
+          placeholder="WRITE SOMETHING..."
+          required
+        ></textarea>
+
+        <div class="contact-message-field-meta">
+          <span
+            class="contact-message-error"
+            data-error-for="message"
+            aria-live="polite"
+          ></span>
+
+          <span
+            class="contact-message-counter"
+            data-contact-message-counter
+          >
+            0 / 5000
+          </span>
+        </div>
+      </div>
+
+      <footer class="contact-message-footer">
+        <div
+          class="contact-message-status"
+          data-contact-message-status
+          aria-live="polite"
+        >
+          <span
+            class="contact-message-status-dot"
+            aria-hidden="true"
+          ></span>
+
+          <span data-contact-message-status-text>
+            READY
+          </span>
+        </div>
+
+        <button
+          class="contact-message-submit"
+          type="submit"
+          data-contact-message-submit
+        >
+          <span>SEND MESSAGE</span>
+
+          <i
+            class="ph ph-paper-plane-tilt"
+            aria-hidden="true"
+          ></i>
+        </button>
+      </footer>
+    </form>
+  </div>
+</dialog>
+
+<script>
+  import '../../scripts/contactMessage.ts';
+</script>

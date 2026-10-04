@@ -1,0 +1,864 @@
+/*
+ * PHX://MESSAGE
+ */
+
+html.contact-message-open {
+  overflow: hidden;
+}
+
+.contact-message-dialog {
+  width:
+    min(
+      calc(100% - 2rem),
+      40rem
+    );
+
+  max-width: none;
+
+  margin: auto;
+  padding: 0;
+
+  overflow: visible;
+
+  border:
+    1px
+    solid
+    var(--color-border);
+
+  border-radius: 0;
+
+  background:
+    var(--color-bg);
+
+  color:
+    var(--color-fg);
+
+  opacity: 0;
+
+  transform:
+    translateY(0.6rem)
+    scale(0.985);
+
+  transition:
+    opacity
+    0.14s
+    ease-out,
+    transform
+    0.14s
+    ease-out;
+
+  box-shadow:
+    0
+    1.5rem
+    5rem
+    rgba(
+      0,
+      0,
+      0,
+      0.55
+    );
+}
+
+.contact-message-dialog[open] {
+  display: block;
+}
+
+.contact-message-dialog.is-open {
+  opacity: 1;
+
+  transform:
+    translateY(0)
+    scale(1);
+}
+
+.contact-message-dialog::backdrop {
+  background:
+    rgba(
+      0,
+      0,
+      0,
+      0
+    );
+
+  backdrop-filter:
+    blur(0);
+
+  transition:
+    background
+    0.14s
+    ease-out,
+    backdrop-filter
+    0.14s
+    ease-out;
+}
+
+.contact-message-dialog.is-open::backdrop {
+  background:
+    rgba(
+      0,
+      0,
+      0,
+      0.76
+    );
+
+  backdrop-filter:
+    blur(4px);
+}
+
+/*
+ * WINDOW
+ */
+
+.contact-message-window {
+  display: flex;
+
+  flex-direction: column;
+
+  width: 100%;
+
+  overflow: hidden;
+
+  background:
+    var(--color-bg);
+}
+
+/*
+ * TITLE BAR
+ */
+
+.contact-message-titlebar {
+  display: flex;
+
+  align-items: stretch;
+
+  justify-content:
+    space-between;
+
+  height: 2.75rem;
+
+  border-bottom:
+    1px
+    solid
+    var(--color-border);
+
+  background:
+    var(--color-bg);
+}
+
+.contact-message-title {
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.65rem;
+
+  min-width: 0;
+
+  padding:
+    0
+    0.9rem;
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size:
+    0.76rem;
+
+  font-weight: 700;
+
+  line-height: 1;
+
+  letter-spacing:
+    0.04em;
+}
+
+.contact-message-indicator {
+  display: block;
+
+  flex: 0 0 auto;
+
+  width: 0.45rem;
+  height: 0.45rem;
+
+  background:
+    #94e2d5;
+
+  box-shadow:
+    0
+    0
+    0.6rem
+    rgba(
+      148,
+      226,
+      213,
+      0.35
+    );
+}
+
+/*
+ * WINDOWS-LIKE CLOSE BUTTON
+ */
+
+.contact-message-close {
+  display: grid;
+
+  place-items: center;
+
+  flex: 0 0 auto;
+
+  width: 3rem;
+  height: 100%;
+
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+  border-left:
+    1px
+    solid
+    transparent;
+
+  border-radius: 0;
+
+  background:
+    transparent;
+
+  color:
+    var(--color-fg);
+
+  cursor: pointer;
+
+  transition:
+    background
+    0.1s
+    ease-out,
+    border-color
+    0.1s
+    ease-out,
+    color
+    0.1s
+    ease-out;
+}
+
+.contact-message-close i {
+  font-size: 1rem;
+
+  line-height: 1;
+}
+
+.contact-message-close:hover {
+  border-left-color:
+    #f38ba8;
+
+  background:
+    #f38ba8;
+
+  color:
+    #000;
+}
+
+.contact-message-close:active {
+  background:
+    #e87894;
+
+  color:
+    #000;
+}
+
+.contact-message-close:focus-visible {
+  outline:
+    2px
+    solid
+    #94e2d5;
+
+  outline-offset:
+    -2px;
+}
+
+/*
+ * FORM
+ */
+
+.contact-message-form {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 0.8rem;
+
+  padding:
+    1rem
+    1.1rem
+    1.1rem;
+
+  overflow: visible;
+}
+
+.contact-message-field {
+  display: flex;
+
+  flex-direction: column;
+
+  width: 100%;
+}
+
+.contact-message-field label {
+  margin-bottom:
+    0.35rem;
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size:
+    0.7rem;
+
+  font-weight: 700;
+
+  line-height: 1;
+
+  letter-spacing:
+    0.045em;
+}
+
+.contact-message-field input,
+.contact-message-field textarea {
+  width: 100%;
+
+  margin: 0;
+
+  border:
+    1px
+    solid
+    rgba(
+      255,
+      255,
+      255,
+      0.55
+    );
+
+  border-radius: 0;
+
+  background:
+    #000;
+
+  color:
+    var(--color-fg);
+
+  font-family:
+    "Inter Variable",
+    sans-serif;
+
+  font-size: 0.92rem;
+
+  font-weight: 400;
+
+  line-height: 1.35;
+
+  caret-color:
+    #94e2d5;
+
+  transition:
+    border-color
+    0.1s
+    ease-out,
+    box-shadow
+    0.1s
+    ease-out;
+}
+
+.contact-message-field input {
+  height: 2.5rem;
+
+  padding:
+    0.55rem
+    0.7rem;
+}
+
+.contact-message-field textarea {
+  height: 8rem;
+  min-height: 8rem;
+  max-height: 8rem;
+
+  padding:
+    0.65rem
+    0.7rem;
+
+  overflow-y: auto;
+
+  resize: none;
+
+  scrollbar-width: thin;
+
+  scrollbar-color:
+    rgba(
+      255,
+      255,
+      255,
+      0.35
+    )
+    #000;
+}
+
+.contact-message-field textarea::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+.contact-message-field textarea::-webkit-scrollbar-track {
+  background:
+    #000;
+}
+
+.contact-message-field textarea::-webkit-scrollbar-thumb {
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.35
+    );
+}
+
+.contact-message-field textarea::-webkit-scrollbar-thumb:hover {
+  background:
+    #94e2d5;
+}
+
+.contact-message-field input::placeholder,
+.contact-message-field textarea::placeholder {
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.3
+    );
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.8em;
+
+  letter-spacing:
+    0.025em;
+}
+
+.contact-message-field input:hover,
+.contact-message-field textarea:hover {
+  border-color:
+    rgba(
+      255,
+      255,
+      255,
+      0.8
+    );
+}
+
+.contact-message-field input:focus,
+.contact-message-field textarea:focus {
+  border-color:
+    #94e2d5;
+
+  outline: none;
+
+  box-shadow:
+    inset
+    3px
+    0
+    0
+    #94e2d5;
+}
+
+.contact-message-field input[aria-invalid="true"],
+.contact-message-field textarea[aria-invalid="true"] {
+  border-color:
+    #f38ba8;
+
+  box-shadow:
+    inset
+    3px
+    0
+    0
+    #f38ba8;
+}
+
+/*
+ * FIELD META
+ */
+
+.contact-message-field-meta {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content:
+    space-between;
+
+  gap: 1rem;
+
+  min-height: 0.85rem;
+
+  margin-top: 0.25rem;
+}
+
+.contact-message-error {
+  display: block;
+
+  min-height: 0.85rem;
+
+  color:
+    #f38ba8;
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.65rem;
+
+  font-weight: 700;
+
+  line-height: 1.15;
+}
+
+.contact-message-field
+  > .contact-message-error {
+  min-height: 0;
+
+  margin-top: 0.25rem;
+}
+
+.contact-message-field
+  > .contact-message-error:empty {
+  display: none;
+}
+
+.contact-message-counter {
+  flex: 0 0 auto;
+
+  margin-left: auto;
+
+  color:
+    var(--color-fg);
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.65rem;
+
+  line-height: 1.15;
+
+  opacity: 0.42;
+}
+
+/*
+ * FOOTER
+ */
+
+.contact-message-footer {
+  display: flex;
+
+  align-items: center;
+
+  justify-content:
+    space-between;
+
+  gap: 1rem;
+
+  padding-top: 0.15rem;
+}
+
+/*
+ * STATUS
+ */
+
+.contact-message-status {
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.5rem;
+
+  min-width: 0;
+
+  color:
+    #94e2d5;
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size:
+    0.67rem;
+
+  font-weight: 700;
+
+  line-height: 1.2;
+}
+
+.contact-message-status-dot {
+  display: block;
+
+  flex: 0 0 auto;
+
+  width: 0.4rem;
+  height: 0.4rem;
+
+  background:
+    currentColor;
+}
+
+.contact-message-status[
+  data-status="error"
+] {
+  color:
+    #f38ba8;
+}
+
+.contact-message-status[
+  data-status="offline"
+] {
+  color:
+    #fab387;
+}
+
+/*
+ * SEND MESSAGE
+ */
+
+.contact-message-submit {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 0.6rem;
+
+  flex: 0 0 auto;
+
+  height: 2.65rem;
+
+  padding:
+    0
+    1rem;
+
+  border:
+    1px
+    solid
+    #94e2d5;
+
+  border-radius: 0;
+
+  background:
+    #94e2d5;
+
+  color: #000;
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size:
+    0.72rem;
+
+  font-weight: 700;
+
+  line-height: 1;
+
+  letter-spacing:
+    0.025em;
+
+  cursor: pointer;
+
+  transition:
+    transform
+    0.1s
+    ease-out,
+    filter
+    0.1s
+    ease-out;
+}
+
+.contact-message-submit i {
+  font-size: 0.95rem;
+
+  transition:
+    transform
+    0.14s
+    cubic-bezier(
+      0.22,
+      1,
+      0.36,
+      1
+    );
+}
+
+.contact-message-submit:hover {
+  filter:
+    brightness(1.07);
+}
+
+.contact-message-submit:hover i {
+  transform:
+    translate(
+      0.12em,
+      -0.12em
+    );
+}
+
+.contact-message-submit:active {
+  transform:
+    translateY(1px);
+
+  filter:
+    brightness(0.94);
+}
+
+.contact-message-submit:focus-visible {
+  outline:
+    2px
+    solid
+    #fff;
+
+  outline-offset:
+    3px;
+}
+
+.contact-message-submit:disabled {
+  cursor: wait;
+
+  opacity: 0.65;
+}
+
+/*
+ * SHORT VIEWPORTS
+ *
+ * The form itself stays fixed.
+ * The message field gives up height first.
+ */
+
+@media (max-height: 700px) and (min-width: 701px) {
+  .contact-message-form {
+    gap: 0.6rem;
+
+    padding:
+      0.8rem
+      1rem
+      0.9rem;
+  }
+
+  .contact-message-field textarea {
+    height: 5.5rem;
+    min-height: 5.5rem;
+    max-height: 5.5rem;
+  }
+
+  .contact-message-field input {
+    height: 2.25rem;
+  }
+
+  .contact-message-submit {
+    height: 2.4rem;
+  }
+}
+
+/*
+ * MOBILE
+ */
+
+@media (max-width: 700px) {
+  .contact-message-dialog {
+    width:
+      calc(
+        100% - 1rem
+      );
+  }
+
+  .contact-message-titlebar {
+    height: 2.65rem;
+  }
+
+  .contact-message-title {
+    padding:
+      0
+      0.75rem;
+
+    font-size: 0.7rem;
+  }
+
+  .contact-message-close {
+    width: 3rem;
+  }
+
+  .contact-message-form {
+    gap: 0.7rem;
+
+    padding:
+      0.8rem;
+  }
+
+  .contact-message-field input {
+    height: 2.4rem;
+  }
+
+  .contact-message-field textarea {
+    height: 6.5rem;
+    min-height: 6.5rem;
+    max-height: 6.5rem;
+  }
+
+  .contact-message-footer {
+    gap: 0.65rem;
+  }
+
+  .contact-message-status {
+    font-size: 0.62rem;
+  }
+
+  .contact-message-submit {
+    height: 2.5rem;
+
+    padding:
+      0
+      0.8rem;
+
+    font-size: 0.68rem;
+  }
+}
+
+/*
+ * VERY SMALL MOBILE
+ */
+
+@media (max-width: 430px) {
+  .contact-message-footer {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .contact-message-submit {
+    width: 100%;
+  }
+}
+
+/*
+ * REDUCED MOTION
+ */
+
+@media (
+  prefers-reduced-motion: reduce
+) {
+  .contact-message-dialog,
+  .contact-message-dialog::backdrop,
+  .contact-message-close,
+  .contact-message-field input,
+  .contact-message-field textarea,
+  .contact-message-submit,
+  .contact-message-submit i {
+    transition: none;
+  }
+}
