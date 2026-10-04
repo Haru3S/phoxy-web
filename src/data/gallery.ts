@@ -1,5 +1,3 @@
-const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/';
-
 export type GalleryType =
   | 'artwork'
   | 'render'
@@ -40,7 +38,7 @@ export interface GalleryEntry {
 export const gallery: GalleryEntry[] = [
   {
     title: 'A Climate Change',
-    src: `${base}assets/artwork/A_Climage_Change.webp`,
+    src: '/assets/artwork/A_Climage_Change.webp',
     alt: 'Organic Brutalism',
     date: '2025-08-23',
     type: 'artwork',
@@ -48,7 +46,7 @@ export const gallery: GalleryEntry[] = [
   },
   {
     title: 'Battle Engineering',
-    src: `${base}assets/artwork/Battle_Engineering.webp`,
+    src: '/assets/artwork/Battle_Engineering.webp',
     alt: 'None',
     date: '2026-01-19',
     type: 'artwork',
@@ -56,7 +54,7 @@ export const gallery: GalleryEntry[] = [
   },
   {
     title: 'How It FEELS To Play Scout',
-    src: `${base}assets/artwork/How_It_FEELS_To_Play_Scout.webp`,
+    src: '/assets/artwork/How_It_FEELS_To_Play_Scout.webp',
     alt: "Can't you tell I love scout!",
     date: '2026-09-12',
     type: 'artwork',
@@ -64,7 +62,7 @@ export const gallery: GalleryEntry[] = [
   },
   {
     title: 'Kick It Root Down',
-    src: `${base}assets/artwork/Kick_It_Root_Down.webp`,
+    src: '/assets/artwork/Kick_It_Root_Down.webp',
     alt: 'None',
     date: '2026-05-09',
     type: 'artwork',
@@ -72,7 +70,7 @@ export const gallery: GalleryEntry[] = [
   },
   {
     title: 'The Only Thing I Know For Real',
-    src: `${base}assets/artwork/Raiden_Scout.webp`,
+    src: '/assets/artwork/Raiden_Scout.webp',
     alt: 'Scout x Metal Gears Rising',
     date: '2026-06-03',
     type: 'artwork',
@@ -80,7 +78,7 @@ export const gallery: GalleryEntry[] = [
   },
   {
     title: 'Soldiers Of Mann',
-    src: `${base}assets/artwork/Soldiers_Of_Mann.webp`,
+    src: '/assets/artwork/Soldiers_Of_Mann.webp',
     alt: 'None',
     date: '2026-06-28',
     type: 'artwork',

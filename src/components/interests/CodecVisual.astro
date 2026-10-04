@@ -3,16 +3,12 @@ import {
   codecLines,
 } from '../../data/codec';
 
-const base =
-  import.meta.env.BASE_URL.endsWith('/')
-    ? import.meta.env.BASE_URL
-    : `${import.meta.env.BASE_URL}/`;
 
 const campbellPortrait =
-  `${base}assets/interests/codec/codecCampbell.webp`;
+  '/assets/interests/codec/codecCampbell.webp';
 
 const phoxyPortrait =
-  `${base}assets/interests/codec/codecPhoxy.webp`;
+  '/assets/interests/codec/codecPhoxy.webp';
 
 const firstLine =
   codecLines[0];

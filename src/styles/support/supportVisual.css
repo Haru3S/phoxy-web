@@ -10,7 +10,7 @@
   touch-action: manipulation;
 }
 
-.support-visual :global(canvas) {
+.support-visual canvas {
   position: absolute;
   inset: 0;
   display: block;

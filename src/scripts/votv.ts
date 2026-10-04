@@ -287,7 +287,8 @@ for (const container of containers) {
       {
         x: cols * 0.17,
         baseY:
-          rows * 0.15,
+          -rows / 2 +
+          rows * 0.79,
         radius:
           Math.max(
             6.1,
@@ -306,7 +307,8 @@ for (const container of containers) {
       {
         x: -cols * 0.3,
         baseY:
-          rows * 0.11,
+          -rows / 2 +
+          rows * 0.72,
         radius:
           Math.max(
             3.8,
@@ -325,7 +327,8 @@ for (const container of containers) {
       {
         x: cols * 0.39,
         baseY:
-          rows * 0.13,
+          -rows / 2 +
+          rows * 0.75,
         radius:
           Math.max(
             3.3,

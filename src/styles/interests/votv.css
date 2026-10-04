@@ -1,84 +1,47 @@
-/*
- * TEXTMODE 02 — VOTV
- */
-
 .votv-visual {
-  display: flex;
-
-  align-items: flex-end;
-  justify-content: center;
-
-  min-height:
-    clamp(
-      18rem,
-      30vw,
-      32rem
-    );
-
-  padding:
-    clamp(
-      2rem,
-      5vw,
-      5rem
-    )
-    1rem
-    0;
-
-  border-bottom:
-    1px
-    solid
-    var(--color-border);
-}
-
-.votv-placeholder {
+  position: relative;
   width: 100%;
-
-  margin: 0;
-
+  height: clamp(24rem, 46vw, 43rem);
+  min-width: 0;
   overflow: hidden;
-
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.72
-    );
-
-  font-family:
-    "Adwaita Mono",
-    monospace;
-
-  font-size:
-    clamp(
-      0.45rem,
-      1.05vw,
-      1rem
-    );
-
-  line-height: 1;
-
-  text-align: center;
-
-  white-space: pre;
+  isolation: isolate;
+  background: #9ebfc4;
+  cursor: crosshair;
 }
 
+.votv-visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.04),
+      transparent 34%,
+      transparent 76%,
+      rgba(4, 10, 10, 0.16)
+    ),
+    radial-gradient(
+      ellipse at 52% 36%,
+      transparent 34%,
+      rgba(12, 24, 25, 0.08) 78%,
+      rgba(4, 10, 10, 0.18) 100%
+    );
+}
 
-/*
- * MOBILE
- */
+.votv-visual canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 
 @media (max-width: 700px) {
   .votv-visual {
-    min-height: 16rem;
-
-    padding:
-      2rem
-      0
-      0;
-  }
-
-  .votv-placeholder {
-    font-size: 0.42rem;
+    height: 32rem;
   }
 }

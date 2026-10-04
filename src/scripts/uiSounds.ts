@@ -15,24 +15,18 @@
  * inherit the same behaviour.
  */
 
-const base =
-  import.meta.env.BASE_URL.endsWith('/')
-    ? import.meta.env.BASE_URL
-    : `${import.meta.env.BASE_URL}/`;
-
-
 /*
  * SOUND PATHS
  */
 
 const rolloverUrl =
-  `${base}audio/ui/buttonrollover.ogg`;
+  '/audio/ui/buttonrollover.ogg';
 
 const releaseUrl =
-  `${base}audio/ui/buttonclickrelease.ogg`;
+  '/audio/ui/buttonclickrelease.ogg';
 
 const denyUrl =
-  `${base}audio/ui/wpn_denyselect.ogg`;
+  '/audio/ui/wpn_denyselect.ogg';
 
 
 /*

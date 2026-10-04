@@ -11,10 +11,6 @@ import TF2Support from '../components/support/TF2Support.astro';
 
 import '../styles/support.css';
 
-const base =
-  import.meta.env.BASE_URL.endsWith('/')
-    ? import.meta.env.BASE_URL
-    : import.meta.env.BASE_URL + '/';
 ---
 
 <Layout title="Support — Phoxy Fox">
@@ -80,12 +76,12 @@ const base =
       <PageNav
         first={{
           label: 'Links',
-          href: `${base}links`,
+          href: '/links',
           icon: 'link',
         }}
         second={{
           label: 'Home',
-          href: base,
+          href: '/',
           icon: 'house',
         }}
       />

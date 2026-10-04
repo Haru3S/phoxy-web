@@ -7,7 +7,7 @@
   background: #000;
 }
 
-.link-visual :global(canvas) {
+.link-visual canvas {
   display: block;
   width: 100%;
   height: 100%;
