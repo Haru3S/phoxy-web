@@ -7,15 +7,14 @@
  * Arsenal Gear Codec sequence from Metal Gear Solid 2.
  *
  * The original dialogue has been paraphrased rather
- * than reproduced directly. Raiden's conversational
- * role has been replaced by Phoxy.
+ * than reproduced directly.
  */
 
 export interface CodecLine {
   speaker:
     | 'COLONEL'
     | 'ROSE'
-    | 'PHOXY';
+    | 'RAIDEN';
 
   text: string;
 }
@@ -37,11 +36,11 @@ export const codecLines: CodecLine[] = [
   {
     speaker: 'COLONEL',
     text:
-      'Phoxy, continue with the mission according to the simulation.',
+      'Raiden, continue with the mission according to the simulation.',
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Simulation? Colonel, what are you talking about?',
   },
@@ -53,7 +52,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'You’ve been acting strange ever since I entered Arsenal.',
   },
@@ -65,7 +64,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'That did not make you sound less suspicious.',
   },
@@ -76,7 +75,7 @@ export const codecLines: CodecLine[] = [
    */
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Colonel? Your image is breaking up.',
   },
@@ -88,7 +87,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Your face just disappeared for half a second.',
   },
@@ -100,7 +99,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Very reassuring.',
   },
@@ -113,11 +112,11 @@ export const codecLines: CodecLine[] = [
   {
     speaker: 'COLONEL',
     text:
-      'Phoxy. Turn the game console off.',
+      'Raiden. Turn the game console off.',
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       '...What?',
   },
@@ -129,7 +128,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Colonel, what game console?',
   },
@@ -141,7 +140,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Rose?! What are either of you talking about?',
   },
@@ -153,7 +152,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'That sentence somehow made this significantly worse.',
   },
@@ -170,7 +169,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'This is really not the time.',
   },
@@ -200,7 +199,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'I think your codec is having a stroke.',
   },
@@ -219,11 +218,11 @@ export const codecLines: CodecLine[] = [
   {
     speaker: 'COLONEL',
     text:
-      'Phoxy, I owe you an apology.',
+      'Raiden, I owe you an apology.',
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'For what?',
   },
@@ -247,7 +246,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'We have never had lunch together.',
   },
@@ -259,7 +258,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Colonel?',
   },
@@ -282,7 +281,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Oh no.',
   },
@@ -300,7 +299,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'I am currently naked inside a gigantic military fortress.',
   },
@@ -312,7 +311,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'There are no plants here.',
   },
@@ -324,7 +323,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Why are you giving me gardening advice?',
   },
@@ -347,7 +346,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'I’m already inside Arsenal Gear.',
   },
@@ -359,7 +358,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'That isn’t my mission.',
   },
@@ -371,7 +370,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'You’re reading somebody else’s mission data.',
   },
@@ -383,7 +382,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'No. They very much are not.',
   },
@@ -396,11 +395,11 @@ export const codecLines: CodecLine[] = [
   {
     speaker: 'ROSE',
     text:
-      'Phoxy?',
+      'Raiden?',
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Rose? Are you actually there?',
   },
@@ -412,7 +411,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'I’m starting to have some serious doubts about that.',
   },
@@ -424,7 +423,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Because the Colonel just gave me gardening advice and told me to turn off a game console.',
   },
@@ -436,7 +435,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       '...Right.',
   },
@@ -449,11 +448,11 @@ export const codecLines: CodecLine[] = [
   {
     speaker: 'COLONEL',
     text:
-      'Phoxy.',
+      'Raiden.',
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'What now?',
   },
@@ -465,7 +464,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'I would really prefer tactical advice right now.',
   },
@@ -477,7 +476,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Colonel.',
   },
@@ -489,7 +488,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Colonel!',
   },
@@ -512,7 +511,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Playing what?',
   },
@@ -524,7 +523,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       "You’re talking to somebody else, aren’t you?",
   },
@@ -536,7 +535,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Who are you talking to?',
   },
@@ -559,7 +558,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'The what?',
   },
@@ -571,7 +570,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Those are individual words, yes.',
   },
@@ -583,7 +582,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'I have absolutely no idea what you want me to do with that information.',
   },
@@ -595,7 +594,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'There it is.',
   },
@@ -612,7 +611,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Who are you?',
   },
@@ -624,7 +623,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Where is the real Colonel?',
   },
@@ -636,7 +635,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Are you even listening to me?',
   },
@@ -655,11 +654,11 @@ export const codecLines: CodecLine[] = [
   {
     speaker: 'COLONEL',
     text:
-      'PHOXY.',
+      'RAIDEN.',
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'I’m here.',
   },
@@ -667,11 +666,11 @@ export const codecLines: CodecLine[] = [
   {
     speaker: 'COLONEL',
     text:
-      'PHOXY.',
+      'RAIDEN.',
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Colonel?',
   },
@@ -695,7 +694,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'Yeah, I’m done listening to you.',
   },
@@ -707,7 +706,7 @@ export const codecLines: CodecLine[] = [
   },
 
   {
-    speaker: 'PHOXY',
+    speaker: 'RAIDEN',
     text:
       'No.',
   },
