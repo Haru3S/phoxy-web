@@ -17,13 +17,6 @@ const {
   title = 'Phoxy',
   description = "Phoxy's personal website",
 } = Astro.props;
-
-const base = import.meta.env.BASE_URL.endsWith('/')
-  ? import.meta.env.BASE_URL
-  : import.meta.env.BASE_URL + '/';
-
-const uiRolloverSound =
-  `${base}audio/ui/buttonrollover.ogg`;
 ---
 
 <!doctype html>
@@ -64,6 +57,10 @@ const uiRolloverSound =
   <body>
     <slot />
 
+    <script>
+      import '../scripts/uiSounds.ts';
+    </script>
+
     <script is:inline>
       /*
        * PAGE LOAD TRANSITION
@@ -97,185 +94,6 @@ const uiRolloverSound =
           { once: true }
         );
       }
-    </script>
-
-    <script
-      is:inline
-      define:vars={{ uiRolloverSound }}
-    >
-      /*
-       * UI ROLLOVER AUDIO
-       *
-       * One reusable audio element handles normal
-       * interactive UI across the entire site.
-       *
-       * Scout is deliberately excluded so clicking
-       * him remains an easter egg.
-       *
-       * Any future interactive element can opt out
-       * with:
-       *
-       * data-ui-sound="off"
-       */
-
-      const uiRolloverAudio =
-        new Audio(uiRolloverSound);
-
-      uiRolloverAudio.volume = 0.2;
-      uiRolloverAudio.preload = 'auto';
-
-
-      /*
-       * Browsers may block audio until the user has
-       * interacted with the page at least once.
-       *
-       * We don't force playback here. We simply
-       * remember that interaction has happened.
-       */
-
-      let uiAudioUnlocked = false;
-
-      const unlockUiAudio = () => {
-        uiAudioUnlocked = true;
-      };
-
-      window.addEventListener(
-        'pointerdown',
-        unlockUiAudio,
-        {
-          once: true,
-          passive: true,
-        }
-      );
-
-      window.addEventListener(
-        'keydown',
-        unlockUiAudio,
-        { once: true }
-      );
-
-
-      /*
-       * Find normal interactive UI.
-       *
-       * Delegation means dynamically shown views,
-       * such as the Crypto and TF2 support pages,
-       * automatically participate.
-       */
-
-      const getUiSoundTarget = (target) => {
-        if (!(target instanceof Element)) {
-          return null;
-        }
-
-        return target.closest(
-          'a, button'
-        );
-      };
-
-
-      const shouldPlayUiSound = (element) => {
-        if (
-          element.matches(
-            '.scout-button'
-          )
-        ) {
-          return false;
-        }
-
-        if (
-          element.closest(
-            '[data-ui-sound="off"]'
-          )
-        ) {
-          return false;
-        }
-
-        if (
-          element.matches(
-            ':disabled'
-          )
-        ) {
-          return false;
-        }
-
-        if (
-          element.getAttribute(
-            'aria-disabled'
-          ) === 'true'
-        ) {
-          return false;
-        }
-
-        return true;
-      };
-
-
-      document.addEventListener(
-        'pointerover',
-        (event) => {
-          if (
-            event.pointerType &&
-            event.pointerType !== 'mouse' &&
-            event.pointerType !== 'pen'
-          ) {
-            return;
-          }
-
-          const target =
-            getUiSoundTarget(
-              event.target
-            );
-
-          if (
-            !target ||
-            !shouldPlayUiSound(target)
-          ) {
-            return;
-          }
-
-
-          /*
-           * pointerover bubbles when moving between
-           * children inside a button/link.
-           *
-           * Ignore those transitions so moving from
-           * an icon to its text doesn't retrigger
-           * the sound.
-           */
-
-          const previousTarget =
-            getUiSoundTarget(
-              event.relatedTarget
-            );
-
-          if (
-            previousTarget === target
-          ) {
-            return;
-          }
-
-
-          if (!uiAudioUnlocked) {
-            return;
-          }
-
-
-          uiRolloverAudio.pause();
-          uiRolloverAudio.currentTime = 0;
-
-          uiRolloverAudio
-            .play()
-            .catch(() => {
-              /*
-               * Audio feedback is optional UI polish.
-               * If the browser refuses playback,
-               * navigation should continue normally.
-               */
-            });
-        },
-        { passive: true }
-      );
     </script>
   </body>
 </html>
