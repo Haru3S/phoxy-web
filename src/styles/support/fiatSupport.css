@@ -247,7 +247,7 @@
   line-height: 1.3;
 }
 
-.fiat-step-heading strong {
+.fiat-supporting-as strong {
   font-weight: 700;
 }
 
@@ -265,7 +265,7 @@
 
 
 /*
- * DISPLAY NAME
+ * FIELDS
  */
 
 .fiat-field {
@@ -372,14 +372,17 @@
 
 
 /*
- * ACTIONS
+ * IDENTITY ACTIONS
  */
 
 .fiat-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
 
   gap: 1rem;
+
+  width: 100%;
 
   margin-top: 0.5rem;
 }
@@ -515,25 +518,205 @@
   position: relative;
 }
 
-.fiat-amount-placeholder {
+
+/*
+ * PRESET AMOUNTS
+ */
+
+.fiat-amount-options {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 1px;
+
+  padding: 1px;
+
+  background:
+    var(--color-border);
+}
+
+.fiat-amount-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 1rem;
+
+  min-height: 7.5rem;
+
+  padding: 1rem;
+
+  border: 0;
+
+  background:
+    var(--color-bg);
+
+  color:
+    var(--color-fg);
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background
+    0.1s
+    ease-out,
+    color
+    0.1s
+    ease-out;
+}
+
+.fiat-amount-option > span {
+  font-family:
+    "Space Grotesk Variable",
+    sans-serif;
+
+  font-size:
+    clamp(
+      1.8rem,
+      3vw,
+      3rem
+    );
+
+  font-weight: 600;
+  line-height: 1;
+
+  letter-spacing: -0.05em;
+}
+
+.fiat-amount-option small {
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.65rem;
+  font-weight: 700;
+
+  opacity: 0.45;
+}
+
+.fiat-amount-option:hover,
+.fiat-amount-option:focus-visible {
+  background:
+    var(--color-hover);
+}
+
+.fiat-amount-option.is-selected {
+  background:
+    var(--color-fg);
+
+  color:
+    var(--color-bg);
+}
+
+
+/*
+ * CUSTOM AMOUNT
+ */
+
+.fiat-custom-amount {
   display: flex;
   flex-direction: column;
 
   gap: 0.5rem;
+}
 
-  min-height: 12rem;
+.fiat-money-input {
+  display: grid;
 
-  padding: 1rem;
+  grid-template-columns:
+    auto
+    minmax(0, 1fr)
+    auto;
+
+  align-items: center;
 
   border:
     1px
     solid
     var(--color-border);
 
-  justify-content: center;
+  background: transparent;
+
+  transition:
+    border-color
+    0.1s
+    ease-out,
+    background
+    0.1s
+    ease-out;
 }
 
-.fiat-amount-placeholder > span {
+.fiat-money-input:hover,
+.fiat-money-input:focus-within {
+  border-color:
+    rgba(
+      255,
+      255,
+      255,
+      0.65
+    );
+
+  background:
+    var(--color-hover);
+}
+
+.fiat-money-input:has(
+  input[aria-invalid="true"]
+) {
+  border-color: #f38ba8;
+}
+
+.fiat-money-input input {
+  min-width: 0;
+
+  padding:
+    0.9rem
+    0.4rem;
+
+  border: 0;
+
+  outline: none;
+
+  background: transparent;
+}
+
+.fiat-money-input
+  input:hover,
+.fiat-money-input
+  input:focus {
+  border: 0;
+
+  background: transparent;
+}
+
+.fiat-currency-symbol {
+  padding-left: 0.95rem;
+
+  font-family:
+    "Space Grotesk Variable",
+    sans-serif;
+
+  font-size:
+    clamp(
+      1.25rem,
+      2vw,
+      1.8rem
+    );
+
+  font-weight: 600;
+}
+
+.fiat-currency-code {
+  padding-right: 0.95rem;
+
   font-family:
     "Adwaita Mono",
     monospace;
@@ -544,15 +727,116 @@
   opacity: 0.45;
 }
 
-.fiat-amount-placeholder p {
-  margin: 0;
 
+/*
+ * CHECKOUT SUMMARY
+ */
+
+.fiat-checkout-summary {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+
+  align-items: stretch;
+
+  margin-top: 0.5rem;
+
+  border-top:
+    1px
+    solid
+    var(--color-border);
+
+  padding-top: 1.5rem;
+}
+
+.fiat-checkout-total {
+  display: flex;
+  flex-direction: column;
+
+  justify-content: space-between;
+
+  gap: 0.4rem;
+
+  padding-right: 1rem;
+}
+
+.fiat-checkout-total span {
   font-family:
-    "Inter Variable",
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.65rem;
+  font-weight: 700;
+
+  opacity: 0.45;
+}
+
+.fiat-checkout-total strong {
+  font-family:
+    "Space Grotesk Variable",
     sans-serif;
 
-  font-size: 0.95rem;
-  line-height: 1.3;
+  font-size:
+    clamp(
+      2rem,
+      4vw,
+      4rem
+    );
+
+  font-weight: 600;
+  line-height: 0.9;
+
+  letter-spacing: -0.05em;
+}
+
+.fiat-checkout-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 2rem;
+
+  min-width: 15rem;
+
+  padding:
+    1rem;
+
+  border:
+    1px
+    solid
+    var(--color-fg);
+
+  background:
+    var(--color-fg);
+
+  color:
+    var(--color-bg);
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    opacity
+    0.1s
+    ease-out;
+}
+
+.fiat-checkout-button i {
+  font-size: 1.1rem;
+}
+
+.fiat-checkout-button:disabled {
+  opacity: 0.25;
+
+  cursor: not-allowed;
 }
 
 
@@ -571,8 +855,26 @@
   .fiat-skip-action::after,
   .fiat-amount-back
     span::after,
-  .fiat-field input {
+  .fiat-field input,
+  .fiat-money-input,
+  .fiat-amount-option,
+  .fiat-checkout-button {
     transition: none;
+  }
+}
+
+
+/*
+ * TABLET
+ */
+
+@media (max-width: 900px) {
+  .fiat-amount-options {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
   }
 }
 
@@ -598,8 +900,10 @@
   }
 
   .fiat-actions {
-    align-items: stretch;
+    align-items: flex-end;
     flex-direction: column;
+
+    width: 100%;
   }
 
   .fiat-primary-action {
@@ -608,5 +912,15 @@
 
   .fiat-skip-action {
     width: fit-content;
+  }
+
+  .fiat-checkout-summary {
+    grid-template-columns: 1fr;
+
+    gap: 1rem;
+  }
+
+  .fiat-checkout-button {
+    width: 100%;
   }
 }

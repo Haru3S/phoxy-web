@@ -82,7 +82,7 @@ import '../../styles/support/fiatSupport.css';
             maxlength="24"
             autocomplete="off"
             spellcheck="false"
-            placeholder="CoolFox123"
+            placeholder="Anonymous"
             aria-describedby="
               support-display-name-help
               support-display-name-error
@@ -120,6 +120,14 @@ import '../../styles/support/fiatSupport.css';
 
         <div class="fiat-actions">
           <button
+            class="fiat-skip-action"
+            type="button"
+            data-fiat-anonymous
+          >
+            SKIP / STAY ANONYMOUS
+          </button>
+
+          <button
             class="fiat-primary-action"
             type="button"
             data-fiat-continue
@@ -132,14 +140,6 @@ import '../../styles/support/fiatSupport.css';
               class="ph ph-arrow-right"
               aria-hidden="true"
             ></i>
-          </button>
-
-          <button
-            class="fiat-skip-action"
-            type="button"
-            data-fiat-anonymous
-          >
-            SKIP / STAY ANONYMOUS
           </button>
         </div>
       </div>
