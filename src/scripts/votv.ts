@@ -350,9 +350,7 @@ for (const container of containers) {
     ];
   };
 
-  const drawSky = (
-    time: number,
-  ) => {
+  const drawSky = () => {
     const cols = t.grid.cols;
     const rows = t.grid.rows;
 
@@ -369,83 +367,13 @@ for (const container of containers) {
         x < cols / 2;
         x++
       ) {
-        const cloudNoise =
-          (
-            Math.sin(
-              x * 0.035 +
-                time * 0.025,
-            ) +
-            Math.sin(
-              x * 0.017 +
-                y * 0.08 +
-                1.9,
-            ) +
-            Math.sin(
-              x * 0.071 -
-                y * 0.035 +
-                4.2,
-            )
-          ) /
-          3;
-
-        const altitude =
-          clamp(
-            1 -
-              (
-                y +
-                rows * 0.3
-              ) /
-                (
-                  rows *
-                  0.42
-                ),
-          );
-
-        const cloudAmount =
-          clamp(
-            (
-              cloudNoise -
-              0.22
-            ) *
-              2.5,
-          ) *
-          altitude;
-
-        if (
-          cloudAmount >
-          0.12
-        ) {
-          const cloudColor =
-            mix(
-              sky,
-              COLORS.cloud,
-              cloudAmount *
-                0.72,
-            );
-
-          const glyph =
-            cloudAmount > 0.52
-              ? '░'
-              : cloudAmount > 0.28
-                ? '·'
-                : ' ';
-
-          cell(
-            x,
-            y,
-            glyph,
-            cloudColor,
-            cloudColor,
-          );
-        } else {
-          cell(
-            x,
-            y,
-            ' ',
-            sky,
-            sky,
-          );
-        }
+        cell(
+          x,
+          y,
+          ' ',
+          sky,
+          sky,
+        );
       }
     }
   };
@@ -1512,7 +1440,7 @@ for (const container of containers) {
     /*
      * Large, quiet sky.
      */
-    drawSky(time);
+    drawSky();
     drawStars(time);
 
     /*
