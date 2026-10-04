@@ -50,9 +50,12 @@ import '../../styles/contact/contactMessage.css';
           id="contact-message-name"
           name="name"
           type="text"
-          autocomplete="name"
+          autocomplete="off"
           maxlength="100"
           placeholder="NAME / ALIAS"
+          readonly
+          aria-disabled="true"
+          data-contact-message-disabled
         />
 
         <span
@@ -71,10 +74,12 @@ import '../../styles/contact/contactMessage.css';
           id="contact-message-email"
           name="email"
           type="email"
-          autocomplete="email"
+          autocomplete="off"
           maxlength="254"
           placeholder="YOU@EXAMPLE.COM"
-          required
+          readonly
+          aria-disabled="true"
+          data-contact-message-disabled
         />
 
         <span
@@ -95,7 +100,9 @@ import '../../styles/contact/contactMessage.css';
           type="text"
           maxlength="160"
           placeholder="WHAT'S UP?"
-          required
+          readonly
+          aria-disabled="true"
+          data-contact-message-disabled
         />
 
         <span
@@ -119,7 +126,9 @@ import '../../styles/contact/contactMessage.css';
           rows="7"
           maxlength="5000"
           placeholder="WRITE SOMETHING..."
-          required
+          readonly
+          aria-disabled="true"
+          data-contact-message-disabled
         ></textarea>
 
         <div class="contact-message-field-meta">
@@ -142,6 +151,7 @@ import '../../styles/contact/contactMessage.css';
         <div
           class="contact-message-status"
           data-contact-message-status
+          data-status="offline"
           aria-live="polite"
         >
           <span
@@ -150,19 +160,21 @@ import '../../styles/contact/contactMessage.css';
           ></span>
 
           <span data-contact-message-status-text>
-            READY
+            DIRECT MESSAGE OFFLINE
           </span>
         </div>
 
         <button
           class="contact-message-submit"
-          type="submit"
-          data-contact-message-submit
+          type="button"
+          data-contact-email-copy
         >
-          <span>SEND MESSAGE</span>
+          <span data-contact-email-copy-text>
+            COPY MY EMAIL
+          </span>
 
           <i
-            class="ph ph-paper-plane-tilt"
+            class="ph ph-copy"
             aria-hidden="true"
           ></i>
         </button>

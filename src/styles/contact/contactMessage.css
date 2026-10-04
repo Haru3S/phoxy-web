@@ -105,6 +105,7 @@ html.contact-message-open {
     blur(4px);
 }
 
+
 /*
  * WINDOW
  */
@@ -121,6 +122,7 @@ html.contact-message-open {
   background:
     var(--color-bg);
 }
+
 
 /*
  * TITLE BAR
@@ -182,19 +184,20 @@ html.contact-message-open {
   height: 0.45rem;
 
   background:
-    #94e2d5;
+    #fab387;
 
   box-shadow:
     0
     0
     0.6rem
     rgba(
-      148,
-      226,
-      213,
+      250,
+      179,
+      135,
       0.35
     );
 }
+
 
 /*
  * WINDOWS-LIKE CLOSE BUTTON
@@ -275,6 +278,7 @@ html.contact-message-open {
   outline-offset:
     -2px;
 }
+
 
 /*
  * FORM
@@ -364,6 +368,9 @@ html.contact-message-open {
     0.1s
     ease-out,
     box-shadow
+    0.1s
+    ease-out,
+    opacity
     0.1s
     ease-out;
 }
@@ -484,6 +491,72 @@ html.contact-message-open {
     #f38ba8;
 }
 
+
+/*
+ * DISABLED FIELDS
+ *
+ * The message composer remains visible so
+ * the eventual backend state does not require
+ * redesigning the window.
+ */
+
+.contact-message-field input:disabled,
+.contact-message-field textarea:disabled {
+  border-color:
+    rgba(
+      255,
+      255,
+      255,
+      0.18
+    );
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.025
+    );
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.32
+    );
+
+  cursor:
+    not-allowed;
+
+  opacity: 0.62;
+
+  box-shadow: none;
+}
+
+.contact-message-field input:disabled::placeholder,
+.contact-message-field textarea:disabled::placeholder {
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.2
+    );
+}
+
+.contact-message-field input:disabled:hover,
+.contact-message-field textarea:disabled:hover {
+  border-color:
+    rgba(
+      255,
+      255,
+      255,
+      0.18
+    );
+}
+
+
 /*
  * FIELD META
  */
@@ -550,8 +623,9 @@ html.contact-message-open {
 
   line-height: 1.15;
 
-  opacity: 0.42;
+  opacity: 0.24;
 }
+
 
 /*
  * FOOTER
@@ -569,6 +643,7 @@ html.contact-message-open {
 
   padding-top: 0.15rem;
 }
+
 
 /*
  * STATUS
@@ -624,8 +699,16 @@ html.contact-message-open {
     #fab387;
 }
 
+.contact-message-status[
+  data-status="success"
+] {
+  color:
+    #94e2d5;
+}
+
+
 /*
- * SEND MESSAGE
+ * COPY EMAIL
  */
 
 .contact-message-submit {
@@ -703,10 +786,7 @@ html.contact-message-open {
 
 .contact-message-submit:hover i {
   transform:
-    translate(
-      0.12em,
-      -0.12em
-    );
+    translateY(-0.08em);
 }
 
 .contact-message-submit:active {
@@ -727,11 +807,6 @@ html.contact-message-open {
     3px;
 }
 
-.contact-message-submit:disabled {
-  cursor: wait;
-
-  opacity: 0.65;
-}
 
 /*
  * SHORT VIEWPORTS
@@ -764,6 +839,7 @@ html.contact-message-open {
     height: 2.4rem;
   }
 }
+
 
 /*
  * MOBILE
@@ -829,6 +905,7 @@ html.contact-message-open {
   }
 }
 
+
 /*
  * VERY SMALL MOBILE
  */
@@ -844,6 +921,7 @@ html.contact-message-open {
     width: 100%;
   }
 }
+
 
 /*
  * REDUCED MOTION

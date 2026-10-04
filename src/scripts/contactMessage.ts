@@ -18,9 +18,14 @@ const form =
     '[data-contact-message-form]'
   );
 
-const submitButton =
+const copyButton =
   dialog?.querySelector<HTMLButtonElement>(
-    '[data-contact-message-submit]'
+    '[data-contact-email-copy]'
+  );
+
+const copyButtonText =
+  dialog?.querySelector<HTMLElement>(
+    '[data-contact-email-copy-text]'
   );
 
 const statusElement =
@@ -43,41 +48,67 @@ const messageCounter =
     '[data-contact-message-counter]'
   );
 
+const disabledFields =
+  dialog?.querySelectorAll<
+    HTMLInputElement |
+    HTMLTextAreaElement
+  >(
+    '[data-contact-message-disabled]'
+  );
+
 let previousFocus:
   HTMLElement | null =
   null;
 
 
 /*
- * MESSAGE UI SOUNDS
+ * CONTACT STATE
  *
- * These are state-specific sounds rather
- * than global button feedback.
+ * Direct website messaging remains offline
+ * until the server-side contact system is
+ * connected.
  *
- * Global rollover / click / deny sounds
- * remain handled by uiSounds.ts.
+ * Visitors can still copy the public contact
+ * email directly from the message window.
  */
 
-const hardErrorUrl =
-  '/audio/ui/hard_error.ogg';
+const contactEmail =
+  'phoxyfox@proton.me';
+
+
+/*
+ * CONTACT UI SOUNDS
+ *
+ * Denied input:
+ * Attempting to use the offline form.
+ *
+ * Message:
+ * Successfully copying the contact email.
+ *
+ * Global rollover / click sounds remain
+ * handled by uiSounds.ts.
+ */
+
+const denySoundUrl =
+  '/audio/ui/wpn_denyselect.ogg';
 
 const messageSuccessUrl =
   '/audio/ui/message.ogg';
 
-const hardErrorAudio =
+const denyAudio =
   new Audio();
 
 const messageSuccessAudio =
   new Audio();
 
-hardErrorAudio.preload =
+denyAudio.preload =
   'auto';
 
-hardErrorAudio.volume =
+denyAudio.volume =
   0.3;
 
-hardErrorAudio.src =
-  hardErrorUrl;
+denyAudio.src =
+  denySoundUrl;
 
 messageSuccessAudio.preload =
   'auto';
@@ -88,7 +119,7 @@ messageSuccessAudio.volume =
 messageSuccessAudio.src =
   messageSuccessUrl;
 
-hardErrorAudio.load();
+denyAudio.load();
 
 messageSuccessAudio.load();
 
@@ -109,9 +140,9 @@ const restartAudio = (
     .catch(() => {});
 };
 
-const playHardError = () => {
+const playDenySound = () => {
   restartAudio(
-    hardErrorAudio
+    denyAudio
   );
 };
 
@@ -127,10 +158,9 @@ const playMessageSuccess = () => {
  */
 
 type MessageStatus =
-  | 'ready'
-  | 'error'
   | 'offline'
-  | 'success';
+  | 'success'
+  | 'error';
 
 const setStatus = (
   status: MessageStatus,
@@ -152,78 +182,12 @@ const setStatus = (
 
 
 /*
- * FIELD ERRORS
- */
-
-const getErrorElement = (
-  name: string
-) =>
-  dialog?.querySelector<HTMLElement>(
-    `[data-error-for="${name}"]`
-  ) ?? null;
-
-const setFieldError = (
-  field:
-    | HTMLInputElement
-    | HTMLTextAreaElement,
-  message: string
-) => {
-  field.setAttribute(
-    'aria-invalid',
-    'true'
-  );
-
-  const error =
-    getErrorElement(
-      field.name
-    );
-
-  if (error) {
-    error.textContent =
-      message;
-  }
-};
-
-const clearFieldError = (
-  field:
-    | HTMLInputElement
-    | HTMLTextAreaElement
-) => {
-  field.removeAttribute(
-    'aria-invalid'
-  );
-
-  const error =
-    getErrorElement(
-      field.name
-    );
-
-  if (error) {
-    error.textContent = '';
-  }
-};
-
-const clearErrors = () => {
-  if (!form) {
-    return;
-  }
-
-  const fields =
-    form.querySelectorAll<
-      HTMLInputElement |
-      HTMLTextAreaElement
-    >(
-      'input, textarea'
-    );
-
-  fields.forEach(
-    clearFieldError
-  );
-};
-
-
-/*
  * MESSAGE COUNTER
+ *
+ * The field is unavailable for now, but
+ * keeping the counter logic intact means
+ * the composer can be re-enabled later
+ * without rebuilding this part of the UI.
  */
 
 const updateCounter = () => {
@@ -237,11 +201,6 @@ const updateCounter = () => {
   messageCounter.textContent =
     `${messageInput.value.length} / 5000`;
 };
-
-messageInput?.addEventListener(
-  'input',
-  updateCounter
-);
 
 
 /*
@@ -262,12 +221,15 @@ const openDialog = () => {
       ? document.activeElement
       : null;
 
-  clearErrors();
-
   setStatus(
-    'ready',
-    'READY'
+    'offline',
+    'DIRECT MESSAGE OFFLINE'
   );
+
+  if (copyButtonText) {
+    copyButtonText.textContent =
+      'COPY MY EMAIL';
+  }
 
   dialog.showModal();
 
@@ -283,12 +245,7 @@ const openDialog = () => {
     }
   );
 
-  const emailInput =
-    dialog.querySelector<HTMLInputElement>(
-      'input[name="email"]'
-    );
-
-  emailInput?.focus();
+  copyButton?.focus();
 };
 
 const closeDialog = () => {
@@ -393,182 +350,192 @@ dialog?.addEventListener(
 
 
 /*
- * VALIDATION
+ * OFFLINE FORM FEEDBACK
+ *
+ * The fields remain visible as a preview of
+ * the eventual contact composer.
+ *
+ * Trying to interact with one plays the same
+ * denied-selection sound used elsewhere on
+ * the site.
  */
 
-const validateForm = () => {
-  if (!form) {
-    return false;
+disabledFields?.forEach(
+  (field) => {
+    field.addEventListener(
+      'pointerdown',
+      (event) => {
+        event.preventDefault();
+
+        playDenySound();
+
+        setStatus(
+          'offline',
+          'DIRECT MESSAGE OFFLINE'
+        );
+
+        copyButton?.focus();
+      }
+    );
+
+    field.addEventListener(
+      'keydown',
+      (event) => {
+        if (
+          event.key !== 'Enter' &&
+          event.key !== ' '
+        ) {
+          return;
+        }
+
+        event.preventDefault();
+
+        playDenySound();
+
+        setStatus(
+          'offline',
+          'DIRECT MESSAGE OFFLINE'
+        );
+
+        copyButton?.focus();
+      }
+    );
+  }
+);
+
+
+/*
+ * CLIPBOARD FALLBACK
+ *
+ * navigator.clipboard is preferred because
+ * the deployed site runs in a secure context.
+ *
+ * The textarea fallback keeps the copy action
+ * usable in environments where the Clipboard
+ * API is unavailable.
+ */
+
+const fallbackCopyText = (
+  text: string
+) => {
+  const copyArea =
+    document.createElement(
+      'textarea'
+    );
+
+  copyArea.value =
+    text;
+
+  copyArea.setAttribute(
+    'readonly',
+    ''
+  );
+
+  copyArea.style.position =
+    'fixed';
+
+  copyArea.style.opacity =
+    '0';
+
+  copyArea.style.pointerEvents =
+    'none';
+
+  document.body.appendChild(
+    copyArea
+  );
+
+  copyArea.select();
+
+  let copied =
+    false;
+
+  try {
+    copied =
+      document.execCommand(
+        'copy'
+      );
+  } catch {
+    copied =
+      false;
   }
 
-  clearErrors();
+  copyArea.remove();
 
-  const email =
-    form.elements.namedItem(
-      'email'
-    );
+  return copied;
+};
 
-  const subject =
-    form.elements.namedItem(
-      'subject'
-    );
 
-  const message =
-    form.elements.namedItem(
-      'message'
-    );
+/*
+ * COPY EMAIL
+ */
 
-  let valid = true;
+const copyContactEmail =
+  async () => {
+    let copied =
+      false;
 
-  if (
-    email instanceof
-      HTMLInputElement
-  ) {
-    const value =
-      email.value.trim();
-
-    if (!value) {
-      setFieldError(
-        email,
-        'EMAIL REQUIRED'
-      );
-
-      valid = false;
-    } else if (
-      !email.validity.valid
-    ) {
-      setFieldError(
-        email,
-        'INVALID EMAIL'
-      );
-
-      valid = false;
-    }
-  }
-
-  if (
-    subject instanceof
-      HTMLInputElement
-  ) {
     if (
-      !subject.value.trim()
+      navigator.clipboard &&
+      window.isSecureContext
     ) {
-      setFieldError(
-        subject,
-        'SUBJECT REQUIRED'
-      );
+      try {
+        await navigator.clipboard.writeText(
+          contactEmail
+        );
 
-      valid = false;
+        copied =
+          true;
+      } catch {
+        copied =
+          false;
+      }
     }
-  }
 
-  if (
-    message instanceof
-      HTMLTextAreaElement
-  ) {
-    if (
-      !message.value.trim()
-    ) {
-      setFieldError(
-        message,
-        'MESSAGE REQUIRED'
-      );
-
-      valid = false;
+    if (!copied) {
+      copied =
+        fallbackCopyText(
+          contactEmail
+        );
     }
-  }
 
-  if (!valid) {
-    const firstInvalid =
-      form.querySelector<
-        HTMLInputElement |
-        HTMLTextAreaElement
-      >(
-        '[aria-invalid="true"]'
+    if (!copied) {
+      setStatus(
+        'error',
+        'COPY FAILED'
       );
 
-    firstInvalid?.focus();
+      if (copyButtonText) {
+        copyButtonText.textContent =
+          'COPY FAILED';
+      }
+
+      return;
+    }
 
     setStatus(
-      'error',
-      'CHECK INPUT'
+      'success',
+      'EMAIL COPIED'
     );
 
-    playHardError();
-  }
-
-  return valid;
-};
-
-
-/*
- * CLEAR FIELD ERRORS
- */
-
-form
-  ?.querySelectorAll<
-    HTMLInputElement |
-    HTMLTextAreaElement
-  >(
-    'input, textarea'
-  )
-  .forEach(
-    (field) => {
-      field.addEventListener(
-        'input',
-        () => {
-          clearFieldError(
-            field
-          );
-
-          if (
-            statusElement
-              ?.dataset.status ===
-            'error'
-          ) {
-            setStatus(
-              'ready',
-              'READY'
-            );
-          }
-        }
-      );
+    if (copyButtonText) {
+      copyButtonText.textContent =
+        'COPIED';
     }
-  );
+
+    playMessageSuccess();
+  };
+
+copyButton?.addEventListener(
+  'click',
+  copyContactEmail
+);
 
 
 /*
- * SUCCESS
+ * FORM
  *
- * Reserved for the real contact endpoint.
- *
- * This must only run after the server confirms
- * that the message was accepted successfully.
- */
-
-const handleMessageSuccess = () => {
-  setStatus(
-    'success',
-    'MESSAGE SENT'
-  );
-
-  playMessageSuccess();
-
-  form?.reset();
-
-  updateCounter();
-};
-
-
-/*
- * SUBMIT
- *
- * Network transmission intentionally remains
- * disconnected until /api/contact exists.
- *
- * message.ogg therefore cannot fire yet:
- * clicking Send is not proof that an email
- * actually reached the backend.
+ * The form intentionally cannot submit while
+ * direct messaging is offline.
  */
 
 form?.addEventListener(
@@ -576,34 +543,14 @@ form?.addEventListener(
   (event) => {
     event.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    playDenySound();
 
     setStatus(
       'offline',
-      'TRANSMISSION NOT CONNECTED'
+      'DIRECT MESSAGE OFFLINE'
     );
-
-    /*
-     * Once /api/contact is connected:
-     *
-     * - submit the form
-     * - wait for a successful server response
-     * - call handleMessageSuccess()
-     *
-     * Do not clear the form on failure.
-     */
   }
 );
-
-
-/*
- * Keep the success handler referenced until
- * the network layer is connected.
- */
-
-void handleMessageSuccess;
 
 
 /*
@@ -612,7 +559,7 @@ void handleMessageSuccess;
 
 updateCounter();
 
-if (submitButton) {
-  submitButton.disabled =
-    false;
-}
+setStatus(
+  'offline',
+  'DIRECT MESSAGE OFFLINE'
+);
