@@ -287,8 +287,7 @@ for (const container of containers) {
       {
         x: cols * 0.17,
         baseY:
-          -rows / 2 +
-          rows * 0.79,
+          rows * 0.15,
         radius:
           Math.max(
             6.1,
@@ -307,8 +306,7 @@ for (const container of containers) {
       {
         x: -cols * 0.3,
         baseY:
-          -rows / 2 +
-          rows * 0.72,
+          rows * 0.11,
         radius:
           Math.max(
             3.8,
@@ -327,8 +325,7 @@ for (const container of containers) {
       {
         x: cols * 0.39,
         baseY:
-          -rows / 2 +
-          rows * 0.75,
+          rows * 0.13,
         radius:
           Math.max(
             3.3,
@@ -1611,7 +1608,9 @@ for (const container of containers) {
           ),
         );
 
-        rebuildScene();
+        requestAnimationFrame(() => {
+          rebuildScene();
+        });
       },
     );
 
@@ -1619,5 +1618,28 @@ for (const container of containers) {
     container,
   );
 
-  rebuildScene();
+  /*
+   * Textmode derives grid.cols / grid.rows from the canvas size.
+   * Build the array-backed scene only after the canvas has been
+   * explicitly sized to the mounted container; otherwise trees
+   * and dishes can be generated against the temporary startup grid.
+   */
+  t.resizeCanvas(
+    Math.max(
+      1,
+      Math.floor(
+        container.clientWidth,
+      ),
+    ),
+    Math.max(
+      1,
+      Math.floor(
+        container.clientHeight,
+      ),
+    ),
+  );
+
+  requestAnimationFrame(() => {
+    rebuildScene();
+  });
 }
