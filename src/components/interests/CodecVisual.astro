@@ -1,40 +1,48 @@
+---
+const base =
+  import.meta.env.BASE_URL.endsWith('/')
+    ? import.meta.env.BASE_URL
+    : `${import.meta.env.BASE_URL}/`;
+
+const snakePortrait =
+  `${base}assets/interests/codecSnake.webp`;
+
+const phoxyPortrait =
+  `${base}assets/interests/codecPhoxy.webp`;
+---
+
 <section
   class="interest-textmode codec-visual"
-  aria-label="Codec communication display between Big Boss and Phoxy"
+  aria-label="Codec communication display between Solid Snake and Phoxy"
 >
   <div class="codec-screen">
-    <!--
-      LEFT / RECEIVING SIDE
-
-      Big Boss remains a placeholder until
-      Phoxy's portrait language is finalized.
-    -->
+    <!-- Solid Snake / receiving side -->
     <section
       class="codec-party codec-party-left"
-      aria-label="Big Boss"
+      aria-label="Solid Snake"
     >
       <div
         class="codec-portrait"
-        data-codec-portrait="big-boss"
+        data-codec-portrait="snake"
       >
-        <div
-          class="codec-portrait-field"
-          aria-hidden="true"
-        >
-          <pre class="codec-portrait-placeholder">░▒▓
-BIG BOSS
-▓▒░</pre>
+        <div class="codec-portrait-field">
+          <img
+            class="codec-portrait-image"
+            src={snakePortrait}
+            alt=""
+            width="52"
+            height="89"
+            draggable="false"
+          />
         </div>
       </div>
 
       <span class="codec-party-name">
-        BIG BOSS
+        SOLID SNAKE
       </span>
     </section>
 
-    <!--
-      CENTER COMMUNICATION CHANNEL
-    -->
+    <!-- Codec frequency -->
     <section
       class="codec-channel"
       aria-label="Codec frequency"
@@ -73,12 +81,7 @@ BIG BOSS
       ></div>
     </section>
 
-    <!--
-      RIGHT / PLAYER SIDE
-
-      Phoxy is rendered as deliberately coarse
-      MGS1-style character-density textmode.
-    -->
+    <!-- Phoxy / player side -->
     <section
       class="codec-party codec-party-right"
       aria-label="Phoxy"
@@ -87,53 +90,15 @@ BIG BOSS
         class="codec-portrait"
         data-codec-portrait="phoxy"
       >
-        <div
-          class="codec-portrait-field codec-phoxy-field"
-          aria-hidden="true"
-        >
-          <pre class="codec-portrait-art codec-phoxy-art">
-                 ░
-              ░▒▓▓▒░
-            ░▓██████▓░
-           ▒██████████▒
-          ▓████████████▓
-         ▓████▓▒▒▓██████▓
-        ▓███▒░    ░▒█████▓
-       ▒██▓░         ▒████▒
-       ██▓            ░▓███
-      ▓██░     ░░       ▓██▓
-      ██▒    ░▒▓▓▒░      ███
-     ▒██░   ▒██████▒     ▒██▒
-     ▓██   ░██▓▒▒▓██░     ██▓
-     ██▓   ▓█▒    ▒█▓     ▓██
-     ██▒  ░█▓      ▓█░    ▒██
-     ██░  ▒█░ ░  ░ ░█▒    ░██
-     ██   ▓▓ ▒▓  ▓▒ ▓▓     ██
-     ██   █▒ ▓█  █▓ ▒█     ██
-     ██   █░ ▒▓  ▓▒ ░█     ██
-     ██   ▓▒    ░    ▒▓     ██
-     ▓█▒  ▒▓   ░░░   ▓▒    ▒█▓
-     ▒██░ ░█▒   ▒   ▒█░   ░██▒
-      ██▓  ▓█░ ░▓░ ░█▓    ▓██
-      ▒██▒ ▒██▒░░░▒██▒   ▒██▒
-       ███░ ▓████████▓   ░███
-       ▓██▓░ ▒▓████▓▒   ░▓██▓
-        ███▓░  ░▒▒░    ░▓███
-        ▒████▒░      ░▒████▒
-         ▓██████▓▒▒▓██████▓
-          ▒██████████████▒
-           ░▓██████████▓░
-             ▒▓████▓▒
-              ░▓██▓░
-               ▒██▒
-              ░████░
-             ▒██████▒
-           ░▓████████▓░
-         ░▓████████████▓░
-        ▒████████████████▒
-       ▓██████████████████▓
-      ▓████████████████████▓
-     ▒██████████████████████▒</pre>
+        <div class="codec-portrait-field">
+          <img
+            class="codec-portrait-image"
+            src={phoxyPortrait}
+            alt=""
+            width="52"
+            height="89"
+            draggable="false"
+          />
         </div>
       </div>
 
@@ -142,9 +107,7 @@ BIG BOSS
       </span>
     </section>
 
-    <!--
-      LOWER CODEC CONTROLS
-    -->
+    <!-- Codec controls -->
     <div class="codec-controls">
       <button
         class="codec-control codec-control-ptt"

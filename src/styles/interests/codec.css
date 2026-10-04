@@ -3,12 +3,12 @@
  *
  * MGS1 Codec-inspired communication display.
  *
- * Big Boss occupies the receiving side.
+ * Solid Snake occupies the receiving side.
  * Phoxy occupies the right / player side.
  *
- * Portrait windows deliberately use the
- * tall, narrow proportions of the original
- * Codec portraits.
+ * Portraits use the original 52 × 89 Codec
+ * image proportions and are intentionally
+ * enlarged with normal browser interpolation.
  */
 
 
@@ -201,7 +201,10 @@
 
 
 /*
- * TALL MGS-STYLE PORTRAIT WINDOWS
+ * PORTRAIT WINDOWS
+ *
+ * 52 / 89 exactly matches the source
+ * portrait dimensions.
  */
 
 .codec-portrait {
@@ -215,7 +218,7 @@
     );
 
   aspect-ratio:
-    2 / 3;
+    52 / 89;
 
   overflow: hidden;
 
@@ -225,7 +228,7 @@
     var(--codec-green);
 
   background:
-    var(--codec-deep);
+    var(--codec-black);
 }
 
 .codec-portrait::before {
@@ -272,10 +275,6 @@
 
   inset: 0;
 
-  display: grid;
-
-  place-items: center;
-
   overflow: hidden;
 
   background:
@@ -284,123 +283,30 @@
 
 
 /*
- * TEMPORARY BIG BOSS MARKER
+ * PORTRAIT IMAGE
+ *
+ * The actual source is only 52 × 89.
+ *
+ * image-rendering: auto intentionally allows
+ * normal interpolation while enlarging it.
+ * This keeps the original low-resolution
+ * information while avoiding razor-sharp
+ * nearest-neighbor pixels.
  */
 
-.codec-portrait-placeholder {
-  margin: 0;
+.codec-portrait-image {
+  display: block;
 
-  color:
-    var(--codec-muted);
+  width: 100%;
+  height: 100%;
 
-  font-family:
-    "Adwaita Mono",
-    monospace;
+  object-fit: cover;
 
-  font-size:
-    clamp(
-      0.55rem,
-      0.8vw,
-      0.75rem
-    );
-
-  font-weight: 700;
-
-  line-height: 1.3;
-
-  text-align: center;
-
-  white-space: pre;
-
-  opacity: 0.7;
-}
-
-
-/*
- * PHOXY TEXTMODE PORTRAIT
- *
- * The portrait is intentionally rendered as
- * fixed character artwork rather than generated
- * in the browser.
- *
- * Its treatment favors large light/shadow masses
- * over smooth photographic conversion so it
- * retains the coarse MGS1 Codec character.
- */
-
-.codec-phoxy-field {
-  align-items: center;
-
-  justify-items: center;
-
-  background:
-    radial-gradient(
-      ellipse
-      at 50% 43%,
-      var(--codec-dark) 0%,
-      var(--codec-deep) 42%,
-      var(--codec-black) 76%
-    );
-}
-
-.codec-portrait-art {
-  margin: 0;
-
-  padding: 0;
-
-  color:
-    var(--codec-bright);
-
-  font-family:
-    "Adwaita Mono",
-    monospace;
-
-  font-size:
-    clamp(
-      0.31rem,
-      0.48vw,
-      0.48rem
-    );
-
-  font-weight: 700;
-
-  line-height: 0.88;
-
-  letter-spacing: -0.08em;
-
-  text-align: left;
-
-  white-space: pre;
+  image-rendering: auto;
 
   user-select: none;
 
-  transform:
-    scaleX(0.88);
-
-  transform-origin:
-    center;
-
-  text-shadow:
-    0
-    0
-    0.35rem
-    rgba(
-      141,
-      173,
-      120,
-      0.16
-    );
-}
-
-
-/*
- * Slight density variation over the Phoxy
- * portrait keeps it from looking like clean
- * terminal text pasted into a box.
- */
-
-.codec-phoxy-art {
-  opacity: 0.92;
+  pointer-events: none;
 }
 
 
@@ -791,9 +697,6 @@
 
 /*
  * MOBILE
- *
- * The two-portrait Codec composition survives
- * rather than collapsing into stacked cards.
  */
 
 @media (max-width: 700px) {
@@ -830,22 +733,11 @@
       );
 
     aspect-ratio:
-      2 / 3;
+      52 / 89;
   }
 
   .codec-party-name {
     font-size: 0.52rem;
-  }
-
-  .codec-portrait-art {
-    font-size:
-      clamp(
-        0.18rem,
-        0.8vw,
-        0.27rem
-      );
-
-    line-height: 0.88;
   }
 
   .codec-frequency-panel {
@@ -934,15 +826,6 @@
         4.5rem,
         24vw,
         6rem
-      );
-  }
-
-  .codec-portrait-art {
-    font-size:
-      clamp(
-        0.14rem,
-        0.72vw,
-        0.2rem
       );
   }
 
