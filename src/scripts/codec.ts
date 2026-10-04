@@ -15,6 +15,31 @@ interface CodecLine {
 
 
 /*
+ * SPEAKER DISPLAY NAMES
+ *
+ * Dialogue data may still contain the older
+ * "Phoxy" speaker name.
+ *
+ * The Codec presents that speaker as Raiden
+ * without requiring every dialogue entry in
+ * the data file to be rewritten.
+ */
+
+const getSpeakerName = (
+  speaker: string
+) => {
+  if (
+    speaker.toLowerCase() ===
+    'phoxy'
+  ) {
+    return 'Raiden';
+  }
+
+  return speaker;
+};
+
+
+/*
  * CODEC INSTANCES
  */
 
@@ -102,11 +127,16 @@ for (const codec of codecs) {
     const nextLine =
       codecLines[lineIndex];
 
+    const nextSpeaker =
+      getSpeakerName(
+        nextLine.speaker
+      );
+
     if (
       prefersReducedMotion.matches
     ) {
       speaker.textContent =
-        nextLine.speaker;
+        nextSpeaker;
 
       dialogue.textContent =
         nextLine.text;
@@ -121,7 +151,7 @@ for (const codec of codecs) {
     window.setTimeout(
       () => {
         speaker.textContent =
-          nextLine.speaker;
+          nextSpeaker;
 
         dialogue.textContent =
           nextLine.text;

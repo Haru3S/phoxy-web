@@ -7,16 +7,44 @@ import {
 const campbellPortrait =
   '/assets/interests/codec/codecCampbell.webp';
 
-const phoxyPortrait =
+const raidenPortrait =
   '/assets/interests/codec/codecPhoxy.webp';
+
+
+/*
+ * SPEAKER DISPLAY NAMES
+ *
+ * Keep the existing dialogue data compatible
+ * while presenting Phoxy's side of the Codec
+ * as Raiden.
+ */
+
+const getSpeakerName = (
+  speaker: string
+) => {
+  if (
+    speaker.toLowerCase() ===
+    'phoxy'
+  ) {
+    return 'Raiden';
+  }
+
+  return speaker;
+};
+
 
 const firstLine =
   codecLines[0];
+
+const firstSpeaker =
+  getSpeakerName(
+    firstLine.speaker
+  );
 ---
 
 <section
   class="interest-textmode codec-visual"
-  aria-label="Codec communication display between Colonel Campbell and Phoxy"
+  aria-label="Codec communication display between Colonel Campbell and Raiden"
 >
   <div
     class="codec-screen"
@@ -152,16 +180,16 @@ const firstLine =
     </section>
 
     <!--
-      PHOXY
+      RAIDEN
     -->
     <section
       class="codec-party codec-party-right"
-      aria-label="Phoxy"
+      aria-label="Raiden"
     >
       <div class="codec-portrait">
         <img
           class="codec-portrait-image"
-          src={phoxyPortrait}
+          src={raidenPortrait}
           alt=""
           width="52"
           height="89"
@@ -170,7 +198,7 @@ const firstLine =
       </div>
 
       <span class="codec-party-name">
-        PHOXY
+        RAIDEN
       </span>
     </section>
 
@@ -185,7 +213,7 @@ const firstLine =
         class="codec-dialogue-speaker"
         data-codec-speaker
       >
-        {firstLine.speaker}
+        {firstSpeaker}
       </span>
 
       <p
