@@ -3,9 +3,10 @@
   aria-label="Codec visual"
 >
   <div class="codec-placeholder">
+    <!-- Receiving end -->
     <div class="codec-placeholder-side">
       <span class="codec-placeholder-label">
-        PHOXY
+        BIG BOSS
       </span>
 
       <span class="codec-placeholder-box">
@@ -13,19 +14,63 @@
       </span>
     </div>
 
+    <!-- Codec frequency -->
     <div class="codec-placeholder-center">
-      <span>140.85</span>
+      <span class="codec-frequency">
+        140.85
+      </span>
 
-      <span class="codec-placeholder-frequency">
+      <span
+        class="codec-placeholder-frequency"
+        aria-hidden="true"
+      >
         ━━━━━━━━━━━━━
       </span>
 
-      <span>CALLING</span>
+      <span class="codec-call-state">
+        CALLING
+      </span>
+
+      <div
+        class="codec-controls"
+        aria-label="Codec controls"
+      >
+        <button
+          class="codec-control"
+          type="button"
+          aria-disabled="true"
+          tabindex="-1"
+        >
+          <span class="codec-control-key">
+            PTT
+          </span>
+
+          <span class="codec-control-label">
+            PUSH TO TALK
+          </span>
+        </button>
+
+        <button
+          class="codec-control"
+          type="button"
+          aria-disabled="true"
+          tabindex="-1"
+        >
+          <span class="codec-control-key">
+            MEMORY
+          </span>
+
+          <span class="codec-control-label">
+            SELECT
+          </span>
+        </button>
+      </div>
     </div>
 
+    <!-- Player side -->
     <div class="codec-placeholder-side">
       <span class="codec-placeholder-label">
-        BIG BOSS
+        PHOXY
       </span>
 
       <span class="codec-placeholder-box">

@@ -1,13 +1,26 @@
 export const games = [
   'Team Fortress 2',
   'Half-Life',
+  'Half-Life 2',
   'Black Mesa',
-  'Metal Gear',
+  'METAL GEARS SOLID',
+  'Metal Gear Solid 2',
+  'Metal Gear Solid 3',
   'Ready or Not',
   'Voices of the Void',
+  "Garry's Mod",
+  'Portal',
+  'Portal 2',
   'Minecraft',
   'Grand Theft Auto V',
-  'Stormworks',
+  'ASTRONEER',
+  'ULTRAKILL',
+  'DOOM II',
+  'I AM YOUR BEAST',
+  'BeamNG',
+  'Celeste',
+  'FAITH',
+  'Deltarune',
 ];
 
 export const hobbies = [
@@ -17,17 +30,14 @@ export const hobbies = [
   'Video Editing',
   'Sound Design',
   'Music',
-  'Graffiti',
   'Worldbuilding',
+  'Storytelling',
   'E-Biking',
+  'Meteorology',
 ];
 
 export const loves = [
-  'Cybersecurity',
-  'Meteorology',
   'Cars',
   'Linux',
   'Open Source',
-  'Aviation',
-  'Airsoft',
 ];
