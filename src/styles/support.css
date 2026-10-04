@@ -1,0 +1,402 @@
+/*
+ * PAGE SHELL
+ */
+
+.support-page {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+
+  overflow: hidden;
+
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+
+
+/*
+ * LEFT SIDE
+ */
+
+.support-visual-panel {
+  display: grid;
+
+  grid-template-rows:
+    minmax(0, 0.4fr)
+    minmax(0, 0.6fr);
+
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+
+  overflow: hidden;
+
+  border-right:
+    1px
+    solid
+    var(--color-border);
+}
+
+
+/*
+ * SUPPORTER LOAD WRAPPER
+ */
+
+.supporter-load {
+  width: 100%;
+  height: 100%;
+
+  min-width: 0;
+  min-height: 0;
+
+  overflow: hidden;
+}
+
+
+/*
+ * KOI VISUAL LOAD WRAPPER
+ */
+
+.support-visual-load {
+  width: 100%;
+  height: 100%;
+
+  min-width: 0;
+  min-height: 0;
+
+  overflow: hidden;
+}
+
+
+/*
+ * RIGHT SIDE
+ */
+
+.support-content-panel {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+
+  overflow: hidden;
+}
+
+
+/*
+ * SCROLL SHELL
+ *
+ * The shell owns the fixed overlays.
+ * The content itself scrolls underneath them.
+ */
+
+.support-scroll-shell {
+  position: relative;
+
+  flex: 1 1 auto;
+
+  min-width: 0;
+  min-height: 0;
+
+  overflow: hidden;
+}
+
+.support-scroll-region {
+  width: 100%;
+  height: 100%;
+
+  min-width: 0;
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  scrollbar-width: thin;
+  overscroll-behavior: contain;
+}
+
+
+/*
+ * MINI-PAGE TRANSITIONS
+ */
+
+[data-support-page]
+  .is-transitioning-out {
+  opacity: 0;
+}
+
+[data-support-page].is-transitioning-out {
+  opacity: 0;
+
+  transition:
+    opacity 150ms ease-out;
+}
+
+[data-support-page].is-entering-right,
+[data-support-page].is-entering-left {
+  opacity: 0;
+
+  transition:
+    opacity 240ms ease-out,
+    translate 240ms
+      cubic-bezier(
+        0.22,
+        1,
+        0.36,
+        1
+      );
+
+  will-change:
+    opacity,
+    translate;
+}
+
+[data-support-page].is-entering-right {
+  translate: 26px 0;
+}
+
+[data-support-page].is-entering-left {
+  translate: -26px 0;
+}
+
+[data-support-page].is-entering-active {
+  opacity: 1;
+  translate: 0 0;
+}
+
+
+/*
+ * BOTTOM CONTENT FADE
+ *
+ * Same treatment as Links:
+ *
+ * - long, soft falloff
+ * - content remains visible underneath
+ * - darkest point is 80% black
+ * - disappears at the true bottom
+ */
+
+.scroll-fade {
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  z-index: 8;
+
+  height:
+    clamp(
+      10rem,
+      22vh,
+      14rem
+    );
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.02) 8%,
+      rgba(0, 0, 0, 0.05) 16%,
+      rgba(0, 0, 0, 0.10) 24%,
+      rgba(0, 0, 0, 0.17) 32%,
+      rgba(0, 0, 0, 0.26) 40%,
+      rgba(0, 0, 0, 0.36) 48%,
+      rgba(0, 0, 0, 0.47) 56%,
+      rgba(0, 0, 0, 0.57) 64%,
+      rgba(0, 0, 0, 0.66) 72%,
+      rgba(0, 0, 0, 0.73) 80%,
+      rgba(0, 0, 0, 0.77) 90%,
+      rgba(0, 0, 0, 0.80) 100%
+    );
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transition:
+    opacity 0.18s ease-out,
+    visibility 0s linear 0.18s;
+}
+
+.scroll-fade.is-visible {
+  opacity: 1;
+  visibility: visible;
+
+  transition:
+    opacity 0.18s ease-out,
+    visibility 0s linear 0s;
+}
+
+
+/*
+ * SCROLL INDICATOR
+ */
+
+.scroll-indicator {
+  position: absolute;
+
+  left: 50%;
+  bottom: 0.8rem;
+
+  z-index: 10;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 2.75rem;
+  height: 2.75rem;
+
+  margin: 0;
+  padding: 0;
+
+  border:
+    1px
+    solid
+    rgba(255, 255, 255, 0.28);
+
+  border-radius: 50%;
+
+  background:
+    rgba(0, 0, 0, 0.55);
+
+  color:
+    rgba(255, 255, 255, 0.7);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  cursor: pointer;
+
+  transform:
+    translateX(-50%);
+
+  transition:
+    opacity 0.25s ease-out,
+    visibility 0s linear 0.25s,
+    color 0.15s ease-out,
+    border-color 0.15s ease-out;
+}
+
+.scroll-indicator.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+
+  transition:
+    opacity 0.25s ease-out,
+    visibility 0s linear 0s,
+    color 0.15s ease-out,
+    border-color 0.15s ease-out;
+}
+
+.scroll-indicator:hover,
+.scroll-indicator:focus-visible {
+  color:
+    rgba(255, 255, 255, 1);
+
+  border-color:
+    rgba(255, 255, 255, 0.7);
+}
+
+.scroll-indicator i {
+  font-size: 1.4rem;
+}
+
+
+/*
+ * REDUCED MOTION
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-indicator,
+  .scroll-indicator.is-visible,
+  .scroll-fade,
+  .scroll-fade.is-visible {
+    transition: none;
+  }
+
+  [data-support-page].is-transitioning-out,
+  [data-support-page].is-entering-right,
+  [data-support-page].is-entering-left,
+  [data-support-page].is-entering-active {
+    opacity: 1;
+    translate: 0 0;
+
+    transition: none;
+
+    will-change: auto;
+  }
+}
+
+
+/*
+ * MOBILE
+ */
+
+@media (max-width: 700px) {
+  .support-page {
+    display: flex;
+    flex-direction: column;
+
+    height: auto;
+    min-height: 100dvh;
+
+    overflow: visible;
+  }
+
+  .support-content-panel {
+    order: 1;
+
+    height: auto;
+    min-height: 100dvh;
+
+    overflow: visible;
+  }
+
+  .support-scroll-shell {
+    flex: none;
+
+    overflow: visible;
+  }
+
+  .support-scroll-region {
+    height: auto;
+
+    overflow: visible;
+  }
+
+  .support-visual-panel {
+    order: 2;
+
+    grid-template-rows:
+      minmax(24rem, auto)
+      minmax(30rem, 70vh);
+
+    height: auto;
+    min-height: 0;
+
+    overflow: visible;
+
+    border-top:
+      1px
+      solid
+      var(--color-border);
+
+    border-right: 0;
+  }
+
+  .scroll-indicator,
+  .scroll-fade {
+    display: none;
+  }
+}
