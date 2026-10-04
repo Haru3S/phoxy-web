@@ -1,81 +1,182 @@
 <section
   class="interest-textmode codec-visual"
-  aria-label="Codec visual"
+  aria-label="Codec communication display between Big Boss and Phoxy"
 >
-  <div class="codec-placeholder">
-    <!-- Receiving end -->
-    <div class="codec-placeholder-side">
-      <span class="codec-placeholder-label">
+  <div class="codec-screen">
+    <!--
+      LEFT / RECEIVING SIDE
+
+      Portrait content is intentionally still
+      empty. The next pass replaces this field
+      with Big Boss textmode artwork.
+    -->
+    <section
+      class="codec-party codec-party-left"
+      aria-label="Big Boss"
+    >
+      <div
+        class="codec-portrait"
+        data-codec-portrait="big-boss"
+      >
+        <div
+          class="codec-portrait-field"
+          aria-hidden="true"
+        >
+          <span class="codec-portrait-placeholder">
+            ░▒▓
+            <br />
+            BIG BOSS
+            <br />
+            ▓▒░
+          </span>
+        </div>
+      </div>
+
+      <span class="codec-party-name">
         BIG BOSS
       </span>
+    </section>
 
-      <span class="codec-placeholder-box">
-        PORTRAIT
-      </span>
-    </div>
-
-    <!-- Codec frequency -->
-    <div class="codec-placeholder-center">
-      <span class="codec-frequency">
-        140.85
-      </span>
-
-      <span
-        class="codec-placeholder-frequency"
+    <!--
+      CENTER COMMUNICATION CHANNEL
+    -->
+    <section
+      class="codec-channel"
+      aria-label="Codec frequency"
+    >
+      <div
+        class="codec-channel-line"
         aria-hidden="true"
-      >
-        ━━━━━━━━━━━━━
-      </span>
+      ></div>
 
-      <span class="codec-call-state">
-        CALLING
-      </span>
+      <div class="codec-frequency-panel">
+        <span class="codec-frequency">
+          140.85
+        </span>
+
+        <div
+          class="codec-tune-meter"
+          aria-hidden="true"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+        <span class="codec-tune-label">
+          TUNE
+        </span>
+      </div>
 
       <div
-        class="codec-controls"
-        aria-label="Codec controls"
+        class="codec-channel-line"
+        aria-hidden="true"
+      ></div>
+    </section>
+
+    <!--
+      RIGHT / PLAYER SIDE
+
+      Phoxy belongs on the right because this
+      side represents the player position.
+    -->
+    <section
+      class="codec-party codec-party-right"
+      aria-label="Phoxy"
+    >
+      <div
+        class="codec-portrait"
+        data-codec-portrait="phoxy"
       >
-        <button
-          class="codec-control"
-          type="button"
-          aria-disabled="true"
-          tabindex="-1"
+        <div
+          class="codec-portrait-field"
+          aria-hidden="true"
         >
-          <span class="codec-control-key">
-            PTT
+          <span class="codec-portrait-placeholder">
+            ░▒▓
+            <br />
+            PHOXY
+            <br />
+            ▓▒░
           </span>
-
-          <span class="codec-control-label">
-            PUSH TO TALK
-          </span>
-        </button>
-
-        <button
-          class="codec-control"
-          type="button"
-          aria-disabled="true"
-          tabindex="-1"
-        >
-          <span class="codec-control-key">
-            MEMORY
-          </span>
-
-          <span class="codec-control-label">
-            SELECT
-          </span>
-        </button>
+        </div>
       </div>
-    </div>
 
-    <!-- Player side -->
-    <div class="codec-placeholder-side">
-      <span class="codec-placeholder-label">
+      <span class="codec-party-name">
         PHOXY
       </span>
+    </section>
 
-      <span class="codec-placeholder-box">
-        PORTRAIT
+    <!--
+      LOWER CODEC CONTROLS
+
+      These deliberately remain unavailable.
+      They exist as part of the Codec display,
+      not as functional site navigation.
+    -->
+    <div class="codec-controls">
+      <button
+        class="codec-control codec-control-ptt"
+        type="button"
+        aria-disabled="true"
+        tabindex="-1"
+      >
+        <span class="codec-control-label">
+          PTT
+        </span>
+
+        <span
+          class="codec-control-switch"
+          aria-hidden="true"
+        >
+          <span></span>
+        </span>
+      </button>
+
+      <div
+        class="codec-control-spacer"
+        aria-hidden="true"
+      ></div>
+
+      <button
+        class="codec-control codec-control-memory"
+        type="button"
+        aria-disabled="true"
+        tabindex="-1"
+      >
+        <span
+          class="codec-control-switch"
+          aria-hidden="true"
+        >
+          <span></span>
+        </span>
+
+        <span class="codec-control-label">
+          MEMORY
+        </span>
+      </button>
+    </div>
+
+    <!--
+      Tiny display markings help sell the visual
+      as an embedded communications interface
+      rather than a pair of ordinary cards.
+    -->
+    <div
+      class="codec-display-meta"
+      aria-hidden="true"
+    >
+      <span>PTT</span>
+
+      <span>
+        CODEC / 140.85
       </span>
+
+      <span>MEMORY</span>
     </div>
   </div>
 </section>
