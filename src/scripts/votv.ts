@@ -115,6 +115,9 @@ for (const container of containers) {
   let trees: Tree[] = [];
   let dishes: Dish[] = [];
 
+  let sceneGridCols = -1;
+  let sceneGridRows = -1;
+
   let pointerX = 0;
   let targetPointerX = 0;
   let pointerStrength = 0;
@@ -173,6 +176,13 @@ for (const container of containers) {
   const rebuildScene = () => {
     const cols = t.grid.cols;
     const rows = t.grid.rows;
+
+    if (cols <= 0 || rows <= 0) {
+      return;
+    }
+
+    sceneGridCols = cols;
+    sceneGridRows = rows;
 
     trees = [];
 
@@ -1475,6 +1485,19 @@ for (const container of containers) {
   );
 
   t.draw(() => {
+    /*
+     * Trees and dishes are cached from the Textmode grid while
+     * every other layer reads the live grid each frame. Production
+     * builds can settle the canvas/grid later than development does,
+     * so never draw cached scene geometry from an obsolete grid.
+     */
+    if (
+      t.grid.cols !== sceneGridCols ||
+      t.grid.rows !== sceneGridRows
+    ) {
+      rebuildScene();
+    }
+
     const time =
       reducedMotion.matches
         ? 0
@@ -1608,9 +1631,6 @@ for (const container of containers) {
           ),
         );
 
-        requestAnimationFrame(() => {
-          rebuildScene();
-        });
       },
     );
 
@@ -1619,10 +1639,9 @@ for (const container of containers) {
   );
 
   /*
-   * Textmode derives grid.cols / grid.rows from the canvas size.
-   * Build the array-backed scene only after the canvas has been
-   * explicitly sized to the mounted container; otherwise trees
-   * and dishes can be generated against the temporary startup grid.
+   * Give Textmode the mounted dimensions immediately. The draw
+   * loop above owns scene rebuilding and will regenerate cached
+   * geometry as soon as the resulting grid dimensions are current.
    */
   t.resizeCanvas(
     Math.max(
@@ -1638,8 +1657,4 @@ for (const container of containers) {
       ),
     ),
   );
-
-  requestAnimationFrame(() => {
-    rebuildScene();
-  });
 }
