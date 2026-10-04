@@ -170,6 +170,11 @@ function initFiatSupport(): void {
       '[data-fiat-custom-amount]',
     );
 
+  const customAmountContainer =
+    root.querySelector<HTMLElement>(
+      '.fiat-custom-amount',
+    );
+
   const amountError =
     root.querySelector<HTMLElement>(
       '[data-fiat-amount-error]',
@@ -195,6 +200,7 @@ function initFiatSupport(): void {
     !amountBackButton ||
     !supporterName ||
     !customAmountInput ||
+    !customAmountContainer ||
     !amountError ||
     !selectedAmountDisplay ||
     !checkoutButton
@@ -209,6 +215,11 @@ function initFiatSupport(): void {
 
   let selectedAmount: number | null =
     null;
+
+  let amountSource:
+    | 'preset'
+    | 'custom'
+    | null = null;
 
   function setNameError(
     message: string | null,
@@ -270,6 +281,8 @@ function initFiatSupport(): void {
           );
 
         const selected =
+          amountSource ===
+            'preset' &&
           selectedAmount !== null &&
           amount ===
             selectedAmount;
@@ -287,6 +300,23 @@ function initFiatSupport(): void {
         );
       },
     );
+
+    customAmountContainer
+      .classList
+      .toggle(
+        'is-dimmed',
+        amountSource ===
+          'preset',
+      );
+
+    customAmountContainer
+      .classList
+      .toggle(
+        'is-selected',
+        amountSource ===
+          'custom' &&
+          selectedAmount !== null,
+      );
 
     if (
       selectedAmount === null
@@ -313,6 +343,7 @@ function initFiatSupport(): void {
     amount: number,
   ): void {
     selectedAmount = amount;
+    amountSource = 'preset';
 
     customAmountInput.value = '';
 
@@ -322,27 +353,21 @@ function initFiatSupport(): void {
   }
 
   function selectCustomAmount(): void {
+    const rawValue =
+      customAmountInput.value;
+
     const amount =
       parseAmount(
-        customAmountInput.value,
+        rawValue,
       );
 
-    amountOptions.forEach(
-      (button) => {
-        button.classList.remove(
-          'is-selected',
-        );
-
-        button.setAttribute(
-          'aria-pressed',
-          'false',
-        );
-      },
-    );
+    amountSource =
+      rawValue.trim() === ''
+        ? null
+        : 'custom';
 
     if (
-      customAmountInput.value
-        .trim() === ''
+      rawValue.trim() === ''
     ) {
       selectedAmount = null;
 
@@ -426,7 +451,7 @@ function initFiatSupport(): void {
 
     supporterName.textContent =
       identity.anonymous
-        ? 'ANONYMOUS'
+        ? 'Anonymous'
         : identity.displayName;
   }
 
@@ -542,6 +567,21 @@ function initFiatSupport(): void {
   );
 
   customAmountInput.addEventListener(
+    'focus',
+    () => {
+      if (
+        amountSource ===
+        'preset'
+      ) {
+        selectedAmount = null;
+        amountSource = 'custom';
+
+        updateAmountUI();
+      }
+    },
+  );
+
+  customAmountInput.addEventListener(
     'input',
     selectCustomAmount,
   );
@@ -550,6 +590,8 @@ function initFiatSupport(): void {
     'blur',
     () => {
       if (
+        amountSource !==
+          'custom' ||
         selectedAmount === null
       ) {
         return;
@@ -571,10 +613,10 @@ function initFiatSupport(): void {
 
       /*
        * Stripe Checkout gets connected here
-       * in the next backend step.
+       * during the backend pass.
        *
-       * Never treat the browser-side amount
-       * or identity as proof of payment.
+       * The browser's identity and amount are
+       * never proof that payment succeeded.
        */
     },
   );

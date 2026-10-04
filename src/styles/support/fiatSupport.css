@@ -324,6 +324,9 @@
     ease-out,
     background
     0.1s
+    ease-out,
+    opacity
+    0.1s
     ease-out;
 }
 
@@ -540,7 +543,10 @@
     var(--color-border);
 }
 
-.fiat-amount-option {
+.fiat-support
+  .fiat-amount-option {
+  position: relative;
+
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -551,6 +557,8 @@
   min-height: 7.5rem;
 
   padding: 1rem;
+
+  overflow: hidden;
 
   border: 0;
 
@@ -564,16 +572,37 @@
 
   cursor: pointer;
 
+  isolation: isolate;
+
   transition:
-    background
-    0.1s
-    ease-out,
     color
     0.1s
     ease-out;
 }
 
-.fiat-amount-option > span {
+
+/*
+ * AMOUNT CONTENT
+ *
+ * Keep the label above the hover layer.
+ */
+
+.fiat-support
+  .fiat-amount-option
+  > span,
+.fiat-support
+  .fiat-amount-option
+  > small {
+  position: relative;
+
+  z-index: 2;
+
+  color: inherit;
+}
+
+.fiat-support
+  .fiat-amount-option
+  > span {
   font-family:
     "Space Grotesk Variable",
     sans-serif;
@@ -591,7 +620,9 @@
   letter-spacing: -0.05em;
 }
 
-.fiat-amount-option small {
+.fiat-support
+  .fiat-amount-option
+  > small {
   font-family:
     "Adwaita Mono",
     monospace;
@@ -602,18 +633,149 @@
   opacity: 0.45;
 }
 
-.fiat-amount-option:hover,
-.fiat-amount-option:focus-visible {
+
+/*
+ * AMOUNT HOVER LAYER
+ *
+ * This deliberately does not rely on changing
+ * the button's own background.
+ *
+ * The overlay sits above whatever background
+ * the button receives and below its text.
+ *
+ * Same visual gray as the site's global
+ * --color-hover treatment.
+ */
+
+.fiat-support
+  .fiat-amount-option::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 1;
+
   background:
-    var(--color-hover);
+    rgb(
+      20,
+      20,
+      20
+    );
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  transition:
+    opacity
+    0.1s
+    ease-out;
 }
 
-.fiat-amount-option.is-selected {
+.fiat-support
+  .fiat-amount-option:not(
+    .is-selected
+  ):hover::before,
+.fiat-support
+  .fiat-amount-option:not(
+    .is-selected
+  ):focus-visible::before {
+  opacity: 1;
+}
+
+
+/*
+ * HOVER TEXT
+ */
+
+.fiat-support
+  .fiat-amount-option:not(
+    .is-selected
+  ):hover,
+.fiat-support
+  .fiat-amount-option:not(
+    .is-selected
+  ):focus-visible {
+  color:
+    var(--color-fg) !important;
+}
+
+.fiat-support
+  .fiat-amount-option:not(
+    .is-selected
+  ):hover
+  > span,
+.fiat-support
+  .fiat-amount-option:not(
+    .is-selected
+  ):hover
+  > small,
+.fiat-support
+  .fiat-amount-option:not(
+    .is-selected
+  ):focus-visible
+  > span,
+.fiat-support
+  .fiat-amount-option:not(
+    .is-selected
+  ):focus-visible
+  > small {
+  color:
+    var(--color-fg) !important;
+}
+
+
+/*
+ * SELECTED AMOUNT
+ *
+ * Selected state deliberately owns the actual
+ * button background.
+ */
+
+.fiat-support
+  .fiat-amount-option.is-selected,
+.fiat-support
+  .fiat-amount-option.is-selected:hover,
+.fiat-support
+  .fiat-amount-option.is-selected:focus-visible {
   background:
-    var(--color-fg);
+    var(--color-fg) !important;
 
   color:
-    var(--color-bg);
+    var(--color-bg) !important;
+}
+
+.fiat-support
+  .fiat-amount-option.is-selected::before,
+.fiat-support
+  .fiat-amount-option.is-selected:hover::before,
+.fiat-support
+  .fiat-amount-option.is-selected:focus-visible::before {
+  opacity: 0;
+}
+
+.fiat-support
+  .fiat-amount-option.is-selected
+  > span,
+.fiat-support
+  .fiat-amount-option.is-selected
+  > small,
+.fiat-support
+  .fiat-amount-option.is-selected:hover
+  > span,
+.fiat-support
+  .fiat-amount-option.is-selected:hover
+  > small,
+.fiat-support
+  .fiat-amount-option.is-selected:focus-visible
+  > span,
+.fiat-support
+  .fiat-amount-option.is-selected:focus-visible
+  > small {
+  color:
+    var(--color-bg) !important;
 }
 
 
@@ -626,6 +788,22 @@
   flex-direction: column;
 
   gap: 0.5rem;
+
+  opacity: 1;
+
+  transition:
+    opacity
+    0.1s
+    ease-out;
+}
+
+.fiat-custom-amount.is-dimmed {
+  opacity: 0.3;
+}
+
+.fiat-custom-amount.is-dimmed:hover,
+.fiat-custom-amount.is-dimmed:focus-within {
+  opacity: 1;
 }
 
 .fiat-money-input {
@@ -674,6 +852,17 @@
   border-color: #f38ba8;
 }
 
+.fiat-custom-amount.is-selected
+  .fiat-money-input {
+  border-color:
+    rgba(
+      255,
+      255,
+      255,
+      0.65
+    );
+}
+
 .fiat-money-input input {
   min-width: 0;
 
@@ -686,6 +875,9 @@
   outline: none;
 
   background: transparent;
+
+  color:
+    var(--color-fg);
 }
 
 .fiat-money-input
@@ -695,10 +887,16 @@
   border: 0;
 
   background: transparent;
+
+  color:
+    var(--color-fg);
 }
 
 .fiat-currency-symbol {
   padding-left: 0.95rem;
+
+  color:
+    var(--color-fg);
 
   font-family:
     "Space Grotesk Variable",
@@ -716,6 +914,9 @@
 
 .fiat-currency-code {
   padding-right: 0.95rem;
+
+  color:
+    var(--color-fg);
 
   font-family:
     "Adwaita Mono",
@@ -858,6 +1059,8 @@
   .fiat-field input,
   .fiat-money-input,
   .fiat-amount-option,
+  .fiat-amount-option::before,
+  .fiat-custom-amount,
   .fiat-checkout-button {
     transition: none;
   }
