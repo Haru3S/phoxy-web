@@ -526,7 +526,7 @@ export const codecLines: CodecLine[] = [
   {
     speaker: 'PHOXY',
     text:
-      'You’re talking to somebody else, aren’t you?',
+      "You’re talking to somebody else, aren’t you?",
   },
 
   {
