@@ -5,55 +5,32 @@ type FiatIdentity = {
 
 const DISPLAY_NAME_MIN_LENGTH = 2;
 const DISPLAY_NAME_MAX_LENGTH = 24;
-
-const DISPLAY_NAME_PATTERN =
-  /^[A-Za-z0-9 _.-]+$/;
-
-const RESERVED_DISPLAY_NAMES = new Set([
-  'anonymous',
-]);
-
+const DISPLAY_NAME_PATTERN = /^[A-Za-z0-9_]+$/;
+const RESERVED_DISPLAY_NAMES = new Set(['anonymous']);
 const MIN_SUPPORT_AMOUNT = 1;
 
-function normalizeDisplayName(
-  value: string,
-): string {
-  return value
-    .trim()
-    .replace(/\s+/g, ' ');
+function normalizeDisplayName(value: string): string {
+  return value.trim();
 }
 
-function validateDisplayName(
-  value: string,
-): string | null {
-  const normalized =
-    normalizeDisplayName(value);
+function validateDisplayName(value: string): string | null {
+  const normalized = normalizeDisplayName(value);
 
-  if (
-    normalized.length <
-    DISPLAY_NAME_MIN_LENGTH
-  ) {
+  if (normalized.length < DISPLAY_NAME_MIN_LENGTH) {
     return `Use at least ${DISPLAY_NAME_MIN_LENGTH} characters.`;
   }
 
-  if (
-    normalized.length >
-    DISPLAY_NAME_MAX_LENGTH
-  ) {
+  if (normalized.length > DISPLAY_NAME_MAX_LENGTH) {
     return `Keep it under ${DISPLAY_NAME_MAX_LENGTH} characters.`;
   }
 
-  if (
-    !DISPLAY_NAME_PATTERN.test(
-      normalized,
-    )
-  ) {
-    return 'Use letters, numbers, spaces, _, - or .';
+  if (!DISPLAY_NAME_PATTERN.test(normalized)) {
+    return 'Use letters, numbers, or _.';
   }
 
   if (
     RESERVED_DISPLAY_NAMES.has(
-      normalized.toLowerCase(),
+      normalized.toLowerCase()
     )
   ) {
     return 'That name is reserved. Use Skip to stay anonymous.';
@@ -62,41 +39,29 @@ function validateDisplayName(
   return null;
 }
 
-function parseAmount(
-  value: string,
-): number | null {
-  const cleaned =
-    value
-      .trim()
-      .replace(/[$,\s]/g, '');
+function parseAmount(value: string): number | null {
+  const cleaned = value
+    .trim()
+    .replace(/[$,\s]/g, '');
 
   if (!cleaned) {
     return null;
   }
 
-  if (
-    !/^\d+(?:\.\d{0,2})?$/.test(
-      cleaned,
-    )
-  ) {
+  if (!/^\d+(?:\.\d{0,2})?$/.test(cleaned)) {
     return null;
   }
 
-  const amount =
-    Number(cleaned);
+  const amount = Number(cleaned);
 
-  if (
-    !Number.isFinite(amount)
-  ) {
+  if (!Number.isFinite(amount)) {
     return null;
   }
 
   return amount;
 }
 
-function formatAmount(
-  amount: number,
-): string {
+function formatAmount(amount: number): string {
   return new Intl.NumberFormat(
     'en-US',
     {
@@ -104,14 +69,14 @@ function formatAmount(
       currency: 'USD',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    },
+    }
   ).format(amount);
 }
 
 function initFiatSupport(): void {
   const root =
     document.querySelector<HTMLElement>(
-      '[data-fiat-support]',
+      '[data-fiat-support]'
     );
 
   if (!root) {
@@ -120,74 +85,74 @@ function initFiatSupport(): void {
 
   const identityStep =
     root.querySelector<HTMLElement>(
-      '[data-fiat-step="identity"]',
+      '[data-fiat-step="identity"]'
     );
 
   const amountStep =
     root.querySelector<HTMLElement>(
-      '[data-fiat-step="amount"]',
+      '[data-fiat-step="amount"]'
     );
 
   const displayNameInput =
     root.querySelector<HTMLInputElement>(
-      '[data-fiat-display-name]',
+      '[data-fiat-display-name]'
     );
 
   const nameError =
     root.querySelector<HTMLElement>(
-      '[data-fiat-name-error]',
+      '[data-fiat-name-error]'
     );
 
   const continueButton =
     root.querySelector<HTMLButtonElement>(
-      '[data-fiat-continue]',
+      '[data-fiat-continue]'
     );
 
   const anonymousButton =
     root.querySelector<HTMLButtonElement>(
-      '[data-fiat-anonymous]',
+      '[data-fiat-anonymous]'
     );
 
   const amountBackButton =
     root.querySelector<HTMLButtonElement>(
-      '[data-fiat-amount-back]',
+      '[data-fiat-amount-back]'
     );
 
   const supporterName =
     root.querySelector<HTMLElement>(
-      '[data-fiat-supporter-name]',
+      '[data-fiat-supporter-name]'
     );
 
   const amountOptions =
     Array.from(
       root.querySelectorAll<HTMLButtonElement>(
-        '[data-fiat-amount]',
-      ),
+        '[data-fiat-amount]'
+      )
     );
 
   const customAmountInput =
     root.querySelector<HTMLInputElement>(
-      '[data-fiat-custom-amount]',
+      '[data-fiat-custom-amount]'
     );
 
   const customAmountContainer =
     root.querySelector<HTMLElement>(
-      '.fiat-custom-amount',
+      '.fiat-custom-amount'
     );
 
   const amountError =
     root.querySelector<HTMLElement>(
-      '[data-fiat-amount-error]',
+      '[data-fiat-amount-error]'
     );
 
   const selectedAmountDisplay =
     root.querySelector<HTMLElement>(
-      '[data-fiat-selected-amount]',
+      '[data-fiat-selected-amount]'
     );
 
   const checkoutButton =
     root.querySelector<HTMLButtonElement>(
-      '[data-fiat-checkout]',
+      '[data-fiat-checkout]'
     );
 
   if (
@@ -213,8 +178,7 @@ function initFiatSupport(): void {
     anonymous: false,
   };
 
-  let selectedAmount: number | null =
-    null;
+  let selectedAmount: number | null = null;
 
   let amountSource:
     | 'preset'
@@ -222,17 +186,15 @@ function initFiatSupport(): void {
     | null = null;
 
   function setNameError(
-    message: string | null,
+    message: string | null
   ): void {
     if (message) {
-      nameError.textContent =
-        message;
-
+      nameError.textContent = message;
       nameError.hidden = false;
 
       displayNameInput.setAttribute(
         'aria-invalid',
-        'true',
+        'true'
       );
 
       return;
@@ -242,22 +204,20 @@ function initFiatSupport(): void {
     nameError.hidden = true;
 
     displayNameInput.removeAttribute(
-      'aria-invalid',
+      'aria-invalid'
     );
   }
 
   function setAmountError(
-    message: string | null,
+    message: string | null
   ): void {
     if (message) {
-      amountError.textContent =
-        message;
-
+      amountError.textContent = message;
       amountError.hidden = false;
 
       customAmountInput.setAttribute(
         'aria-invalid',
-        'true',
+        'true'
       );
 
       return;
@@ -267,7 +227,7 @@ function initFiatSupport(): void {
     amountError.hidden = true;
 
     customAmountInput.removeAttribute(
-      'aria-invalid',
+      'aria-invalid'
     );
   }
 
@@ -276,71 +236,54 @@ function initFiatSupport(): void {
       (button) => {
         const amount =
           Number(
-            button.dataset
-              .fiatAmount,
+            button.dataset.fiatAmount
           );
 
         const selected =
-          amountSource ===
-            'preset' &&
+          amountSource === 'preset' &&
           selectedAmount !== null &&
-          amount ===
-            selectedAmount;
+          amount === selectedAmount;
 
         button.classList.toggle(
           'is-selected',
-          selected,
+          selected
         );
 
         button.setAttribute(
           'aria-pressed',
-          selected
-            ? 'true'
-            : 'false',
+          selected ? 'true' : 'false'
         );
-      },
+      }
     );
 
-    customAmountContainer
-      .classList
-      .toggle(
-        'is-dimmed',
-        amountSource ===
-          'preset',
-      );
+    customAmountContainer.classList.toggle(
+      'is-dimmed',
+      amountSource === 'preset'
+    );
 
-    customAmountContainer
-      .classList
-      .toggle(
-        'is-selected',
-        amountSource ===
-          'custom' &&
-          selectedAmount !== null,
-      );
+    customAmountContainer.classList.toggle(
+      'is-selected',
+      amountSource === 'custom' &&
+        selectedAmount !== null
+    );
 
-    if (
-      selectedAmount === null
-    ) {
+    if (selectedAmount === null) {
       selectedAmountDisplay.textContent =
         '$0.00';
 
-      checkoutButton.disabled =
-        true;
+      checkoutButton.disabled = true;
 
       return;
     }
 
     selectedAmountDisplay.textContent =
-      formatAmount(
-        selectedAmount,
-      );
+      formatAmount(selectedAmount);
 
-    checkoutButton.disabled =
-      false;
+    checkoutButton.disabled = false;
   }
 
   function selectPresetAmount(
-    amount: number,
+    amount: number
   ): void {
     selectedAmount = amount;
     amountSource = 'preset';
@@ -348,7 +291,6 @@ function initFiatSupport(): void {
     customAmountInput.value = '';
 
     setAmountError(null);
-
     updateAmountUI();
   }
 
@@ -357,22 +299,17 @@ function initFiatSupport(): void {
       customAmountInput.value;
 
     const amount =
-      parseAmount(
-        rawValue,
-      );
+      parseAmount(rawValue);
 
     amountSource =
       rawValue.trim() === ''
         ? null
         : 'custom';
 
-    if (
-      rawValue.trim() === ''
-    ) {
+    if (rawValue.trim() === '') {
       selectedAmount = null;
 
       setAmountError(null);
-
       updateAmountUI();
 
       return;
@@ -382,7 +319,7 @@ function initFiatSupport(): void {
       selectedAmount = null;
 
       setAmountError(
-        'Enter a valid USD amount with up to two decimal places.',
+        'Enter a valid USD amount with up to two decimal places.'
       );
 
       updateAmountUI();
@@ -390,16 +327,13 @@ function initFiatSupport(): void {
       return;
     }
 
-    if (
-      amount <
-      MIN_SUPPORT_AMOUNT
-    ) {
+    if (amount < MIN_SUPPORT_AMOUNT) {
       selectedAmount = null;
 
       setAmountError(
         `Minimum support amount is ${formatAmount(
-          MIN_SUPPORT_AMOUNT,
-        )}.`,
+          MIN_SUPPORT_AMOUNT
+        )}.`
       );
 
       updateAmountUI();
@@ -410,7 +344,6 @@ function initFiatSupport(): void {
     selectedAmount = amount;
 
     setAmountError(null);
-
     updateAmountUI();
   }
 
@@ -420,19 +353,17 @@ function initFiatSupport(): void {
 
     identityStep.setAttribute(
       'aria-hidden',
-      'false',
+      'false'
     );
 
     amountStep.setAttribute(
       'aria-hidden',
-      'true',
+      'true'
     );
 
-    requestAnimationFrame(
-      () => {
-        displayNameInput.focus();
-      },
-    );
+    requestAnimationFrame(() => {
+      displayNameInput.focus();
+    });
   }
 
   function showAmountStep(): void {
@@ -441,12 +372,12 @@ function initFiatSupport(): void {
 
     identityStep.setAttribute(
       'aria-hidden',
-      'true',
+      'true'
     );
 
     amountStep.setAttribute(
       'aria-hidden',
-      'false',
+      'false'
     );
 
     supporterName.textContent =
@@ -458,18 +389,14 @@ function initFiatSupport(): void {
   function continueWithName(): void {
     const normalized =
       normalizeDisplayName(
-        displayNameInput.value,
+        displayNameInput.value
       );
 
     const validationError =
-      validateDisplayName(
-        normalized,
-      );
+      validateDisplayName(normalized);
 
     if (validationError) {
-      setNameError(
-        validationError,
-      );
+      setNameError(validationError);
 
       displayNameInput.focus();
 
@@ -502,17 +429,17 @@ function initFiatSupport(): void {
 
   continueButton.addEventListener(
     'click',
-    continueWithName,
+    continueWithName
   );
 
   anonymousButton.addEventListener(
     'click',
-    continueAnonymous,
+    continueAnonymous
   );
 
   amountBackButton.addEventListener(
     'click',
-    showIdentityStep,
+    showIdentityStep
   );
 
   displayNameInput.addEventListener(
@@ -521,22 +448,20 @@ function initFiatSupport(): void {
       if (!nameError.hidden) {
         setNameError(null);
       }
-    },
+    }
   );
 
   displayNameInput.addEventListener(
     'keydown',
     (event) => {
-      if (
-        event.key !== 'Enter'
-      ) {
+      if (event.key !== 'Enter') {
         return;
       }
 
       event.preventDefault();
 
       continueWithName();
-    },
+    }
   );
 
   amountOptions.forEach(
@@ -546,52 +471,41 @@ function initFiatSupport(): void {
         () => {
           const amount =
             Number(
-              button.dataset
-                .fiatAmount,
+              button.dataset.fiatAmount
             );
 
-          if (
-            !Number.isFinite(
-              amount,
-            )
-          ) {
+          if (!Number.isFinite(amount)) {
             return;
           }
 
-          selectPresetAmount(
-            amount,
-          );
-        },
+          selectPresetAmount(amount);
+        }
       );
-    },
+    }
   );
 
   customAmountInput.addEventListener(
     'focus',
     () => {
-      if (
-        amountSource ===
-        'preset'
-      ) {
+      if (amountSource === 'preset') {
         selectedAmount = null;
         amountSource = 'custom';
 
         updateAmountUI();
       }
-    },
+    }
   );
 
   customAmountInput.addEventListener(
     'input',
-    selectCustomAmount,
+    selectCustomAmount
   );
 
   customAmountInput.addEventListener(
     'blur',
     () => {
       if (
-        amountSource !==
-          'custom' ||
+        amountSource !== 'custom' ||
         selectedAmount === null
       ) {
         return;
@@ -599,15 +513,13 @@ function initFiatSupport(): void {
 
       customAmountInput.value =
         selectedAmount.toFixed(2);
-    },
+    }
   );
 
   checkoutButton.addEventListener(
     'click',
     () => {
-      if (
-        selectedAmount === null
-      ) {
+      if (selectedAmount === null) {
         return;
       }
 
@@ -615,10 +527,10 @@ function initFiatSupport(): void {
        * Stripe Checkout gets connected here
        * during the backend pass.
        *
-       * The browser's identity and amount are
-       * never proof that payment succeeded.
+       * Browser identity/amount are never
+       * proof payment succeeded.
        */
-    },
+    }
   );
 
   updateAmountUI();
@@ -632,7 +544,7 @@ if (
     initFiatSupport,
     {
       once: true,
-    },
+    }
   );
 } else {
   initFiatSupport();
