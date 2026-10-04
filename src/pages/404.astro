@@ -3,7 +3,6 @@ import Layout from '../layouts/Layout.astro';
 import NotFoundVisual from '../components/404/404Visual.astro';
 
 import '../styles/404.css';
-
 ---
 
 <Layout
@@ -35,17 +34,39 @@ import '../styles/404.css';
         class="glitch-title lens-text lens-extreme"
         data-text="404"
         data-glitch-text="404"
+        data-error-trigger
+        role="button"
+        tabindex="0"
+        aria-label="Trigger error"
+        data-ui-sound="off"
       >
         404
       </h1>
 
       <p
         class="glitch-subtitle"
-        data-glitch-text="welcome to the twilight zone."
+        data-glitch-text="console: get s.interlope.pull:27015"
       >
-        welcome to the twilight zone.
+        console: get s.interlope.pull:27015
       </p>
     </section>
+
+    <aside
+      class="now-playing"
+      aria-label="Now playing"
+    >
+      <span class="now-playing-label">
+        Now Playing
+      </span>
+
+      <span class="now-playing-track">
+        sourcebox.dll · Pumodi
+      </span>
+
+      <span class="now-playing-album">
+        Interloper Volume 2 (Original Soundtrack)
+      </span>
+    </aside>
   </main>
 </Layout>
 

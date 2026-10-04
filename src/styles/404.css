@@ -108,6 +108,11 @@
   text-align: center;
 }
 
+
+/*
+ * 404 ERROR TRIGGER
+ */
+
 .glitch-title {
   margin: 0;
 
@@ -130,6 +135,27 @@
   letter-spacing: -0.09em;
 
   color: #fff;
+
+  cursor: pointer;
+
+  user-select: none;
+
+  -webkit-user-select: none;
+}
+
+.glitch-title:focus-visible {
+  outline:
+    1px
+    solid
+    rgba(
+      255,
+      255,
+      255,
+      0.65
+    );
+
+  outline-offset:
+    0.08em;
 }
 
 .glitch-subtitle {
@@ -164,6 +190,155 @@
       255,
       255,
       0.42
+    );
+}
+
+
+/*
+ * NOW PLAYING
+ *
+ * Hidden until the 404 interaction successfully
+ * starts sourcebox.ogg.
+ *
+ * Visibility is controlled by
+ * .is-now-playing.
+ */
+
+.now-playing {
+  position: absolute;
+
+  right: 0.75rem;
+  bottom: 0.75rem;
+
+  z-index: 20;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  gap: 0.18rem;
+
+  max-width:
+    min(
+      28rem,
+      calc(100vw - 1.5rem)
+    );
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.65rem;
+  line-height: 1.35;
+
+  text-align: right;
+
+  opacity: 0;
+
+  transform:
+    translateY(0.2rem);
+
+  visibility: hidden;
+
+  pointer-events: none;
+
+  user-select: none;
+
+  -webkit-user-select: none;
+
+  transition:
+    opacity
+      0.7s
+      ease,
+    transform
+      0.7s
+      ease,
+    visibility
+      0s
+      linear
+      0.7s;
+}
+
+.now-playing.is-now-playing {
+  opacity: 1;
+
+  transform:
+    translateY(0);
+
+  visibility: visible;
+
+  transition:
+    opacity
+      0.7s
+      ease,
+    transform
+      0.7s
+      ease,
+    visibility
+      0s
+      linear
+      0s;
+}
+
+
+/*
+ * NOW PLAYING LABEL
+ *
+ * Deliberately quiet utility text.
+ */
+
+.now-playing-label {
+  margin-bottom: 0.12rem;
+
+  font-weight: 400;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.28
+    );
+}
+
+
+/*
+ * TRACK / ARTIST
+ *
+ * Still clearly readable for attribution,
+ * but no longer bright white.
+ */
+
+.now-playing-track {
+  font-weight: 700;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.58
+    );
+}
+
+
+/*
+ * ALBUM
+ */
+
+.now-playing-album {
+  font-weight: 400;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.34
     );
 }
 
@@ -225,6 +400,32 @@
   .home-link span::after {
     transition: none;
   }
+
+  .now-playing {
+    transform: none;
+
+    transition:
+      opacity
+        0.2s
+        linear,
+      visibility
+        0s
+        linear
+        0.2s;
+  }
+
+  .now-playing.is-now-playing {
+    transform: none;
+
+    transition:
+      opacity
+        0.2s
+        linear,
+      visibility
+        0s
+        linear
+        0s;
+  }
 }
 
 
@@ -251,5 +452,18 @@
         3vw,
         0.85rem
       );
+  }
+
+  .now-playing {
+    right: 0.6rem;
+    bottom: 0.6rem;
+
+    max-width:
+      calc(
+        100vw -
+        1.2rem
+      );
+
+    font-size: 0.58rem;
   }
 }

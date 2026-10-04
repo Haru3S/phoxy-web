@@ -49,13 +49,88 @@ let previousFocus:
 
 
 /*
+ * MESSAGE UI SOUNDS
+ *
+ * These are state-specific sounds rather
+ * than global button feedback.
+ *
+ * Global rollover / click / deny sounds
+ * remain handled by uiSounds.ts.
+ */
+
+const hardErrorUrl =
+  '/audio/ui/hard_error.ogg';
+
+const messageSuccessUrl =
+  '/audio/ui/message.ogg';
+
+const hardErrorAudio =
+  new Audio();
+
+const messageSuccessAudio =
+  new Audio();
+
+hardErrorAudio.preload =
+  'auto';
+
+hardErrorAudio.volume =
+  0.3;
+
+hardErrorAudio.src =
+  hardErrorUrl;
+
+messageSuccessAudio.preload =
+  'auto';
+
+messageSuccessAudio.volume =
+  0.3;
+
+messageSuccessAudio.src =
+  messageSuccessUrl;
+
+hardErrorAudio.load();
+
+messageSuccessAudio.load();
+
+
+/*
+ * SOUND PLAYBACK
+ */
+
+const restartAudio = (
+  audio: HTMLAudioElement
+) => {
+  audio.pause();
+
+  audio.currentTime = 0;
+
+  audio
+    .play()
+    .catch(() => {});
+};
+
+const playHardError = () => {
+  restartAudio(
+    hardErrorAudio
+  );
+};
+
+const playMessageSuccess = () => {
+  restartAudio(
+    messageSuccessAudio
+  );
+};
+
+
+/*
  * STATUS
  */
 
 type MessageStatus =
   | 'ready'
   | 'error'
-  | 'offline';
+  | 'offline'
+  | 'success';
 
 const setStatus = (
   status: MessageStatus,
@@ -300,10 +375,9 @@ dialog?.addEventListener(
  * A click whose target is the <dialog>
  * itself occurred outside the window.
  *
- * We deliberately do not stop click
- * propagation inside the window. The global
- * UI sound system uses document-level event
- * delegation and needs those clicks to bubble.
+ * Clicks inside the window continue bubbling
+ * so the global UI sound system can hear
+ * normal button activations.
  */
 
 dialog?.addEventListener(
@@ -419,6 +493,8 @@ const validateForm = () => {
       'error',
       'CHECK INPUT'
     );
+
+    playHardError();
   }
 
   return valid;
@@ -462,11 +538,37 @@ form
 
 
 /*
+ * SUCCESS
+ *
+ * Reserved for the real contact endpoint.
+ *
+ * This must only run after the server confirms
+ * that the message was accepted successfully.
+ */
+
+const handleMessageSuccess = () => {
+  setStatus(
+    'success',
+    'MESSAGE SENT'
+  );
+
+  playMessageSuccess();
+
+  form?.reset();
+
+  updateCounter();
+};
+
+
+/*
  * SUBMIT
  *
- * Network transmission intentionally
- * remains disconnected until the private
- * contact endpoint is implemented.
+ * Network transmission intentionally remains
+ * disconnected until /api/contact exists.
+ *
+ * message.ogg therefore cannot fire yet:
+ * clicking Send is not proof that an email
+ * actually reached the backend.
  */
 
 form?.addEventListener(
@@ -484,14 +586,24 @@ form?.addEventListener(
     );
 
     /*
-     * Do not clear the form.
+     * Once /api/contact is connected:
      *
-     * Nothing was transmitted, so the
-     * visitor's message should remain
-     * intact.
+     * - submit the form
+     * - wait for a successful server response
+     * - call handleMessageSuccess()
+     *
+     * Do not clear the form on failure.
      */
   }
 );
+
+
+/*
+ * Keep the success handler referenced until
+ * the network layer is connected.
+ */
+
+void handleMessageSuccess;
 
 
 /*
