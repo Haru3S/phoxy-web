@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+
 :root {
   /*
    * GLOBAL COLOUR PALETTE
@@ -72,6 +73,87 @@ body {
   color: var(--color-fg);
 
   font-family: "Inter Variable", sans-serif;
+}
+
+
+/*
+ * SCROLLBARS
+ *
+ * Keep native browser scrolling while reducing
+ * the scrollbar to a quiet edge indicator.
+ *
+ * Firefox exposes only native width and colour
+ * controls. Chromium/WebKit expose individual
+ * scrollbar parts, allowing a slightly more
+ * detailed treatment.
+ */
+
+
+/*
+ * FIREFOX
+ *
+ * The scrollbar remains thin at all times.
+ * Its track is completely transparent and the
+ * thumb stays invisible until the scrollable
+ * region itself is hovered.
+ */
+
+html,
+* {
+  scrollbar-width: thin;
+  scrollbar-color:
+    transparent
+    transparent;
+}
+
+html:hover,
+*:hover {
+  scrollbar-color:
+    rgba(255, 255, 255, 0.22)
+    transparent;
+}
+
+
+/*
+ * CHROMIUM / WEBKIT
+ *
+ * Use an extremely narrow transparent scrollbar
+ * until the user approaches a scrollable region.
+ */
+
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background:
+    rgba(255, 255, 255, 0);
+
+  border-radius: 999px;
+
+  transition:
+    background-color
+    0.15s
+    ease-out;
+}
+
+:hover::-webkit-scrollbar-thumb {
+  background:
+    rgba(255, 255, 255, 0.18);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background:
+    rgba(255, 255, 255, 0.34);
 }
 
 
