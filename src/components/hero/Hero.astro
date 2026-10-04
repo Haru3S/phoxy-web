@@ -1,5 +1,7 @@
 ---
-const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/';
+const base = import.meta.env.BASE_URL.endsWith('/')
+  ? import.meta.env.BASE_URL
+  : import.meta.env.BASE_URL + '/';
 ---
 
 <section
@@ -47,11 +49,18 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
     ></i>
   </button>
 
-  <h1 id="hero-title" class="sr-only">Phoxy</h1>
+  <h1
+    id="hero-title"
+    class="sr-only"
+  >
+    Phoxy
+  </h1>
 </section>
 
 <style>
   .hero {
+    position: relative;
+
     width: 100%;
 
     overflow: hidden;
@@ -121,24 +130,22 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
   /*
    * HERO SCROLL INDICATOR
    *
-   * The Hero itself is a true 16:9 canvas,
-   * which can extend below the viewport.
+   * The indicator is positioned inside the Hero
+   * at the bottom of the initial viewport.
    *
-   * The scroll affordance therefore belongs
-   * to the viewport rather than the bottom
-   * edge of the Hero artwork.
+   * This avoids fixed-position containing-block
+   * behavior caused by transformed ancestors.
    */
 
   .hero-scroll-indicator {
-    position: fixed;
+    position: absolute;
 
     left: 50%;
 
-    bottom:
-      clamp(
-        3rem,
-        5vh,
-        4rem
+    top:
+      min(
+        calc(100svh - 4.75rem),
+        calc(100% - 4.75rem)
       );
 
     z-index: 100;
@@ -240,6 +247,11 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
 </style>
 
 <script>
+  const clientBase =
+    import.meta.env.BASE_URL.endsWith('/')
+      ? import.meta.env.BASE_URL
+      : import.meta.env.BASE_URL + '/';
+
   const hero =
     document.querySelector<HTMLElement>(
       '.hero-canvas'
@@ -278,20 +290,6 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
 
   /*
    * HERO PARALLAX
-   *
-   * Pointer position becomes a normalized
-   * value from -1 to +1 across the Hero.
-   *
-   * Horizontal travel is deliberately stronger
-   * than vertical travel so the composition
-   * responds more clearly to side-to-side
-   * movement without feeling like it is floating.
-   *
-   * Smoothing is based on elapsed time rather
-   * than frames. This keeps the movement
-   * consistent across different refresh rates
-   * and makes large displays feel substantially
-   * less stepped or jagged.
    */
 
   if (hero && graffiti && scout) {
@@ -300,14 +298,6 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
 
     const SCOUT_X = 15;
     const SCOUT_Y = 8;
-
-    /*
-     * Higher value = follows the pointer faster.
-     *
-     * This is expressed as response speed rather
-     * than "percentage per frame", so it behaves
-     * consistently at different frame rates.
-     */
 
     const FOLLOW_SPEED = 8;
 
@@ -353,12 +343,6 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
         ) *
         2;
 
-      /*
-       * Keep the target bounded even if the
-       * pointer event lands fractionally beyond
-       * the element's measured edge.
-       */
-
       targetX =
         Math.max(
           -1,
@@ -392,14 +376,6 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
         previousTime = time;
       }
 
-      /*
-       * Clamp very large frame gaps.
-       *
-       * This prevents the artwork from snapping
-       * after switching tabs, resizing, or a
-       * temporary browser stall.
-       */
-
       const deltaTime =
         Math.min(
           (time - previousTime) /
@@ -409,23 +385,12 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
 
       previousTime = time;
 
-
-      /*
-       * Exponential smoothing.
-       *
-       * This produces approximately the same
-       * response regardless of whether the
-       * browser is rendering at 60, 120, 144,
-       * or another refresh rate.
-       */
-
       const smoothing =
         1 -
         Math.exp(
           -FOLLOW_SPEED *
           deltaTime
         );
-
 
       currentX +=
         (
@@ -441,12 +406,6 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
         ) *
         smoothing;
 
-
-      /*
-       * The graffiti sits closer to the wall,
-       * so it moves less.
-       */
-
       graffiti.style.transform =
         `translate3d(
           ${currentX * GRAFFITI_X}px,
@@ -454,19 +413,12 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
           0
         )`;
 
-
-      /*
-       * Scout is the foreground layer and gets
-       * the strongest movement.
-       */
-
       scout.style.transform =
         `translate3d(
           ${currentX * SCOUT_X}px,
           ${currentY * SCOUT_Y}px,
           0
         )`;
-
 
       requestAnimationFrame(
         animate
@@ -503,12 +455,15 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
       const rect =
         heroSection.getBoundingClientRect();
 
-      const viewportHeight =
-        window.innerHeight;
+      const scrollThreshold =
+        Math.min(
+          160,
+          window.innerHeight * 0.15
+        );
 
       const shouldHide =
-        rect.bottom <=
-        viewportHeight;
+        rect.top <
+        -scrollThreshold;
 
       heroScrollIndicator.classList.toggle(
         'is-hidden',
@@ -578,15 +533,15 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
    */
 
   const scoutLines = [
-    '/audio/scout/scout_award12.mp3',
-    '/audio/scout/scout_cheers06.mp3',
-    '/audio/scout/scout_generic01.mp3',
-    '/audio/scout/scout_invincible03.mp3',
-    '/audio/scout/scout_meleedare04.mp3',
-    '/audio/scout/scout_positivevocalization01.mp3',
-    '/audio/scout/scout_positivevocalization04.mp3',
-    '/audio/scout/scout_revenge07.mp3',
-    '/audio/scout/scout_specialcompleted06.mp3',
+    `${clientBase}audio/scout/scout_award12.mp3`,
+    `${clientBase}audio/scout/scout_cheers06.mp3`,
+    `${clientBase}audio/scout/scout_generic01.mp3`,
+    `${clientBase}audio/scout/scout_invincible03.mp3`,
+    `${clientBase}audio/scout/scout_meleedare04.mp3`,
+    `${clientBase}audio/scout/scout_positivevocalization01.mp3`,
+    `${clientBase}audio/scout/scout_positivevocalization04.mp3`,
+    `${clientBase}audio/scout/scout_revenge07.mp3`,
+    `${clientBase}audio/scout/scout_specialcompleted06.mp3`,
   ];
 
   let previousLine = -1;
