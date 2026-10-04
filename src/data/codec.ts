@@ -3,17 +3,18 @@
  *
  * Dialogue used by the Interests Codec display.
  *
- * Snake's short lines are drawn from his MGS2
- * Tanker-era Codec conversations.
+ * This conversation is inspired by the corrupted
+ * Arsenal Gear Codec sequence from Metal Gear Solid 2.
  *
- * Phoxy's dialogue is original writing inspired
- * by the conversational role Otacon fills without
- * reproducing Otacon's script.
+ * The original dialogue has been paraphrased rather
+ * than reproduced directly. Raiden's conversational
+ * role has been replaced by Phoxy.
  */
 
 export interface CodecLine {
   speaker:
-    | 'SNAKE'
+    | 'COLONEL'
+    | 'ROSE'
     | 'PHOXY';
 
   text: string;
@@ -23,499 +24,697 @@ export interface CodecLine {
 /*
  * CODEC CONVERSATION
  *
- * Lines are deliberately ordered rather than
- * randomized so the display feels like an actual
- * back-and-forth Codec call.
+ * Lines are deliberately ordered so the display
+ * gradually deteriorates from a believable Codec
+ * conversation into GW completely losing it.
  */
 
 export const codecLines: CodecLine[] = [
   /*
-   * OPENING
+   * SOMETHING IS WRONG
    */
 
   {
-    speaker: 'SNAKE',
+    speaker: 'COLONEL',
     text:
-      'This is Snake. Do you read me, Otacon?',
+      'Phoxy, continue with the mission according to the simulation.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Loud and clear. And it’s Phoxy, remember?',
+      'Simulation? Colonel, what are you talking about?',
   },
 
   {
-    speaker: 'SNAKE',
+    speaker: 'COLONEL',
     text:
-      'What is this, all of a sudden?',
-  },
-
-  {
-    speaker: 'PHOXY',
-    text:
-      'Consider it a software update. Same frequency, different operator.',
-  },
-
-  {
-    speaker: 'SNAKE',
-    text:
-      'Great...',
+      'There is no need for further questions. Proceed with the mission.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'You say that like you aren’t happy to hear me.',
+      'You’ve been acting strange ever since I entered Arsenal.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'Your observations are irrelevant. Continue.',
+  },
+
+  {
+    speaker: 'PHOXY',
+    text:
+      'That did not make you sound less suspicious.',
   },
 
 
   /*
-   * EQUIPMENT
+   * SIGNAL FAILURE
    */
 
   {
-    speaker: 'SNAKE',
+    speaker: 'PHOXY',
     text:
-      "Right. I didn't plan on relying on this gadget anyway.",
+      'Colonel? Your image is breaking up.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'There is nothing wrong with the transmission.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'You always say that until the gadget is the thing keeping you alive.',
+      'Your face just disappeared for half a second.',
   },
 
   {
-    speaker: 'SNAKE',
+    speaker: 'COLONEL',
     text:
-      'Almost reminds me of Mei Ling...',
-  },
-
-  {
-    speaker: 'PHOXY',
-    text:
-      'I’m going to pretend that was a compliment.',
-  },
-
-  {
-    speaker: 'SNAKE',
-    text:
-      "Any more info on the Navy's model?",
+      'Ignore it.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Still digging. What I have is incomplete, so don’t make assumptions yet.',
+      'Very reassuring.',
   },
 
 
   /*
-   * MISSION
+   * THE CONSOLE
    */
 
   {
-    speaker: 'SNAKE',
+    speaker: 'COLONEL',
     text:
-      'Who are they?',
+      'Phoxy. Turn the game console off.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Not Navy. Whoever they are, they came prepared and they know the ship.',
+      '...What?',
   },
 
   {
-    speaker: 'SNAKE',
+    speaker: 'COLONEL',
     text:
-      'So this is the new Metal Gear...',
+      'The operation has failed. Shut the system down immediately.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Looks like it. Try getting closer before we decide exactly what we’re looking at.',
+      'Colonel, what game console?',
+  },
+
+  {
+    speaker: 'ROSE',
+    text:
+      'You really shouldn’t sit so close to the screen.',
+  },
+
+  {
+    speaker: 'PHOXY',
+    text:
+      'Rose?! What are either of you talking about?',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'It is only a game. There is nothing to worry about.',
+  },
+
+  {
+    speaker: 'PHOXY',
+    text:
+      'That sentence somehow made this significantly worse.',
   },
 
 
   /*
-   * PHOXY CHECK-IN
+   * UFO INCIDENT
    */
 
   {
-    speaker: 'PHOXY',
+    speaker: 'COLONEL',
     text:
-      'Snake, hold up. I’m seeing movement ahead of you.',
-  },
-
-  {
-    speaker: 'SNAKE',
-    text:
-      'How many?',
+      'Something unusual happened to me while I was driving home recently.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Can’t tell from here. Keep low and don’t give them a reason to start shooting.',
+      'This is really not the time.',
   },
 
   {
-    speaker: 'SNAKE',
+    speaker: 'COLONEL',
     text:
-      'Understood.',
+      'There was an orange light in the sky. It moved in ways an aircraft should not.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'Then everything became bright.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'The next thing I remember, I was already home.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'What do you think happened?',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'And before you say it: yes, I know you can handle yourself.',
+      'I think your codec is having a stroke.',
   },
 
   {
-    speaker: 'SNAKE',
+    speaker: 'COLONEL',
     text:
-      'Then why mention it?',
-  },
-
-  {
-    speaker: 'PHOXY',
-    text:
-      'Because apparently someone has to be the responsible one on this frequency.',
+      'Never mind.',
   },
 
 
   /*
-   * TECHNICAL CHATTER
+   * FINANCIAL ADVICE???
    */
 
   {
-    speaker: 'PHOXY',
+    speaker: 'COLONEL',
     text:
-      'Your signal just dropped for a second. You still with me?',
-  },
-
-  {
-    speaker: 'SNAKE',
-    text:
-      'I can hear you.',
+      'Phoxy, I owe you an apology.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Good. This weather is making the connection unstable.',
+      'For what?',
   },
 
   {
-    speaker: 'SNAKE',
+    speaker: 'COLONEL',
     text:
-      'Can you compensate?',
+      'My finances have been difficult lately.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'There are bills, obligations, and other expenses I would rather not discuss.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'That is why I made you cover lunch.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Already doing it. Just don’t disappear into the bottom of the Atlantic.',
+      'We have never had lunch together.',
   },
 
   {
-    speaker: 'SNAKE',
+    speaker: 'COLONEL',
     text:
-      'I’ll try.',
+      'I am sorry.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'That was not reassuring.',
+      'Colonel?',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'Continue the mission.',
   },
 
 
   /*
-   * PHOTOGRAPHY
+   * GARDENING
    */
 
   {
-    speaker: 'PHOXY',
+    speaker: 'COLONEL',
     text:
-      'Remember, we need evidence. Get clear pictures before you leave.',
-  },
-
-  {
-    speaker: 'SNAKE',
-    text:
-      'I know.',
+      'Be careful when handling certain flowering plants.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Front, side, identifying markings—anything that proves what they built.',
+      'Oh no.',
   },
 
   {
-    speaker: 'SNAKE',
+    speaker: 'COLONEL',
     text:
-      'You want a photo shoot.',
+      'Their sap may irritate exposed skin.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'Protective gloves are recommended when pruning them.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'A heavily armed, classified photo shoot. Yes.',
+      'I am currently naked inside a gigantic military fortress.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'Correct.',
+  },
+
+  {
+    speaker: 'PHOXY',
+    text:
+      'There are no plants here.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'Correct.',
+  },
+
+  {
+    speaker: 'PHOXY',
+    text:
+      'Why are you giving me gardening advice?',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'Proceed with caution.',
   },
 
 
   /*
-   * GENERAL BANTER
+   * OLD MISSION DATA BLEEDING THROUGH
    */
 
   {
-    speaker: 'PHOXY',
+    speaker: 'COLONEL',
     text:
-      'You know, most people would call this an extremely bad idea.',
-  },
-
-  {
-    speaker: 'SNAKE',
-    text:
-      'Most people aren’t here.',
+      'Your objective is to infiltrate the enemy fortress.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Exactly. They’re somewhere warm and dry making better life choices.',
+      'I’m already inside Arsenal Gear.',
   },
 
   {
-    speaker: 'SNAKE',
+    speaker: 'COLONEL',
     text:
-      'You volunteered.',
+      'Locate the hostages and prevent Metal Gear from becoming operational.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Remote support. Very important distinction.',
+      'That isn’t my mission.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'Avoid detection. The success of the operation depends on you.',
+  },
+
+  {
+    speaker: 'PHOXY',
+    text:
+      'You’re reading somebody else’s mission data.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'The mission parameters are correct.',
+  },
+
+  {
+    speaker: 'PHOXY',
+    text:
+      'No. They very much are not.',
   },
 
 
   /*
-   * STEALTH
+   * ROSE
    */
 
   {
-    speaker: 'PHOXY',
+    speaker: 'ROSE',
     text:
-      'There’s another patrol coming around. You’ve got a small window.',
-  },
-
-  {
-    speaker: 'SNAKE',
-    text:
-      'I see them.',
+      'Phoxy?',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Then wait for them to pass. There’s no reason to turn this into a firefight.',
+      'Rose? Are you actually there?',
   },
 
   {
-    speaker: 'SNAKE',
+    speaker: 'ROSE',
     text:
-      'Wasn’t planning to.',
+      'Of course I’m here.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Good. I enjoy plans that involve fewer bullets.',
+      'I’m starting to have some serious doubts about that.',
+  },
+
+  {
+    speaker: 'ROSE',
+    text:
+      'Why would you say something like that?',
+  },
+
+  {
+    speaker: 'PHOXY',
+    text:
+      'Because the Colonel just gave me gardening advice and told me to turn off a game console.',
+  },
+
+  {
+    speaker: 'ROSE',
+    text:
+      'Maybe you should listen to him.',
+  },
+
+  {
+    speaker: 'PHOXY',
+    text:
+      '...Right.',
   },
 
 
   /*
-   * ANOTHER CHECK-IN
+   * GW IS REALLY STARTING TO FALL APART
    */
 
   {
-    speaker: 'PHOXY',
+    speaker: 'COLONEL',
     text:
-      'Snake?',
-  },
-
-  {
-    speaker: 'SNAKE',
-    text:
-      'What?',
+      'Phoxy.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Nothing. Your signal went quiet again.',
+      'What now?',
   },
 
   {
-    speaker: 'SNAKE',
+    speaker: 'COLONEL',
     text:
-      'I’m still here.',
+      'Have you ever considered that your memories may simply be information?',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Good. Continue.',
+      'I would really prefer tactical advice right now.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'Information is preserved. Information is altered. Information is discarded.',
+  },
+
+  {
+    speaker: 'PHOXY',
+    text:
+      'Colonel.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'Context determines value.',
+  },
+
+  {
+    speaker: 'PHOXY',
+    text:
+      'Colonel!',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'Complete your mission according to the simulation.',
   },
 
 
   /*
-   * INFORMATION
+   * PLAYER ACKNOWLEDGEMENT
    */
 
   {
-    speaker: 'PHOXY',
+    speaker: 'COLONEL',
     text:
-      'I found something. The deployment schedule doesn’t match the official record.',
-  },
-
-  {
-    speaker: 'SNAKE',
-    text:
-      'Meaning?',
+      'You have been playing for quite some time.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Meaning somebody wanted this thing moved without attracting attention.',
+      'Playing what?',
   },
 
   {
-    speaker: 'SNAKE',
+    speaker: 'COLONEL',
     text:
-      'Figures.',
+      'Surely you have something more productive to do.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Yeah. Classified superweapons are rarely accompanied by good news.',
+      'You’re talking to somebody else, aren’t you?',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'Continuing indefinitely serves no purpose.',
+  },
+
+  {
+    speaker: 'PHOXY',
+    text:
+      'Who are you talking to?',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'Turn it off.',
   },
 
 
   /*
-   * PHOXY BEING PHOXY
+   * COMPLETE NONSENSE
    */
 
   {
-    speaker: 'PHOXY',
+    speaker: 'COLONEL',
     text:
-      'By the way, your Codec interface is ancient.',
-  },
-
-  {
-    speaker: 'SNAKE',
-    text:
-      'It works.',
+      'The purple worm has entered flap-jaw space.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'That is exactly what people say five minutes before something stops working.',
+      'The what?',
   },
 
   {
-    speaker: 'SNAKE',
+    speaker: 'COLONEL',
     text:
-      'You done?',
+      'The tuning fork is already prepared.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'For now.',
+      'Those are individual words, yes.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'Raw blink. Hara-kiri Rock.',
+  },
+
+  {
+    speaker: 'PHOXY',
+    text:
+      'I have absolutely no idea what you want me to do with that information.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'I need scissors! 61!',
+  },
+
+  {
+    speaker: 'PHOXY',
+    text:
+      'There it is.',
   },
 
 
   /*
-   * APPROACHING OBJECTIVE
+   * COMMAND LOOP
    */
 
   {
-    speaker: 'PHOXY',
+    speaker: 'COLONEL',
     text:
-      'You should be getting close. I’m picking up a large open compartment ahead.',
-  },
-
-  {
-    speaker: 'SNAKE',
-    text:
-      'The hold?',
+      'Finish the mission.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Should be. If the intelligence was right, that’s where they’re keeping it.',
+      'Who are you?',
   },
 
   {
-    speaker: 'SNAKE',
+    speaker: 'COLONEL',
     text:
-      'I’m moving in.',
-  },
-
-  {
-    speaker: 'PHOXY',
-    text:
-      'Carefully.',
-  },
-
-  {
-    speaker: 'SNAKE',
-    text:
-      'I know.',
+      'Finish the mission.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'I know you know. I’m still saying it.',
+      'Where is the real Colonel?',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'Finish the mission.',
+  },
+
+  {
+    speaker: 'PHOXY',
+    text:
+      'Are you even listening to me?',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'Complete your mission according to the simulation.',
   },
 
 
   /*
-   * LOOP BACK
+   * SYSTEM COLLAPSE
    */
 
   {
-    speaker: 'SNAKE',
+    speaker: 'COLONEL',
     text:
-      'Anything else?',
+      'PHOXY.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Nothing useful yet. Keep moving and call if the situation changes.',
+      'I’m here.',
   },
 
   {
-    speaker: 'SNAKE',
+    speaker: 'COLONEL',
     text:
-      'Got it.',
+      'PHOXY.',
   },
 
   {
     speaker: 'PHOXY',
     text:
-      'Phoxy out.',
+      'Colonel?',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'MISSION DATA CORRECT.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'SIMULATION CORRECT.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'CONTEXT CORRECT.',
+  },
+
+  {
+    speaker: 'PHOXY',
+    text:
+      'Yeah, I’m done listening to you.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'TURN THE GAME CONSOLE OFF.',
+  },
+
+  {
+    speaker: 'PHOXY',
+    text:
+      'No.',
+  },
+
+  {
+    speaker: 'COLONEL',
+    text:
+      'I NEED SCISSORS! 61!',
   },
 ];
