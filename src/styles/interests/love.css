@@ -1,0 +1,277 @@
+/*
+ * I LOVE
+ */
+
+.love-section {
+  width: 100%;
+}
+
+.love-header {
+  display: flex;
+
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 2rem;
+
+  width: 100%;
+
+  padding:
+    clamp(
+      3rem,
+      6vw,
+      6rem
+    )
+    1.5rem
+    clamp(
+      2.5rem,
+      5vw,
+      5rem
+    );
+
+  border-bottom:
+    1px
+    solid
+    var(--color-border);
+}
+
+.love-header h3 {
+  margin: 0;
+
+  font-family:
+    "Space Grotesk Variable",
+    sans-serif;
+
+  font-size:
+    clamp(
+      5rem,
+      12vw,
+      12rem
+    );
+
+  font-weight: 600;
+
+  line-height: 0.82;
+
+  letter-spacing: -0.06em;
+}
+
+.love-header > span {
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.65rem;
+  font-weight: 700;
+
+  opacity: 0.45;
+}
+
+
+/*
+ * LOVE FIELD
+ */
+
+.love-field {
+  position: relative;
+
+  width: 100%;
+
+  height:
+    clamp(
+      28rem,
+      55vw,
+      52rem
+    );
+
+  overflow: hidden;
+
+  background:
+    var(--color-bg);
+}
+
+
+/*
+ * ANIMATED OBJECTS
+ */
+
+.love-object {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 0.4em;
+
+  width: max-content;
+
+  max-width:
+    calc(
+      100% -
+      1rem
+    );
+
+  padding:
+    0.15em
+    0.3em;
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size:
+    clamp(
+      1rem,
+      2.2vw,
+      2.25rem
+    );
+
+  font-weight: 700;
+
+  line-height: 1;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+
+  will-change: transform;
+}
+
+
+/*
+ * PIPE DREAM / OLD-COMPUTER PALETTE
+ */
+
+.love-object:nth-of-type(2) {
+  color: #89dceb;
+}
+
+.love-object:nth-of-type(3) {
+  color: #f38ba8;
+}
+
+.love-object:nth-of-type(4) {
+  color: #a6e3a1;
+}
+
+.love-object:nth-of-type(5) {
+  color: #f9e2af;
+}
+
+.love-object:nth-of-type(6) {
+  color: #cba6f7;
+}
+
+.love-object:nth-of-type(7) {
+  color: #fab387;
+}
+
+.love-object:nth-of-type(8) {
+  color: #74c7ec;
+}
+
+
+/*
+ * STATIC FALLBACK
+ */
+
+.love-field-fallback {
+  display: none;
+}
+
+
+/*
+ * REDUCED MOTION
+ */
+
+@media (
+  prefers-reduced-motion:
+    reduce
+) {
+  .love-object {
+    display: none;
+  }
+
+  .love-field {
+    height: auto;
+
+    min-height: 0;
+
+    padding:
+      2rem
+      0.75rem;
+  }
+
+  .love-field-fallback {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap:
+      1rem
+      2rem;
+  }
+
+  .love-field-fallback span {
+    font-family:
+      "Adwaita Mono",
+      monospace;
+
+    font-size:
+      clamp(
+        1rem,
+        3vw,
+        1.5rem
+      );
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+  }
+}
+
+
+/*
+ * MOBILE
+ */
+
+@media (max-width: 700px) {
+  .love-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 1.5rem;
+
+    padding:
+      3rem
+      1rem
+      2.5rem;
+  }
+
+  .love-header h3 {
+    font-size:
+      clamp(
+        4.5rem,
+        22vw,
+        8rem
+      );
+  }
+
+  .love-field {
+    height: 32rem;
+  }
+
+  .love-object {
+    font-size:
+      clamp(
+        0.85rem,
+        4vw,
+        1.25rem
+      );
+  }
+}

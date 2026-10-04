@@ -1,0 +1,245 @@
+/*
+ * TEXTMODE 01 — CODEC
+ *
+ * Big Boss occupies the receiving side.
+ * Phoxy occupies the player side.
+ */
+
+.codec-visual {
+  min-height:
+    clamp(
+      18rem,
+      34vw,
+      36rem
+    );
+
+  border-top:
+    1px
+    solid
+    var(--color-border);
+
+  border-bottom:
+    1px
+    solid
+    var(--color-border);
+}
+
+.codec-placeholder {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto
+    minmax(0, 1fr);
+
+  align-items: center;
+
+  gap:
+    clamp(
+      2rem,
+      6vw,
+      8rem
+    );
+
+  width: 100%;
+  min-height: inherit;
+
+  padding:
+    clamp(
+      2rem,
+      4vw,
+      4rem
+    )
+    clamp(
+      1rem,
+      5vw,
+      5rem
+    );
+}
+
+.codec-placeholder-side {
+  display: flex;
+  flex-direction: column;
+
+  gap: 0.75rem;
+}
+
+.codec-placeholder-side:last-child {
+  align-items: flex-end;
+}
+
+.codec-placeholder-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+.codec-placeholder-box {
+  display: grid;
+
+  place-items: center;
+
+  width: 100%;
+
+  aspect-ratio: 4 / 3;
+
+  border:
+    1px
+    solid
+    currentColor;
+
+  font-size:
+    clamp(
+      0.65rem,
+      1vw,
+      0.8rem
+    );
+
+  opacity: 0.5;
+}
+
+
+/*
+ * CODEC CENTER
+ */
+
+.codec-placeholder-center {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 0.5rem;
+
+  min-width:
+    clamp(
+      8rem,
+      13vw,
+      12rem
+    );
+
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  text-align: center;
+}
+
+.codec-frequency {
+  font-size:
+    clamp(
+      1rem,
+      1.5vw,
+      1.35rem
+    );
+}
+
+.codec-placeholder-frequency {
+  opacity: 0.5;
+}
+
+.codec-call-state {
+  opacity: 0.65;
+}
+
+
+/*
+ * CODEC CONTROLS
+ */
+
+.codec-controls {
+  display: flex;
+
+  gap: 0.5rem;
+
+  margin-top: 1.25rem;
+}
+
+.codec-control {
+  display: flex;
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  gap: 0.15rem;
+
+  min-width: 5rem;
+
+  padding:
+    0.45rem
+    0.55rem;
+
+  border:
+    1px
+    solid
+    rgba(
+      255,
+      255,
+      255,
+      0.35
+    );
+
+  background: transparent;
+  color: var(--color-fg);
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  text-align: left;
+
+  cursor: not-allowed;
+
+  opacity: 0.55;
+}
+
+.codec-control-key {
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.codec-control-label {
+  font-size: 0.5rem;
+  font-weight: 400;
+
+  opacity: 0.55;
+}
+
+
+/*
+ * MOBILE
+ */
+
+@media (max-width: 700px) {
+  .codec-visual {
+    min-height: 22rem;
+  }
+
+  .codec-placeholder {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr);
+
+    gap: 1rem;
+
+    padding:
+      1.5rem
+      1rem;
+  }
+
+  .codec-placeholder-center {
+    grid-column:
+      1 /
+      -1;
+
+    grid-row: 2;
+
+    order: 3;
+  }
+
+  .codec-controls {
+    justify-content: center;
+
+    width: 100%;
+  }
+}

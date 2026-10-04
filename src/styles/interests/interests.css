@@ -1,0 +1,128 @@
+/*
+ * INTERESTS
+ *
+ * Shared structural styling for the
+ * complete Interests section.
+ */
+
+.interests-section {
+  width: 100%;
+
+  padding-top:
+    clamp(
+      3rem,
+      5vw,
+      6rem
+    );
+
+  overflow: hidden;
+}
+
+
+/*
+ * SECTION HEADER
+ */
+
+.interests-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+
+  width: 100%;
+
+  padding:
+    0
+    1.5rem
+    clamp(
+      2.5rem,
+      5vw,
+      5rem
+    );
+}
+
+.interests-header h2 {
+  margin: 0;
+
+  font-family:
+    "Space Grotesk Variable",
+    sans-serif;
+
+  font-size:
+    clamp(
+      5rem,
+      12vw,
+      12rem
+    );
+
+  font-weight: 600;
+
+  line-height: 0.82;
+
+  letter-spacing: -0.06em;
+
+  text-align: right;
+}
+
+
+/*
+ * SHARED TEXTMODE AREA
+ */
+
+.interest-textmode {
+  position: relative;
+
+  width: 100%;
+
+  overflow: hidden;
+
+  background:
+    var(--color-bg);
+
+  color:
+    var(--color-fg);
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+}
+
+
+/*
+ * FINAL HANDOFF TO GALLERY
+ */
+
+.interests-gallery-rule {
+  width: 100%;
+
+  height: 3px;
+
+  background:
+    var(--color-fg);
+}
+
+
+/*
+ * MOBILE
+ */
+
+@media (max-width: 700px) {
+  .interests-section {
+    padding-top: 2rem;
+  }
+
+  .interests-header {
+    padding:
+      0
+      1rem
+      2.5rem;
+  }
+
+  .interests-header h2 {
+    font-size:
+      clamp(
+        4.5rem,
+        22vw,
+        8rem
+      );
+  }
+}

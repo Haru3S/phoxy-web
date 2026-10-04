@@ -1,0 +1,337 @@
+/*
+ * GAMES / HOBBIES
+ */
+
+.interest-reels {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  width: 100%;
+
+  border-bottom:
+    1px
+    solid
+    var(--color-border);
+}
+
+.interest-reel {
+  min-width: 0;
+
+  overflow: hidden;
+}
+
+.interest-reel:first-child {
+  border-right:
+    1px
+    solid
+    var(--color-border);
+}
+
+
+/*
+ * REEL HEADER
+ */
+
+.interest-reel-header {
+  display: grid;
+
+  grid-template-columns:
+    auto
+    minmax(0, 1fr)
+    auto;
+
+  align-items: baseline;
+
+  gap: 1rem;
+
+  padding:
+    0.8rem
+    0.75rem;
+
+  border-bottom:
+    1px
+    solid
+    var(--color-border);
+}
+
+.interest-reel-header h3 {
+  margin: 0;
+
+  font-family:
+    "Space Grotesk Variable",
+    sans-serif;
+
+  font-size:
+    clamp(
+      2.5rem,
+      5vw,
+      5.5rem
+    );
+
+  font-weight: 600;
+
+  line-height: 0.85;
+
+  letter-spacing: -0.05em;
+}
+
+.interest-reel-header > span {
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.62rem;
+  font-weight: 700;
+
+  opacity: 0.45;
+}
+
+
+/*
+ * REEL WINDOW
+ */
+
+.interest-reel-window {
+  position: relative;
+
+  height:
+    clamp(
+      24rem,
+      48vw,
+      46rem
+    );
+
+  overflow: hidden;
+
+  mask-image:
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 12%,
+      black 88%,
+      transparent 100%
+    );
+
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 12%,
+      black 88%,
+      transparent 100%
+    );
+}
+
+
+/*
+ * REEL TRACK
+ */
+
+.interest-reel-track {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+
+  will-change: transform;
+}
+
+.interest-reel-group {
+  display: flex;
+  flex-direction: column;
+
+  flex-shrink: 0;
+
+  width: 100%;
+}
+
+.interest-reel-item {
+  display: flex;
+  align-items: center;
+
+  min-height:
+    clamp(
+      4rem,
+      6vw,
+      6.5rem
+    );
+
+  padding:
+    0.5rem
+    1rem;
+
+  font-family:
+    "Space Grotesk Variable",
+    sans-serif;
+
+  font-size:
+    clamp(
+      2rem,
+      4vw,
+      4.5rem
+    );
+
+  font-weight: 600;
+
+  line-height: 0.9;
+
+  letter-spacing: -0.045em;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+
+/*
+ * REEL MOTION
+ */
+
+.interest-reel-track[
+  data-reel-direction="up"
+] {
+  animation:
+    interest-reel-up
+    34s
+    linear
+    infinite;
+}
+
+.interest-reel-track[
+  data-reel-direction="down"
+] {
+  transform:
+    translateY(-50%);
+
+  animation:
+    interest-reel-down
+    38s
+    linear
+    infinite;
+}
+
+.interest-reel-window:hover
+  .interest-reel-track,
+.interest-reel-window:focus-within
+  .interest-reel-track {
+  animation-play-state:
+    paused;
+}
+
+
+/*
+ * ANIMATIONS
+ */
+
+@keyframes interest-reel-up {
+  from {
+    transform:
+      translateY(0);
+  }
+
+  to {
+    transform:
+      translateY(-50%);
+  }
+}
+
+@keyframes interest-reel-down {
+  from {
+    transform:
+      translateY(-50%);
+  }
+
+  to {
+    transform:
+      translateY(0);
+  }
+}
+
+
+/*
+ * REDUCED MOTION
+ */
+
+@media (
+  prefers-reduced-motion:
+    reduce
+) {
+  .interest-reel-track[
+    data-reel-direction
+  ] {
+    animation: none;
+
+    transform: none;
+  }
+
+  .interest-reel-window {
+    height: auto;
+
+    mask-image: none;
+
+    -webkit-mask-image:
+      none;
+  }
+
+  .interest-reel-group[
+    aria-hidden="true"
+  ] {
+    display: none;
+  }
+}
+
+
+/*
+ * MOBILE
+ */
+
+@media (max-width: 700px) {
+  .interest-reels {
+    grid-template-columns:
+      1fr;
+  }
+
+  .interest-reel:first-child {
+    border-right: 0;
+
+    border-bottom:
+      1px
+      solid
+      var(--color-border);
+  }
+
+  .interest-reel-header {
+    grid-template-columns:
+      auto
+      minmax(0, 1fr);
+
+    gap:
+      0.5rem
+      1rem;
+  }
+
+  .interest-reel-header
+    > span:last-child {
+    grid-column: 2;
+  }
+
+  .interest-reel-window {
+    height: 28rem;
+  }
+
+  .interest-reel-item {
+    min-height: 4.5rem;
+
+    font-size:
+      clamp(
+        2rem,
+        10vw,
+        3.5rem
+      );
+  }
+}
