@@ -1,0 +1,350 @@
+---
+import GalleryItem from './GalleryItem.astro';
+
+import { gallery } from '../../data/gallery';
+
+const sortedGallery =
+  [...gallery].sort(
+    (a, b) =>
+      new Date(
+        `${b.date}T00:00:00`
+      ).getTime() -
+      new Date(
+        `${a.date}T00:00:00`
+      ).getTime()
+  );
+---
+
+<section
+  id="gallery"
+  class="gallery-section"
+>
+  <header class="gallery-header">
+    <h2>
+      <span
+        class="lens-text lens-interactive scroll-emphasis"
+        data-text="Gallery"
+        data-scroll-emphasis
+      >
+        Gallery
+      </span>
+    </h2>
+  </header>
+
+  <div class="gallery-space"></div>
+
+  <div
+    class="gallery-rule"
+    aria-hidden="true"
+  ></div>
+
+  <div class="gallery-wall-space"></div>
+
+  <div
+    class="gallery"
+    data-gallery
+  >
+    {sortedGallery.map((item) => (
+      <GalleryItem item={item} />
+    ))}
+  </div>
+</section>
+
+<script>
+  /*
+   * GALLERY EDGE DETECTION
+   *
+   * Enlarged artwork touching either side
+   * of the viewport grows inward instead
+   * of spilling off-screen.
+   */
+
+  const gallery =
+    document.querySelector<HTMLElement>(
+      '[data-gallery]'
+    );
+
+  if (gallery) {
+    const updateGalleryEdges = () => {
+      const items =
+        gallery.querySelectorAll<HTMLElement>(
+          '.gallery-item'
+        );
+
+      const galleryRect =
+        gallery.getBoundingClientRect();
+
+      const tolerance = 2;
+
+      for (const item of items) {
+        const rect =
+          item.getBoundingClientRect();
+
+        const touchesLeft =
+          Math.abs(
+            rect.left -
+            galleryRect.left
+          ) <= tolerance;
+
+        const touchesRight =
+          Math.abs(
+            rect.right -
+            galleryRect.right
+          ) <= tolerance;
+
+        if (
+          touchesLeft &&
+          touchesRight
+        ) {
+          item.style.setProperty(
+            '--gallery-transform-origin',
+            'center center'
+          );
+
+          continue;
+        }
+
+        if (touchesLeft) {
+          item.style.setProperty(
+            '--gallery-transform-origin',
+            'left center'
+          );
+
+          continue;
+        }
+
+        if (touchesRight) {
+          item.style.setProperty(
+            '--gallery-transform-origin',
+            'right center'
+          );
+
+          continue;
+        }
+
+        item.style.setProperty(
+          '--gallery-transform-origin',
+          'center center'
+        );
+      }
+    };
+
+    updateGalleryEdges();
+
+    const resizeObserver =
+      new ResizeObserver(() => {
+        updateGalleryEdges();
+      });
+
+    resizeObserver.observe(
+      gallery
+    );
+
+    window.addEventListener(
+      'resize',
+      updateGalleryEdges
+    );
+  }
+</script>
+
+<style>
+  .gallery-section {
+    width: 100%;
+
+    padding-top:
+      clamp(
+        2rem,
+        3vw,
+        3rem
+      );
+  }
+
+  .gallery-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+
+    width: 100%;
+
+    padding:
+      0
+      1.5rem
+      0.35rem;
+  }
+
+  .gallery-header h2 {
+    margin: 0;
+
+    font-family:
+      "Space Grotesk Variable",
+      sans-serif;
+
+    font-size:
+      clamp(
+        5rem,
+        12vw,
+        12rem
+      );
+
+    font-weight: 600;
+    line-height: 0.82;
+    letter-spacing: -0.06em;
+
+    text-align: right;
+  }
+
+  /*
+   * SPACE BETWEEN TEXT AND RULE
+   */
+
+  .gallery-space {
+    width: 100%;
+
+    height:
+      clamp(
+        2.25rem,
+        3.5vw,
+        4rem
+      );
+  }
+
+  /*
+   * SINGLE GALLERY RULE
+   */
+
+  .gallery-rule {
+    width: 100%;
+    height: 3px;
+
+    background:
+      var(--foreground, #fff);
+  }
+
+  /*
+   * SPACE BETWEEN RULE AND ARTWORK
+   */
+
+  .gallery-wall-space {
+    width: 100%;
+
+    height:
+      clamp(
+        2rem,
+        3vw,
+        3.4rem
+      );
+  }
+
+  /*
+   * ART WALL
+   */
+
+  .gallery {
+    --gallery-gap: 1px;
+
+    display: grid;
+
+    grid-template-columns:
+      repeat(
+        12,
+        minmax(0, 1fr)
+      );
+
+    grid-auto-flow: dense;
+
+    align-items: start;
+
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    gap:
+      var(--gallery-gap);
+
+    overflow: visible;
+
+    background:
+      var(--background, #000);
+  }
+
+  /*
+   * TILE WIDTHS
+   */
+
+  .gallery > :global([data-size="square"]) {
+    grid-column: span 3;
+  }
+
+  .gallery > :global([data-size="wide"]) {
+    grid-column: span 6;
+  }
+
+  .gallery > :global([data-size="tall"]) {
+    grid-column: span 3;
+  }
+
+  .gallery > :global([data-size="large"]) {
+    grid-column: span 6;
+  }
+
+  /*
+   * MOBILE
+   */
+
+  @media (max-width: 700px) {
+    .gallery-section {
+      padding-top: 2rem;
+    }
+
+    .gallery-header {
+      justify-content: flex-end;
+
+      padding:
+        0
+        1rem
+        0.3rem;
+    }
+
+    .gallery-header h2 {
+      font-size:
+        clamp(
+          4.5rem,
+          22vw,
+          8rem
+        );
+
+      text-align: right;
+    }
+
+    .gallery-space {
+      height: 2rem;
+    }
+
+    .gallery-rule {
+      height: 2px;
+    }
+
+    .gallery-wall-space {
+      height: 1.75rem;
+    }
+
+    .gallery {
+      grid-template-columns:
+        repeat(
+          4,
+          minmax(0, 1fr)
+        );
+    }
+
+    .gallery > :global([data-size="square"]),
+    .gallery > :global([data-size="tall"]) {
+      grid-column: span 2;
+    }
+
+    .gallery > :global([data-size="wide"]),
+    .gallery > :global([data-size="large"]) {
+      grid-column: span 4;
+    }
+  }
+</style>
