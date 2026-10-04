@@ -1,0 +1,159 @@
+---
+import CodecVisual from './CodecVisual.astro';
+import VotVVisual from './VotVVisual.astro';
+import LoveField from './LoveField.astro';
+
+import {
+  games,
+  hobbies,
+} from '../../data/interests';
+
+import '../../styles/interests.css';
+---
+
+<section
+  id="interests"
+  class="interests-section"
+>
+  <!-- Section heading -->
+  <header class="interests-header">
+    <h2>
+      <span
+        class="lens-text lens-interactive scroll-emphasis"
+        data-text="Interests"
+        data-scroll-emphasis
+      >
+        Interests
+      </span>
+    </h2>
+  </header>
+
+  <!-- Textmode 01 -->
+  <CodecVisual />
+
+  <!-- Games / Hobbies -->
+  <section
+    class="interest-reels"
+    aria-label="Games and hobbies"
+  >
+    <!-- Games -->
+    <div class="interest-reel">
+      <header class="interest-reel-header">
+        <span>
+          01
+        </span>
+
+        <h3>
+          Games
+        </h3>
+
+        <span>
+          PLAYING / PLAYED
+        </span>
+      </header>
+
+      <div
+        class="interest-reel-window"
+        data-interest-reel
+      >
+        <div
+          class="interest-reel-track"
+          data-reel-direction="up"
+        >
+          <div class="interest-reel-group">
+            {games.map((game) => (
+              <span class="interest-reel-item">
+                {game}
+              </span>
+            ))}
+          </div>
+
+          <div
+            class="interest-reel-group"
+            aria-hidden="true"
+          >
+            {games.map((game) => (
+              <span class="interest-reel-item">
+                {game}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hobbies -->
+    <div class="interest-reel">
+      <header class="interest-reel-header">
+        <span>
+          02
+        </span>
+
+        <h3>
+          Hobbies
+        </h3>
+
+        <span>
+          THINGS I DO
+        </span>
+      </header>
+
+      <div
+        class="interest-reel-window"
+        data-interest-reel
+      >
+        <div
+          class="interest-reel-track"
+          data-reel-direction="down"
+        >
+          <div class="interest-reel-group">
+            {hobbies.map((hobby) => (
+              <span class="interest-reel-item">
+                {hobby}
+              </span>
+            ))}
+          </div>
+
+          <div
+            class="interest-reel-group"
+            aria-hidden="true"
+          >
+            {hobbies.map((hobby) => (
+              <span class="interest-reel-item">
+                {hobby}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Textmode 02 -->
+  <VotVVisual />
+
+  <!-- I Love -->
+  <section class="love-section">
+    <header class="love-header">
+      <h3>
+        I LOVE
+      </h3>
+
+      <span>
+        NO PARTICULAR ORDER
+      </span>
+    </header>
+
+    <LoveField />
+  </section>
+
+  <!-- Gallery handoff -->
+  <div
+    class="interests-gallery-rule"
+    aria-hidden="true"
+  ></div>
+</section>
+
+<script>
+  import '../../scripts/interests.ts';
+</script>

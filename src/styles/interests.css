@@ -1,0 +1,994 @@
+/*
+ * INTERESTS
+ *
+ * Large editorial section built around three
+ * distinct textmode environments:
+ *
+ * 01 — Codec
+ * 02 — VotV landscape
+ * 03 — I LOVE motion field
+ */
+
+.interests-section {
+  width: 100%;
+
+  padding-top:
+    clamp(
+      3rem,
+      5vw,
+      6rem
+    );
+
+  overflow: hidden;
+}
+
+
+/*
+ * SECTION HEADER
+ */
+
+.interests-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+
+  width: 100%;
+
+  padding:
+    0
+    1.5rem
+    clamp(
+      2.5rem,
+      5vw,
+      5rem
+    );
+}
+
+.interests-header h2 {
+  margin: 0;
+
+  font-family:
+    "Space Grotesk Variable",
+    sans-serif;
+
+  font-size:
+    clamp(
+      5rem,
+      12vw,
+      12rem
+    );
+
+  font-weight: 600;
+
+  line-height: 0.82;
+
+  letter-spacing: -0.06em;
+
+  text-align: right;
+}
+
+
+/*
+ * SHARED TEXTMODE AREA
+ */
+
+.interest-textmode {
+  position: relative;
+
+  width: 100%;
+
+  overflow: hidden;
+
+  background:
+    var(--color-bg);
+
+  color:
+    var(--color-fg);
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+}
+
+
+/*
+ * TEXTMODE 01
+ *
+ * Temporary structural Codec layout.
+ *
+ * This gets replaced by the real Phoxy /
+ * Big Boss treatment after the section's
+ * proportions are established.
+ */
+
+.codec-visual {
+  min-height:
+    clamp(
+      18rem,
+      34vw,
+      36rem
+    );
+
+  border-top:
+    1px
+    solid
+    var(--color-border);
+
+  border-bottom:
+    1px
+    solid
+    var(--color-border);
+}
+
+.codec-placeholder {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto
+    minmax(0, 1fr);
+
+  align-items: center;
+
+  gap:
+    clamp(
+      2rem,
+      6vw,
+      8rem
+    );
+
+  width: 100%;
+  min-height: inherit;
+
+  padding:
+    clamp(
+      2rem,
+      4vw,
+      4rem
+    )
+    clamp(
+      1rem,
+      5vw,
+      5rem
+    );
+}
+
+.codec-placeholder-side {
+  display: flex;
+  flex-direction: column;
+
+  gap: 0.75rem;
+}
+
+.codec-placeholder-side:last-child {
+  align-items: flex-end;
+}
+
+.codec-placeholder-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+.codec-placeholder-box {
+  display: grid;
+
+  place-items: center;
+
+  width: 100%;
+
+  aspect-ratio: 4 / 3;
+
+  border:
+    1px
+    solid
+    currentColor;
+
+  font-size:
+    clamp(
+      0.65rem,
+      1vw,
+      0.8rem
+    );
+
+  opacity: 0.5;
+}
+
+.codec-placeholder-center {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 0.5rem;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  text-align: center;
+}
+
+.codec-placeholder-frequency {
+  opacity: 0.5;
+}
+
+
+/*
+ * GAMES / HOBBIES
+ */
+
+.interest-reels {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  width: 100%;
+
+  border-bottom:
+    1px
+    solid
+    var(--color-border);
+}
+
+.interest-reel {
+  min-width: 0;
+
+  overflow: hidden;
+}
+
+.interest-reel:first-child {
+  border-right:
+    1px
+    solid
+    var(--color-border);
+}
+
+
+/*
+ * REEL HEADER
+ */
+
+.interest-reel-header {
+  display: grid;
+
+  grid-template-columns:
+    auto
+    minmax(0, 1fr)
+    auto;
+
+  align-items: baseline;
+
+  gap: 1rem;
+
+  padding:
+    0.8rem
+    0.75rem;
+
+  border-bottom:
+    1px
+    solid
+    var(--color-border);
+}
+
+.interest-reel-header h3 {
+  margin: 0;
+
+  font-family:
+    "Space Grotesk Variable",
+    sans-serif;
+
+  font-size:
+    clamp(
+      2.5rem,
+      5vw,
+      5.5rem
+    );
+
+  font-weight: 600;
+
+  line-height: 0.85;
+
+  letter-spacing: -0.05em;
+}
+
+.interest-reel-header > span {
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.62rem;
+  font-weight: 700;
+
+  opacity: 0.45;
+}
+
+
+/*
+ * REEL WINDOW
+ */
+
+.interest-reel-window {
+  position: relative;
+
+  height:
+    clamp(
+      24rem,
+      48vw,
+      46rem
+    );
+
+  overflow: hidden;
+
+  /*
+   * Text emerges from / disappears into
+   * the black canvas rather than clipping
+   * against a visibly hard rectangle.
+   */
+
+  mask-image:
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 12%,
+      black 88%,
+      transparent 100%
+    );
+
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 12%,
+      black 88%,
+      transparent 100%
+    );
+}
+
+
+/*
+ * REEL TRACK
+ */
+
+.interest-reel-track {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+
+  will-change: transform;
+}
+
+.interest-reel-group {
+  display: flex;
+  flex-direction: column;
+
+  flex-shrink: 0;
+
+  width: 100%;
+}
+
+.interest-reel-item {
+  display: flex;
+  align-items: center;
+
+  min-height:
+    clamp(
+      4rem,
+      6vw,
+      6.5rem
+    );
+
+  padding:
+    0.5rem
+    1rem;
+
+  font-family:
+    "Space Grotesk Variable",
+    sans-serif;
+
+  font-size:
+    clamp(
+      2rem,
+      4vw,
+      4.5rem
+    );
+
+  font-weight: 600;
+
+  line-height: 0.9;
+
+  letter-spacing: -0.045em;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+
+/*
+ * UPWARD REEL
+ */
+
+.interest-reel-track[
+  data-reel-direction="up"
+] {
+  animation:
+    interest-reel-up
+    34s
+    linear
+    infinite;
+}
+
+
+/*
+ * DOWNWARD REEL
+ *
+ * Starting at -50% lets the duplicated
+ * group travel downward seamlessly.
+ */
+
+.interest-reel-track[
+  data-reel-direction="down"
+] {
+  transform:
+    translateY(-50%);
+
+  animation:
+    interest-reel-down
+    38s
+    linear
+    infinite;
+}
+
+
+/*
+ * Pause whichever reel the visitor is
+ * currently inspecting.
+ */
+
+.interest-reel-window:hover
+  .interest-reel-track,
+.interest-reel-window:focus-within
+  .interest-reel-track {
+  animation-play-state:
+    paused;
+}
+
+
+/*
+ * TEXTMODE 02 — VOTV
+ */
+
+.votv-visual {
+  display: flex;
+
+  align-items: flex-end;
+  justify-content: center;
+
+  min-height:
+    clamp(
+      18rem,
+      30vw,
+      32rem
+    );
+
+  padding:
+    clamp(
+      2rem,
+      5vw,
+      5rem
+    )
+    1rem
+    0;
+
+  border-bottom:
+    1px
+    solid
+    var(--color-border);
+}
+
+.votv-placeholder {
+  width: 100%;
+
+  margin: 0;
+
+  overflow: hidden;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.72
+    );
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size:
+    clamp(
+      0.45rem,
+      1.05vw,
+      1rem
+    );
+
+  line-height: 1;
+
+  text-align: center;
+
+  white-space: pre;
+}
+
+
+/*
+ * I LOVE
+ */
+
+.love-section {
+  width: 100%;
+}
+
+.love-header {
+  display: flex;
+
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 2rem;
+
+  width: 100%;
+
+  padding:
+    clamp(
+      2rem,
+      4vw,
+      4rem
+    )
+    0.75rem
+    0.8rem;
+
+  border-bottom:
+    1px
+    solid
+    var(--color-border);
+}
+
+.love-header h3 {
+  margin: 0;
+
+  font-family:
+    "Space Grotesk Variable",
+    sans-serif;
+
+  font-size:
+    clamp(
+      4rem,
+      10vw,
+      10rem
+    );
+
+  font-weight: 600;
+
+  line-height: 0.78;
+
+  letter-spacing: -0.065em;
+}
+
+.love-header > span {
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.65rem;
+  font-weight: 700;
+
+  opacity: 0.45;
+}
+
+
+/*
+ * LOVE FIELD
+ */
+
+.love-field {
+  position: relative;
+
+  width: 100%;
+
+  height:
+    clamp(
+      28rem,
+      55vw,
+      52rem
+    );
+
+  overflow: hidden;
+
+  background:
+    var(--color-bg);
+}
+
+
+/*
+ * Animated objects.
+ */
+
+.love-object {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 0.4em;
+
+  width: max-content;
+
+  max-width:
+    calc(
+      100% -
+      1rem
+    );
+
+  padding:
+    0.15em
+    0.3em;
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size:
+    clamp(
+      1rem,
+      2.2vw,
+      2.25rem
+    );
+
+  font-weight: 700;
+
+  line-height: 1;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+
+  will-change: transform;
+}
+
+
+/*
+ * Pipe Dream / old-computer palette.
+ *
+ * Deliberately loud against the otherwise
+ * monochrome site.
+ */
+
+.love-object:nth-of-type(2) {
+  color: #89dceb;
+}
+
+.love-object:nth-of-type(3) {
+  color: #f38ba8;
+}
+
+.love-object:nth-of-type(4) {
+  color: #a6e3a1;
+}
+
+.love-object:nth-of-type(5) {
+  color: #f9e2af;
+}
+
+.love-object:nth-of-type(6) {
+  color: #cba6f7;
+}
+
+.love-object:nth-of-type(7) {
+  color: #fab387;
+}
+
+.love-object:nth-of-type(8) {
+  color: #74c7ec;
+}
+
+
+/*
+ * Static fallback list exists for reduced
+ * motion and no-script environments.
+ */
+
+.love-field-fallback {
+  display: none;
+}
+
+
+/*
+ * FINAL HANDOFF TO GALLERY
+ */
+
+.interests-gallery-rule {
+  width: 100%;
+
+  height: 3px;
+
+  background:
+    var(--color-fg);
+}
+
+
+/*
+ * REEL ANIMATIONS
+ */
+
+@keyframes interest-reel-up {
+  from {
+    transform:
+      translateY(0);
+  }
+
+  to {
+    transform:
+      translateY(-50%);
+  }
+}
+
+@keyframes interest-reel-down {
+  from {
+    transform:
+      translateY(-50%);
+  }
+
+  to {
+    transform:
+      translateY(0);
+  }
+}
+
+
+/*
+ * REDUCED MOTION
+ */
+
+@media (
+  prefers-reduced-motion:
+    reduce
+) {
+  .interest-reel-track[
+    data-reel-direction
+  ] {
+    animation: none;
+
+    transform: none;
+  }
+
+  .interest-reel-window {
+    height: auto;
+
+    mask-image: none;
+
+    -webkit-mask-image:
+      none;
+  }
+
+  .interest-reel-group[
+    aria-hidden="true"
+  ] {
+    display: none;
+  }
+
+  .love-object {
+    display: none;
+  }
+
+  .love-field {
+    height: auto;
+
+    min-height: 0;
+
+    padding:
+      2rem
+      0.75rem;
+  }
+
+  .love-field-fallback {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap:
+      1rem
+      2rem;
+  }
+
+  .love-field-fallback span {
+    font-family:
+      "Adwaita Mono",
+      monospace;
+
+    font-size:
+      clamp(
+        1rem,
+        3vw,
+        1.5rem
+      );
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+  }
+}
+
+
+/*
+ * MOBILE
+ */
+
+@media (max-width: 700px) {
+  .interests-section {
+    padding-top: 2rem;
+  }
+
+  .interests-header {
+    padding:
+      0
+      1rem
+      2.5rem;
+  }
+
+  .interests-header h2 {
+    font-size:
+      clamp(
+        4.5rem,
+        22vw,
+        8rem
+      );
+  }
+
+
+  /*
+   * Codec
+   */
+
+  .codec-visual {
+    min-height: 22rem;
+  }
+
+  .codec-placeholder {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr);
+
+    gap: 1rem;
+
+    padding:
+      1.5rem
+      1rem;
+  }
+
+  .codec-placeholder-center {
+    grid-column:
+      1 /
+      -1;
+
+    grid-row: 2;
+
+    order: 3;
+  }
+
+
+  /*
+   * Reels
+   */
+
+  .interest-reels {
+    grid-template-columns:
+      1fr;
+  }
+
+  .interest-reel:first-child {
+    border-right: 0;
+
+    border-bottom:
+      1px
+      solid
+      var(--color-border);
+  }
+
+  .interest-reel-header {
+    grid-template-columns:
+      auto
+      minmax(0, 1fr);
+
+    gap:
+      0.5rem
+      1rem;
+  }
+
+  .interest-reel-header
+    > span:last-child {
+    grid-column: 2;
+  }
+
+  .interest-reel-window {
+    height: 28rem;
+  }
+
+  .interest-reel-item {
+    min-height: 4.5rem;
+
+    font-size:
+      clamp(
+        2rem,
+        10vw,
+        3.5rem
+      );
+  }
+
+
+  /*
+   * VotV
+   */
+
+  .votv-visual {
+    min-height: 16rem;
+
+    padding:
+      2rem
+      0
+      0;
+  }
+
+  .votv-placeholder {
+    font-size: 0.42rem;
+  }
+
+
+  /*
+   * I LOVE
+   */
+
+  .love-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 1rem;
+
+    padding:
+      3rem
+      0.75rem
+      0.8rem;
+  }
+
+  .love-header h3 {
+    font-size:
+      clamp(
+        4rem,
+        21vw,
+        7rem
+      );
+  }
+
+  .love-field {
+    height: 32rem;
+  }
+
+  .love-object {
+    font-size:
+      clamp(
+        0.85rem,
+        4vw,
+        1.25rem
+      );
+  }
+}
