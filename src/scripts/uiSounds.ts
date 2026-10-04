@@ -107,6 +107,10 @@ rolloverAudio.addEventListener(
 
 /*
  * CONTROL LOOKUP
+ *
+ * Native links/buttons and custom elements
+ * exposing button semantics participate in
+ * the global UI sound system.
  */
 
 const getUiTarget = (
@@ -117,7 +121,7 @@ const getUiTarget = (
   }
 
   return target.closest<HTMLElement>(
-    'a, button'
+    'a, button, [role="button"]'
   );
 };
 
@@ -155,7 +159,7 @@ const isExcludedControl = (
 /*
  * DISABLED STATE
  *
- * Support both native disabled buttons and
+ * Support native disabled buttons and
  * aria-disabled controls.
  */
 
@@ -296,11 +300,14 @@ document.addEventListener(
 
 
 /*
- * DENIED ACTIVATION
+ * DENIED POINTER ACTIVATION
  *
  * Native disabled buttons do not emit normal
- * click events, so detect the attempted input
+ * click events, so detect attempted input
  * earlier with pointerdown.
+ *
+ * This also handles custom aria-disabled
+ * controls such as the Codec hardware.
  */
 
 document.addEventListener(
@@ -330,13 +337,51 @@ document.addEventListener(
 
 
 /*
+ * DENIED KEYBOARD ACTIVATION
+ *
+ * Custom role="button" controls do not receive
+ * native button keyboard behaviour, so provide
+ * deny feedback for Enter and Space ourselves.
+ */
+
+document.addEventListener(
+  'keydown',
+  (event) => {
+    if (
+      event.key !== 'Enter' &&
+      event.key !== ' '
+    ) {
+      return;
+    }
+
+    const target =
+      getUiTarget(
+        event.target
+      );
+
+    if (
+      !target ||
+      !canUseUiSound(target) ||
+      !isDisabledControl(target)
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+
+    playDeny();
+  }
+);
+
+
+/*
  * SUCCESSFUL ACTIVATION
  *
  * Click represents a completed activation,
  * giving the interface a distinct release sound.
  *
- * Keyboard-triggered clicks receive the same
- * feedback automatically.
+ * Disabled controls never receive the
+ * successful activation sound.
  */
 
 document.addEventListener(

@@ -1,4 +1,8 @@
 ---
+import {
+  codecLines,
+} from '../../data/codec';
+
 const base =
   import.meta.env.BASE_URL.endsWith('/')
     ? import.meta.env.BASE_URL
@@ -9,32 +13,141 @@ const snakePortrait =
 
 const phoxyPortrait =
   `${base}assets/interests/codec/codecPhoxy.webp`;
+
+const firstLine =
+  codecLines[0];
 ---
 
 <section
   class="interest-textmode codec-visual"
   aria-label="Codec communication display between Solid Snake and Phoxy"
 >
-  <div class="codec-screen">
-    <!-- Solid Snake / receiving side -->
+  <div
+    class="codec-screen"
+    data-codec
+  >
+    <!--
+      TOP HARDWARE
+
+      These controls visually recreate the
+      Codec hardware but are intentionally
+      unavailable.
+
+      Attempting to activate one uses the
+      site's global denied-input feedback.
+    -->
+    <div class="codec-hardware">
+      <!-- PTT -->
+      <div
+        class="codec-hardware-control codec-hardware-ptt"
+        role="button"
+        aria-disabled="true"
+        tabindex="0"
+        aria-label="PTT unavailable"
+      >
+        <span class="codec-hardware-label">
+          PTT
+        </span>
+
+        <span
+          class="codec-hardware-button"
+          aria-hidden="true"
+        >
+          <span></span>
+        </span>
+      </div>
+
+      <!-- TUNER -->
+      <div
+        class="codec-tuner"
+        role="button"
+        aria-disabled="true"
+        tabindex="0"
+        aria-label="Codec tuning unavailable"
+      >
+        <div
+          class="codec-tuner-header"
+          aria-hidden="true"
+        >
+          <span class="codec-tuner-label">
+            TUNE
+          </span>
+
+          <span class="codec-frequency">
+            140.85
+          </span>
+        </div>
+
+        <div
+          class="codec-visualizer"
+          aria-hidden="true"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+        <div
+          class="codec-tuner-scale"
+          aria-hidden="true"
+        >
+          <span>140</span>
+          <span>142</span>
+          <span>145</span>
+        </div>
+      </div>
+
+      <!-- MEMORY -->
+      <div
+        class="codec-hardware-control codec-hardware-memory"
+        role="button"
+        aria-disabled="true"
+        tabindex="0"
+        aria-label="Memory unavailable"
+      >
+        <span class="codec-hardware-label">
+          MEM
+        </span>
+
+        <span
+          class="codec-hardware-button"
+          aria-hidden="true"
+        >
+          <span></span>
+        </span>
+      </div>
+    </div>
+
+    <!--
+      SOLID SNAKE
+    -->
     <section
       class="codec-party codec-party-left"
       aria-label="Solid Snake"
     >
-      <div
-        class="codec-portrait"
-        data-codec-portrait="snake"
-      >
-        <div class="codec-portrait-field">
-          <img
-            class="codec-portrait-image"
-            src={snakePortrait}
-            alt=""
-            width="52"
-            height="89"
-            draggable="false"
-          />
-        </div>
+      <div class="codec-portrait">
+        <img
+          class="codec-portrait-image"
+          src={snakePortrait}
+          alt=""
+          width="52"
+          height="89"
+          draggable="false"
+        />
       </div>
 
       <span class="codec-party-name">
@@ -42,64 +155,22 @@ const phoxyPortrait =
       </span>
     </section>
 
-    <!-- Codec frequency -->
-    <section
-      class="codec-channel"
-      aria-label="Codec frequency"
-    >
-      <div
-        class="codec-channel-line"
-        aria-hidden="true"
-      ></div>
-
-      <div class="codec-frequency-panel">
-        <span class="codec-frequency">
-          140.85
-        </span>
-
-        <div
-          class="codec-tune-meter"
-          aria-hidden="true"
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-
-        <span class="codec-tune-label">
-          TUNE
-        </span>
-      </div>
-
-      <div
-        class="codec-channel-line"
-        aria-hidden="true"
-      ></div>
-    </section>
-
-    <!-- Phoxy / player side -->
+    <!--
+      PHOXY
+    -->
     <section
       class="codec-party codec-party-right"
       aria-label="Phoxy"
     >
-      <div
-        class="codec-portrait"
-        data-codec-portrait="phoxy"
-      >
-        <div class="codec-portrait-field">
-          <img
-            class="codec-portrait-image"
-            src={phoxyPortrait}
-            alt=""
-            width="52"
-            height="89"
-            draggable="false"
-          />
-        </div>
+      <div class="codec-portrait">
+        <img
+          class="codec-portrait-image"
+          src={phoxyPortrait}
+          alt=""
+          width="52"
+          height="89"
+          draggable="false"
+        />
       </div>
 
       <span class="codec-party-name">
@@ -107,62 +178,63 @@ const phoxyPortrait =
       </span>
     </section>
 
-    <!-- Codec controls -->
-    <div class="codec-controls">
-      <button
-        class="codec-control codec-control-ptt"
-        type="button"
-        aria-disabled="true"
-        tabindex="-1"
-      >
-        <span class="codec-control-label">
-          PTT
-        </span>
-
-        <span
-          class="codec-control-switch"
-          aria-hidden="true"
-        >
-          <span></span>
-        </span>
-      </button>
-
-      <div
-        class="codec-control-spacer"
-        aria-hidden="true"
-      ></div>
-
-      <button
-        class="codec-control codec-control-memory"
-        type="button"
-        aria-disabled="true"
-        tabindex="-1"
-      >
-        <span
-          class="codec-control-switch"
-          aria-hidden="true"
-        >
-          <span></span>
-        </span>
-
-        <span class="codec-control-label">
-          MEMORY
-        </span>
-      </button>
-    </div>
-
-    <!-- Display metadata -->
-    <div
-      class="codec-display-meta"
-      aria-hidden="true"
+    <!--
+      DIALOGUE
+    -->
+    <section
+      class="codec-dialogue"
+      aria-live="polite"
     >
-      <span>PTT</span>
-
-      <span>
-        CODEC / 140.85
+      <span
+        class="codec-dialogue-speaker"
+        data-codec-speaker
+      >
+        {firstLine.speaker}
       </span>
 
-      <span>MEMORY</span>
+      <p
+        class="codec-dialogue-text"
+        data-codec-dialogue
+      >
+        {firstLine.text}
+      </p>
+    </section>
+
+    <!--
+      DECORATIVE LOWER READOUT
+    -->
+    <div
+      class="codec-lower-readout"
+      aria-hidden="true"
+    >
+      <span>
+        CALL
+      </span>
+
+      <span class="codec-lower-dot"></span>
+
+      <span>
+        140.85
+      </span>
+
+      <span class="codec-lower-dot"></span>
+
+      <span>
+        MEMORY
+      </span>
     </div>
+
+    <!--
+      BUILD-TIME DIALOGUE DATA
+    -->
+    <script
+      type="application/json"
+      data-codec-lines
+      set:html={JSON.stringify(codecLines)}
+    ></script>
   </div>
 </section>
+
+<script>
+  import '../../scripts/codec.ts';
+</script>
