@@ -6,6 +6,11 @@
   width: 100%;
 }
 
+
+/*
+ * HEADER
+ */
+
 .love-header {
   display: flex;
 
@@ -35,6 +40,7 @@
     var(--color-border);
 }
 
+
 .love-header h3 {
   margin: 0;
 
@@ -56,6 +62,7 @@
   letter-spacing: -0.06em;
 }
 
+
 .love-header > span {
   font-family:
     "Adwaita Mono",
@@ -69,7 +76,7 @@
 
 
 /*
- * LOVE FIELD
+ * TEXTMODE #3
  */
 
 .love-field {
@@ -80,8 +87,8 @@
   height:
     clamp(
       28rem,
-      55vw,
-      52rem
+      46vw,
+      43rem
     );
 
   overflow: hidden;
@@ -92,146 +99,20 @@
 
 
 /*
- * ANIMATED OBJECTS
+ * CANVAS
  */
 
-.love-object {
+.love-canvas {
   position: absolute;
 
-  top: 0;
-  left: 0;
+  inset: 0;
 
-  display: inline-flex;
+  display: block;
 
-  align-items: center;
+  width: 100%;
+  height: 100%;
 
-  gap: 0.4em;
-
-  width: max-content;
-
-  max-width:
-    calc(
-      100% -
-      1rem
-    );
-
-  padding:
-    0.15em
-    0.3em;
-
-  font-family:
-    "Adwaita Mono",
-    monospace;
-
-  font-size:
-    clamp(
-      1rem,
-      2.2vw,
-      2.25rem
-    );
-
-  font-weight: 700;
-
-  line-height: 1;
-
-  text-transform: uppercase;
-
-  white-space: nowrap;
-
-  will-change: transform;
-}
-
-
-/*
- * PIPE DREAM / OLD-COMPUTER PALETTE
- */
-
-.love-object:nth-of-type(2) {
-  color: #89dceb;
-}
-
-.love-object:nth-of-type(3) {
-  color: #f38ba8;
-}
-
-.love-object:nth-of-type(4) {
-  color: #a6e3a1;
-}
-
-.love-object:nth-of-type(5) {
-  color: #f9e2af;
-}
-
-.love-object:nth-of-type(6) {
-  color: #cba6f7;
-}
-
-.love-object:nth-of-type(7) {
-  color: #fab387;
-}
-
-.love-object:nth-of-type(8) {
-  color: #74c7ec;
-}
-
-
-/*
- * STATIC FALLBACK
- */
-
-.love-field-fallback {
-  display: none;
-}
-
-
-/*
- * REDUCED MOTION
- */
-
-@media (
-  prefers-reduced-motion:
-    reduce
-) {
-  .love-object {
-    display: none;
-  }
-
-  .love-field {
-    height: auto;
-
-    min-height: 0;
-
-    padding:
-      2rem
-      0.75rem;
-  }
-
-  .love-field-fallback {
-    display: flex;
-
-    flex-wrap: wrap;
-
-    gap:
-      1rem
-      2rem;
-  }
-
-  .love-field-fallback span {
-    font-family:
-      "Adwaita Mono",
-      monospace;
-
-    font-size:
-      clamp(
-        1rem,
-        3vw,
-        1.5rem
-      );
-
-    font-weight: 700;
-
-    text-transform: uppercase;
-  }
+  pointer-events: none;
 }
 
 
@@ -253,6 +134,7 @@
       2.5rem;
   }
 
+
   .love-header h3 {
     font-size:
       clamp(
@@ -262,16 +144,8 @@
       );
   }
 
+
   .love-field {
     height: 32rem;
-  }
-
-  .love-object {
-    font-size:
-      clamp(
-        0.85rem,
-        4vw,
-        1.25rem
-      );
   }
 }

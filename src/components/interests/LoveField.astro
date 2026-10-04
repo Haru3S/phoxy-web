@@ -1,49 +1,10 @@
----
-import {
-  loves,
-} from '../../data/interests';
----
-
 <div
   class="love-field"
   data-love-field
-  aria-label="Things I love"
+  aria-hidden="true"
 >
-  <div
-    class="love-field-fallback"
-    aria-hidden="true"
-  >
-    {loves.map((interest) => (
-      <span>
-        {interest}
-      </span>
-    ))}
-  </div>
-
-  {loves.map(
-    (
-      interest,
-      index
-    ) => (
-      <span
-        class="love-object"
-        data-love-object
-        data-love-index={index}
-      >
-        <span
-          aria-hidden="true"
-        >
-          [
-        </span>
-
-        {interest}
-
-        <span
-          aria-hidden="true"
-        >
-          ]
-        </span>
-      </span>
-    )
-  )}
+  <canvas
+    class="love-canvas"
+    data-love-canvas
+  ></canvas>
 </div>

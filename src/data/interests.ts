@@ -37,7 +37,12 @@ export const hobbies = [
 ];
 
 export const loves = [
-  'Cars',
+  'JDM',
+  'Honda',
+  'Subaru',
   'Linux',
-  'Open Source',
+  'Eurobeat',
+  'DnB',
+  'Limp Bizkit',
+  'Linkin Park',
 ];
