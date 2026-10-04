@@ -135,8 +135,9 @@
 /*
  * SPACE BETWEEN ARTWORK AND FOOTER
  *
- * Mirrors the breathing room between the
- * gallery rule and the beginning of the wall.
+ * Slightly larger than the upper gallery gap
+ * so the artwork has room to finish before
+ * the footer begins.
  */
 
 .gallery-bottom-space {
@@ -144,9 +145,9 @@
 
   height:
     clamp(
-      2rem,
-      3vw,
-      3.4rem
+      3rem,
+      4.5vw,
+      5rem
     );
 }
 
@@ -209,9 +210,12 @@
     height: 2px;
   }
 
-  .gallery-wall-space,
-  .gallery-bottom-space {
+  .gallery-wall-space {
     height: 1.75rem;
+  }
+
+  .gallery-bottom-space {
+    height: 2.5rem;
   }
 
   .gallery {
