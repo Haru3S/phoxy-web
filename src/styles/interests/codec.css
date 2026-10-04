@@ -6,9 +6,9 @@
  * Big Boss occupies the receiving side.
  * Phoxy occupies the right / player side.
  *
- * Portrait artwork is intentionally temporary.
- * This pass establishes the actual Codec
- * interface before textmode portraits are added.
+ * Portrait windows deliberately use the
+ * tall, narrow proportions of the original
+ * Codec portraits.
  */
 
 
@@ -42,9 +42,9 @@
 
   min-height:
     clamp(
-      24rem,
-      38vw,
-      42rem
+      28rem,
+      42vw,
+      46rem
     );
 
   padding:
@@ -84,9 +84,9 @@
   grid-template-columns:
     minmax(0, 1fr)
     clamp(
-      10rem,
-      18vw,
-      18rem
+      12rem,
+      26vw,
+      28rem
     )
     minmax(0, 1fr);
 
@@ -99,18 +99,18 @@
 
   column-gap:
     clamp(
-      1.5rem,
-      4vw,
-      5rem
+      2rem,
+      6vw,
+      8rem
     );
 
   width: 100%;
 
   min-height:
     clamp(
-      22rem,
-      34vw,
-      38rem
+      26rem,
+      38vw,
+      42rem
     );
 
   padding:
@@ -133,11 +133,7 @@
 
 
 /*
- * SUBTLE TEXTMODE GRID
- *
- * This is deliberately extremely quiet.
- * It should read as display texture rather
- * than a modern decorative background.
+ * DISPLAY SCANLINES
  */
 
 .codec-screen::before {
@@ -146,6 +142,8 @@
   position: absolute;
 
   inset: 0;
+
+  z-index: 5;
 
   pointer-events: none;
 
@@ -203,23 +201,21 @@
 
 
 /*
- * PORTRAIT WINDOW
+ * TALL MGS-STYLE PORTRAIT WINDOWS
  */
 
 .codec-portrait {
   position: relative;
 
-  width: 100%;
-
-  max-width:
+  width:
     clamp(
-      18rem,
-      28vw,
-      34rem
+      9rem,
+      14vw,
+      14rem
     );
 
   aspect-ratio:
-    1.22 / 1;
+    2 / 3;
 
   overflow: hidden;
 
@@ -232,19 +228,12 @@
     var(--codec-deep);
 }
 
-
-/*
- * Inner frame gives the portrait windows the
- * doubled-line construction visible throughout
- * the original Codec interface.
- */
-
 .codec-portrait::before {
   content: "";
 
   position: absolute;
 
-  z-index: 2;
+  z-index: 4;
 
   inset: 5px;
 
@@ -256,18 +245,12 @@
     var(--codec-muted);
 }
 
-
-/*
- * Corner interruptions keep the portrait
- * frame from reading like a normal web card.
- */
-
 .codec-portrait::after {
   content: "";
 
   position: absolute;
 
-  z-index: 3;
+  z-index: 5;
 
   top: -2px;
   left: 14%;
@@ -293,32 +276,20 @@
 
   place-items: center;
 
-  padding: 1rem;
-
   overflow: hidden;
 
   background:
-    radial-gradient(
-      circle
-      at center,
-      var(--codec-dark)
-      0%,
-      var(--codec-deep)
-      48%,
-      var(--codec-black)
-      100%
-    );
+    var(--codec-black);
 }
 
 
 /*
- * Temporary textmode portrait marker.
- *
- * This disappears completely when we build
- * the actual Big Boss and Phoxy portraits.
+ * TEMPORARY BIG BOSS MARKER
  */
 
 .codec-portrait-placeholder {
+  margin: 0;
+
   color:
     var(--codec-muted);
 
@@ -328,9 +299,9 @@
 
   font-size:
     clamp(
-      0.65rem,
-      1.1vw,
-      1rem
+      0.55rem,
+      0.8vw,
+      0.75rem
     );
 
   font-weight: 700;
@@ -339,9 +310,97 @@
 
   text-align: center;
 
-  white-space: nowrap;
+  white-space: pre;
 
   opacity: 0.7;
+}
+
+
+/*
+ * PHOXY TEXTMODE PORTRAIT
+ *
+ * The portrait is intentionally rendered as
+ * fixed character artwork rather than generated
+ * in the browser.
+ *
+ * Its treatment favors large light/shadow masses
+ * over smooth photographic conversion so it
+ * retains the coarse MGS1 Codec character.
+ */
+
+.codec-phoxy-field {
+  align-items: center;
+
+  justify-items: center;
+
+  background:
+    radial-gradient(
+      ellipse
+      at 50% 43%,
+      var(--codec-dark) 0%,
+      var(--codec-deep) 42%,
+      var(--codec-black) 76%
+    );
+}
+
+.codec-portrait-art {
+  margin: 0;
+
+  padding: 0;
+
+  color:
+    var(--codec-bright);
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size:
+    clamp(
+      0.31rem,
+      0.48vw,
+      0.48rem
+    );
+
+  font-weight: 700;
+
+  line-height: 0.88;
+
+  letter-spacing: -0.08em;
+
+  text-align: left;
+
+  white-space: pre;
+
+  user-select: none;
+
+  transform:
+    scaleX(0.88);
+
+  transform-origin:
+    center;
+
+  text-shadow:
+    0
+    0
+    0.35rem
+    rgba(
+      141,
+      173,
+      120,
+      0.16
+    );
+}
+
+
+/*
+ * Slight density variation over the Phoxy
+ * portrait keeps it from looking like clean
+ * terminal text pasted into a box.
+ */
+
+.codec-phoxy-art {
+  opacity: 0.92;
 }
 
 
@@ -533,9 +592,9 @@
   grid-template-columns:
     1fr
     clamp(
-      10rem,
-      18vw,
-      18rem
+      12rem,
+      26vw,
+      28rem
     )
     1fr;
 
@@ -643,6 +702,7 @@
   left: 2px;
 
   width: 0.65rem;
+
   height:
     calc(
       100% -
@@ -659,11 +719,6 @@
   left: auto;
   right: 2px;
 }
-
-
-/*
- * SPACER
- */
 
 .codec-control-spacer {
   grid-column: 2;
@@ -737,28 +792,29 @@
 /*
  * MOBILE
  *
- * Preserve the two-sided Codec composition
- * instead of turning it into ordinary stacked
- * web cards.
+ * The two-portrait Codec composition survives
+ * rather than collapsing into stacked cards.
  */
 
 @media (max-width: 700px) {
   .codec-visual {
-    min-height: 24rem;
+    min-height: 25rem;
 
-    padding:
-      0.75rem;
+    padding: 0.75rem;
   }
 
   .codec-screen {
     grid-template-columns:
       minmax(0, 1fr)
-      minmax(5.5rem, 0.55fr)
+      minmax(
+        5.5rem,
+        0.7fr
+      )
       minmax(0, 1fr);
 
-    column-gap: 0.6rem;
+    column-gap: 0.75rem;
 
-    min-height: 22rem;
+    min-height: 23rem;
 
     padding:
       1rem
@@ -766,12 +822,30 @@
   }
 
   .codec-portrait {
+    width:
+      clamp(
+        5.5rem,
+        25vw,
+        8rem
+      );
+
     aspect-ratio:
-      0.92 / 1;
+      2 / 3;
   }
 
   .codec-party-name {
     font-size: 0.52rem;
+  }
+
+  .codec-portrait-art {
+    font-size:
+      clamp(
+        0.18rem,
+        0.8vw,
+        0.27rem
+      );
+
+    line-height: 0.88;
   }
 
   .codec-frequency-panel {
@@ -852,6 +926,24 @@
     padding:
       0.75rem
       0.4rem;
+  }
+
+  .codec-portrait {
+    width:
+      clamp(
+        4.5rem,
+        24vw,
+        6rem
+      );
+  }
+
+  .codec-portrait-art {
+    font-size:
+      clamp(
+        0.14rem,
+        0.72vw,
+        0.2rem
+      );
   }
 
   .codec-frequency {

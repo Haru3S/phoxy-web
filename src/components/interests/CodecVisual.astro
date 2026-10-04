@@ -6,9 +6,8 @@
     <!--
       LEFT / RECEIVING SIDE
 
-      Portrait content is intentionally still
-      empty. The next pass replaces this field
-      with Big Boss textmode artwork.
+      Big Boss remains a placeholder until
+      Phoxy's portrait language is finalized.
     -->
     <section
       class="codec-party codec-party-left"
@@ -22,13 +21,9 @@
           class="codec-portrait-field"
           aria-hidden="true"
         >
-          <span class="codec-portrait-placeholder">
-            ░▒▓
-            <br />
-            BIG BOSS
-            <br />
-            ▓▒░
-          </span>
+          <pre class="codec-portrait-placeholder">░▒▓
+BIG BOSS
+▓▒░</pre>
         </div>
       </div>
 
@@ -81,8 +76,8 @@
     <!--
       RIGHT / PLAYER SIDE
 
-      Phoxy belongs on the right because this
-      side represents the player position.
+      Phoxy is rendered as deliberately coarse
+      MGS1-style character-density textmode.
     -->
     <section
       class="codec-party codec-party-right"
@@ -93,16 +88,52 @@
         data-codec-portrait="phoxy"
       >
         <div
-          class="codec-portrait-field"
+          class="codec-portrait-field codec-phoxy-field"
           aria-hidden="true"
         >
-          <span class="codec-portrait-placeholder">
-            ░▒▓
-            <br />
-            PHOXY
-            <br />
-            ▓▒░
-          </span>
+          <pre class="codec-portrait-art codec-phoxy-art">
+                 ░
+              ░▒▓▓▒░
+            ░▓██████▓░
+           ▒██████████▒
+          ▓████████████▓
+         ▓████▓▒▒▓██████▓
+        ▓███▒░    ░▒█████▓
+       ▒██▓░         ▒████▒
+       ██▓            ░▓███
+      ▓██░     ░░       ▓██▓
+      ██▒    ░▒▓▓▒░      ███
+     ▒██░   ▒██████▒     ▒██▒
+     ▓██   ░██▓▒▒▓██░     ██▓
+     ██▓   ▓█▒    ▒█▓     ▓██
+     ██▒  ░█▓      ▓█░    ▒██
+     ██░  ▒█░ ░  ░ ░█▒    ░██
+     ██   ▓▓ ▒▓  ▓▒ ▓▓     ██
+     ██   █▒ ▓█  █▓ ▒█     ██
+     ██   █░ ▒▓  ▓▒ ░█     ██
+     ██   ▓▒    ░    ▒▓     ██
+     ▓█▒  ▒▓   ░░░   ▓▒    ▒█▓
+     ▒██░ ░█▒   ▒   ▒█░   ░██▒
+      ██▓  ▓█░ ░▓░ ░█▓    ▓██
+      ▒██▒ ▒██▒░░░▒██▒   ▒██▒
+       ███░ ▓████████▓   ░███
+       ▓██▓░ ▒▓████▓▒   ░▓██▓
+        ███▓░  ░▒▒░    ░▓███
+        ▒████▒░      ░▒████▒
+         ▓██████▓▒▒▓██████▓
+          ▒██████████████▒
+           ░▓██████████▓░
+             ▒▓████▓▒
+              ░▓██▓░
+               ▒██▒
+              ░████░
+             ▒██████▒
+           ░▓████████▓░
+         ░▓████████████▓░
+        ▒████████████████▒
+       ▓██████████████████▓
+      ▓████████████████████▓
+     ▒██████████████████████▒</pre>
         </div>
       </div>
 
@@ -113,10 +144,6 @@
 
     <!--
       LOWER CODEC CONTROLS
-
-      These deliberately remain unavailable.
-      They exist as part of the Codec display,
-      not as functional site navigation.
     -->
     <div class="codec-controls">
       <button
@@ -161,11 +188,7 @@
       </button>
     </div>
 
-    <!--
-      Tiny display markings help sell the visual
-      as an embedded communications interface
-      rather than a pair of ordinary cards.
-    -->
+    <!-- Display metadata -->
     <div
       class="codec-display-meta"
       aria-hidden="true"
