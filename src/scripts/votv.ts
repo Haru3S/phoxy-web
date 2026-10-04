@@ -112,6 +112,9 @@ for (const container of containers) {
       '(prefers-reduced-motion: reduce)',
     );
 
+  let isNearViewport =
+    false;
+
   let trees: Tree[] = [];
   let dishes: Dish[] = [];
 
@@ -1413,6 +1416,12 @@ for (const container of containers) {
   );
 
   t.draw(() => {
+    if (
+      !isNearViewport
+    ) {
+      return;
+    }
+
     /*
      * Trees and dishes are cached from the Textmode grid while
      * every other layer reads the live grid each frame. Production
@@ -1535,6 +1544,24 @@ for (const container of containers) {
 
   container.appendChild(
     t.canvas,
+  );
+
+  const viewportObserver =
+    new IntersectionObserver(
+      ([entry]) => {
+        isNearViewport =
+          entry?.isIntersecting ??
+          false;
+      },
+      {
+        rootMargin:
+          '300px 0px',
+        threshold: 0,
+      },
+    );
+
+  viewportObserver.observe(
+    container,
   );
 
   const resizeObserver =

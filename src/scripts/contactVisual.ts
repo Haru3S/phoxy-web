@@ -328,6 +328,8 @@
 
     let previousTime = 0;
 
+    let isNearViewport = false;
+
 
 
     /* MATRIX */
@@ -3144,6 +3146,8 @@
 
         reducedMotion.matches ||
 
+        !isNearViewport ||
+
         animationFrame !== null
 
       ) {
@@ -3171,6 +3175,51 @@
 
 
     /* INITIALIZE */
+
+    /*
+     * VIEWPORT ACTIVITY
+     *
+     * Keep both canvases mounted, but stop their
+     * animation loop while the Contact visual is
+     * well outside the viewport.
+     */
+
+    const viewportObserver =
+      new IntersectionObserver(
+        ([entry]) => {
+          isNearViewport =
+            entry?.isIntersecting ??
+            false;
+
+          if (
+            reducedMotion.matches
+          ) {
+            stopAnimation();
+            drawMatrix();
+            drawPipes();
+            return;
+          }
+
+          if (
+            isNearViewport
+          ) {
+            startAnimation();
+          } else {
+            stopAnimation();
+          }
+        },
+        {
+          rootMargin:
+            '300px 0px',
+          threshold: 0,
+        }
+      );
+
+    viewportObserver.observe(
+      visual
+    );
+
+
 
 
 
@@ -3260,12 +3309,6 @@
 
     );
 
-
-
     resizeCanvas();
-
-
-
-    startAnimation();
 
   }

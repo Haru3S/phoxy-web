@@ -1952,6 +1952,7 @@ for (
     () => {
       if (
         reducedMotion.matches ||
+        !isNearViewport ||
         animationFrame !==
           null
       ) {
@@ -1968,6 +1969,47 @@ for (
           animate
         );
     };
+
+
+  /*
+   * VIEWPORT ACTIVITY
+   *
+   * Keep the canvas mounted, but only run its animation
+   * loop while the section is in or near the viewport.
+   */
+
+  let isNearViewport =
+    false;
+
+  const viewportObserver =
+    new IntersectionObserver(
+      ([entry]) => {
+        isNearViewport =
+          entry?.isIntersecting ??
+          false;
+
+        if (
+          reducedMotion.matches
+        ) {
+          stopAnimation();
+          draw();
+          return;
+        }
+
+        if (
+          isNearViewport
+        ) {
+          startAnimation();
+        } else {
+          stopAnimation();
+        }
+      },
+      {
+        rootMargin:
+          '300px 0px',
+        threshold: 0,
+      }
+    );
 
 
   /*
@@ -2108,12 +2150,14 @@ for (
 
   resizeCanvas();
 
+  viewportObserver.observe(
+    field
+  );
+
 
   if (
     reducedMotion.matches
   ) {
     draw();
-  } else {
-    startAnimation();
   }
 }
