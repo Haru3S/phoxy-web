@@ -1,20 +1,18 @@
 /*
- * GLOBAL UI ROLLOVER AUDIO
+ * GLOBAL UI SOUND FEEDBACK
  *
- * Provides Half-Life 2-style rollover feedback
- * for normal interactive UI across the site.
+ * Hover:
+ *   buttonrollover.ogg
  *
- * Normal <a> and <button> elements participate
- * automatically.
+ * Successful activation:
+ *   buttonclickrelease.ogg
  *
- * Add:
+ * Disabled activation attempt:
+ *   wpn_denyselect.ogg
  *
- *   data-ui-sound="off"
- *
- * to explicitly silence an interactive element.
- *
- * Scout is also excluded so his voice-line
- * interaction remains an easter egg.
+ * Sounds are delegated from the document so
+ * dynamically displayed controls automatically
+ * inherit the same behaviour.
  */
 
 const base =
@@ -22,31 +20,62 @@ const base =
     ? import.meta.env.BASE_URL
     : `${import.meta.env.BASE_URL}/`;
 
+
+/*
+ * SOUND PATHS
+ */
+
 const rolloverUrl =
   `${base}audio/ui/buttonrollover.ogg`;
 
+const releaseUrl =
+  `${base}audio/ui/buttonclickrelease.ogg`;
+
+const denyUrl =
+  `${base}audio/ui/wpn_denyselect.ogg`;
+
 
 /*
- * AUDIO
+ * AUDIO INSTANCES
  */
 
 const rolloverAudio =
   new Audio();
 
+const releaseAudio =
+  new Audio();
+
+const denyAudio =
+  new Audio();
+
+
+/*
+ * AUDIO CONFIGURATION
+ */
+
 rolloverAudio.preload = 'auto';
 rolloverAudio.volume = 0.2;
 rolloverAudio.src = rolloverUrl;
 
-/*
- * Explicitly ask the browser to begin loading
- * the sound as soon as this module executes.
- */
+releaseAudio.preload = 'auto';
+releaseAudio.volume = 0.25;
+releaseAudio.src = releaseUrl;
+
+denyAudio.preload = 'auto';
+denyAudio.volume = 0.25;
+denyAudio.src = denyUrl;
 
 rolloverAudio.load();
+releaseAudio.load();
+denyAudio.load();
 
 
 /*
- * LOADING STATE
+ * ROLLOVER READINESS
+ *
+ * Rollover can be requested immediately after
+ * the page becomes interactive, so preserve the
+ * existing preload handling for that sound.
  */
 
 let rolloverReady =
@@ -54,16 +83,6 @@ let rolloverReady =
   HTMLMediaElement.HAVE_CURRENT_DATA;
 
 let pendingRollover = false;
-
-
-/*
- * Once enough audio exists to begin playback,
- * mark the sound as ready.
- *
- * If somebody already hovered a control while
- * the file was loading, play that rollover now
- * rather than silently losing the first one.
- */
 
 const markRolloverReady = () => {
   rolloverReady = true;
@@ -80,12 +99,14 @@ const markRolloverReady = () => {
 rolloverAudio.addEventListener(
   'canplay',
   markRolloverReady,
-  { once: true }
+  {
+    once: true,
+  }
 );
 
 
 /*
- * TARGET DETECTION
+ * CONTROL LOOKUP
  */
 
 const getUiTarget = (
@@ -102,55 +123,76 @@ const getUiTarget = (
 
 
 /*
- * EXCLUSIONS
+ * SOUND OPT-OUT
  */
 
-const shouldPlaySound = (
+const hasSoundDisabled = (
   element: HTMLElement
 ) => {
-  /*
-   * Explicit opt-out.
-   */
-
-  if (
+  return Boolean(
     element.closest(
       '[data-ui-sound="off"]'
     )
-  ) {
-    return false;
-  }
+  );
+};
 
 
-  /*
-   * Scout stays undisclosed.
-   */
+/*
+ * GLOBAL EXCLUSIONS
+ *
+ * Scout has its own audio behaviour.
+ */
 
-  if (
-    element.matches(
-      '.scout-button'
-    )
-  ) {
-    return false;
-  }
+const isExcludedControl = (
+  element: HTMLElement
+) => {
+  return element.matches(
+    '.scout-button'
+  );
+};
 
 
-  /*
-   * Disabled controls shouldn't provide
-   * interactive feedback.
-   */
+/*
+ * DISABLED STATE
+ *
+ * Support both native disabled buttons and
+ * aria-disabled controls.
+ */
 
+const isDisabledControl = (
+  element: HTMLElement
+) => {
   if (
     element instanceof
       HTMLButtonElement &&
     element.disabled
   ) {
+    return true;
+  }
+
+  return (
+    element.getAttribute(
+      'aria-disabled'
+    ) === 'true'
+  );
+};
+
+
+/*
+ * GENERAL ELIGIBILITY
+ */
+
+const canUseUiSound = (
+  element: HTMLElement
+) => {
+  if (
+    hasSoundDisabled(element)
+  ) {
     return false;
   }
 
   if (
-    element.getAttribute(
-      'aria-disabled'
-    ) === 'true'
+    isExcludedControl(element)
   ) {
     return false;
   }
@@ -160,64 +202,59 @@ const shouldPlaySound = (
 
 
 /*
- * PLAYBACK
+ * SOUND PLAYBACK
  */
 
-function playRollover() {
-  /*
-   * If the asset hasn't loaded enough to play
-   * yet, remember that a rollover happened.
-   *
-   * canplay will handle it as soon as the sound
-   * becomes available.
-   */
+const restartAudio = (
+  audio: HTMLAudioElement
+) => {
+  audio.pause();
+  audio.currentTime = 0;
 
+  audio
+    .play()
+    .catch(() => {});
+};
+
+function playRollover() {
   if (!rolloverReady) {
     pendingRollover = true;
+
     return;
   }
 
-
-  /*
-   * Rewind the existing instance rather than
-   * creating a new Audio object every time.
-   */
-
-  rolloverAudio.pause();
-  rolloverAudio.currentTime = 0;
-
-  rolloverAudio
-    .play()
-    .catch(() => {
-      /*
-       * Audio feedback is optional UI polish.
-       *
-       * If playback is refused for any reason,
-       * navigation and interaction continue
-       * normally.
-       */
-    });
+  restartAudio(
+    rolloverAudio
+  );
 }
+
+const playRelease = () => {
+  restartAudio(
+    releaseAudio
+  );
+};
+
+const playDeny = () => {
+  restartAudio(
+    denyAudio
+  );
+};
 
 
 /*
- * POINTER DELEGATION
+ * ROLLOVER
  *
- * pointerover bubbles, which means this works
- * automatically for UI that appears later,
- * including Support's internal mini-pages.
+ * Mouse and pen only.
+ *
+ * Moving between children inside the same
+ * control does not replay the sound.
+ *
+ * Disabled controls remain silent on hover.
  */
 
 document.addEventListener(
   'pointerover',
   (event) => {
-    /*
-     * Touch doesn't really have hover.
-     *
-     * Mouse and pen are the useful rollover
-     * cases here.
-     */
-
     if (
       event.pointerType &&
       event.pointerType !== 'mouse' &&
@@ -233,25 +270,11 @@ document.addEventListener(
 
     if (
       !target ||
-      !shouldPlaySound(target)
+      !canUseUiSound(target) ||
+      isDisabledControl(target)
     ) {
       return;
     }
-
-
-    /*
-     * pointerover also fires while moving
-     * between children of the same control.
-     *
-     * Example:
-     *
-     *   button
-     *     icon
-     *     span
-     *
-     * Moving icon -> span should NOT make the
-     * rollover sound play again.
-     */
 
     const previousTarget =
       getUiTarget(
@@ -266,5 +289,72 @@ document.addEventListener(
 
     playRollover();
   },
-  { passive: true }
+  {
+    passive: true,
+  }
+);
+
+
+/*
+ * DENIED ACTIVATION
+ *
+ * Native disabled buttons do not emit normal
+ * click events, so detect the attempted input
+ * earlier with pointerdown.
+ */
+
+document.addEventListener(
+  'pointerdown',
+  (event) => {
+    const target =
+      getUiTarget(
+        event.target
+      );
+
+    if (
+      !target ||
+      !canUseUiSound(target)
+    ) {
+      return;
+    }
+
+    if (
+      !isDisabledControl(target)
+    ) {
+      return;
+    }
+
+    playDeny();
+  }
+);
+
+
+/*
+ * SUCCESSFUL ACTIVATION
+ *
+ * Click represents a completed activation,
+ * giving the interface a distinct release sound.
+ *
+ * Keyboard-triggered clicks receive the same
+ * feedback automatically.
+ */
+
+document.addEventListener(
+  'click',
+  (event) => {
+    const target =
+      getUiTarget(
+        event.target
+      );
+
+    if (
+      !target ||
+      !canUseUiSound(target) ||
+      isDisabledControl(target)
+    ) {
+      return;
+    }
+
+    playRelease();
+  }
 );
