@@ -1,0 +1,66 @@
+---
+import '../../styles/ui/admonition.css';
+
+interface Props {
+  type?:
+    | 'note'
+    | 'tip'
+    | 'important'
+    | 'warning'
+    | 'caution';
+
+  title?: string;
+}
+
+const {
+  type = 'note',
+  title,
+} = Astro.props;
+
+const labels = {
+  note: 'NOTE',
+  tip: 'TIP',
+  important: 'IMPORTANT',
+  warning: 'WARNING',
+  caution: 'CAUTION',
+};
+
+const icons = {
+  note: 'ph-info',
+  tip: 'ph-lightbulb',
+  important: 'ph-chat-circle-dots',
+  warning: 'ph-warning',
+  caution: 'ph-warning-octagon',
+};
+---
+
+<aside
+  class:list={[
+    'admonition',
+    `admonition-${type}`,
+  ]}
+  role={
+    type === 'warning' ||
+    type === 'caution'
+      ? 'alert'
+      : 'note'
+  }
+>
+  <div class="admonition-heading">
+    <i
+      class:list={[
+        'ph',
+        icons[type],
+      ]}
+      aria-hidden="true"
+    ></i>
+
+    <span>
+      {title ?? labels[type]}
+    </span>
+  </div>
+
+  <div class="admonition-content">
+    <slot />
+  </div>
+</aside>

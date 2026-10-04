@@ -1,0 +1,185 @@
+/*
+ * ADMONITIONS
+ *
+ * Reusable informational blocks inspired by
+ * Markdown / GitHub-style callouts.
+ *
+ * Black remains the canvas. Accent colors are
+ * reserved for semantic meaning.
+ */
+
+.admonition {
+  --admonition-accent: #89b4fa;
+
+  width: 100%;
+
+  padding:
+    0.9rem
+    1rem;
+
+  border-left:
+    3px
+    solid
+    var(--admonition-accent);
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.025
+    );
+
+  color:
+    var(--color-fg);
+}
+
+
+/*
+ * TYPES
+ *
+ * Catppuccin Mocha semantic accents.
+ */
+
+.admonition-note {
+  --admonition-accent:
+    #89b4fa;
+}
+
+.admonition-tip {
+  --admonition-accent:
+    #a6e3a1;
+}
+
+.admonition-important {
+  --admonition-accent:
+    #cba6f7;
+}
+
+.admonition-warning {
+  --admonition-accent:
+    #f9e2af;
+}
+
+.admonition-caution {
+  --admonition-accent:
+    #f38ba8;
+}
+
+
+/*
+ * HEADING
+ */
+
+.admonition-heading {
+  display: flex;
+  align-items: center;
+
+  gap: 0.45rem;
+
+  margin-bottom: 0.55rem;
+
+  color:
+    var(--admonition-accent);
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  letter-spacing: 0.035em;
+}
+
+.admonition-heading i {
+  flex: 0 0 auto;
+
+  font-size: 1rem;
+}
+
+
+/*
+ * CONTENT
+ */
+
+.admonition-content {
+  color:
+    var(--color-fg);
+}
+
+.admonition-content p {
+  max-width: 58ch;
+
+  margin: 0;
+
+  font-family:
+    "Inter Variable",
+    sans-serif;
+
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.admonition-content
+  p + p {
+  margin-top: 0.65rem;
+}
+
+
+/*
+ * LINKS
+ */
+
+.admonition-content a {
+  position: relative;
+
+  color: inherit;
+
+  text-decoration: none;
+}
+
+.admonition-content
+  a::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  bottom: -0.1rem;
+
+  width: 100%;
+  height: 1px;
+
+  background: currentColor;
+
+  transform: scaleX(0);
+  transform-origin: left;
+
+  transition:
+    transform
+    0.1s
+    ease-out;
+}
+
+.admonition-content
+  a:hover::after,
+.admonition-content
+  a:focus-visible::after {
+  transform: scaleX(1);
+}
+
+
+/*
+ * REDUCED MOTION
+ */
+
+@media (
+  prefers-reduced-motion:
+    reduce
+) {
+  .admonition-content
+    a::after {
+    transition: none;
+  }
+}

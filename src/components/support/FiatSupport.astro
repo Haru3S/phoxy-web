@@ -1,0 +1,312 @@
+---
+import Admonition from '../ui/Admonition.astro';
+
+import '../../styles/support/fiatSupport.css';
+---
+
+<section
+  class="support-view fiat-support"
+  data-support-page="fiat"
+  data-fiat-support
+  aria-hidden="true"
+>
+  <header class="detail-toolbar">
+    <button
+      class="back-button"
+      type="button"
+      data-support-back
+    >
+      <i
+        class="ph ph-arrow-left"
+        aria-hidden="true"
+      ></i>
+
+      <span>Back</span>
+    </button>
+
+    <span>FIAT / STRIPE</span>
+  </header>
+
+  <div class="detail-heading">
+    <h1>
+      <span
+        class="lens-text lens-interactive"
+        data-text="Fiat"
+      >
+        Fiat
+      </span>
+    </h1>
+
+    <p>
+      Support me with a card or digital wallet.
+      Payments are processed securely through
+      Stripe.
+    </p>
+  </div>
+
+  <section class="fiat-content">
+    <div
+      class="fiat-step"
+      data-fiat-step="identity"
+      aria-hidden="false"
+    >
+      <div class="fiat-step-heading">
+        <span class="fiat-step-index">
+          01 / 02
+        </span>
+
+        <h2>
+          Whatcha' Be Called
+        </h2>
+
+        <p>
+          Choose the name that'll represent you on
+          the supporter leaderboard.
+        </p>
+      </div>
+
+      <div class="fiat-identity">
+        <label
+          class="fiat-field"
+          for="support-display-name"
+        >
+          <span>
+            DISPLAY NAME
+          </span>
+
+          <input
+            id="support-display-name"
+            name="displayName"
+            type="text"
+            minlength="2"
+            maxlength="24"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="CoolFox123"
+            aria-describedby="
+              support-display-name-help
+              support-display-name-error
+            "
+            data-fiat-display-name
+          />
+        </label>
+
+        <span
+          class="fiat-field-help"
+          id="support-display-name-help"
+        >
+          2–24 characters. This is public and does
+          not need to match your payment information.
+        </span>
+
+        <span
+          class="fiat-field-error"
+          id="support-display-name-error"
+          data-fiat-name-error
+          aria-live="polite"
+          hidden
+        ></span>
+
+        <Admonition type="note">
+          <p>
+            I don't use accounts or track personal
+            data to identify returning supporters.
+            Because of that, support using the same
+            display name is treated as coming from
+            the same supporter and combined on the
+            leaderboard.
+          </p>
+        </Admonition>
+
+        <div class="fiat-actions">
+          <button
+            class="fiat-primary-action"
+            type="button"
+            data-fiat-continue
+          >
+            <span>
+              CONTINUE
+            </span>
+
+            <i
+              class="ph ph-arrow-right"
+              aria-hidden="true"
+            ></i>
+          </button>
+
+          <button
+            class="fiat-skip-action"
+            type="button"
+            data-fiat-anonymous
+          >
+            SKIP / STAY ANONYMOUS
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="fiat-step"
+      data-fiat-step="amount"
+      aria-hidden="true"
+      hidden
+    >
+      <div class="fiat-step-heading">
+        <span class="fiat-step-index">
+          02 / 02
+        </span>
+
+        <h2>
+          Choose An Amount
+        </h2>
+
+        <p class="fiat-supporting-as">
+          Supporting as <strong data-fiat-supporter-name>ANONYMOUS</strong>.
+        </p>
+      </div>
+
+      <div class="fiat-amount">
+        <button
+          class="fiat-amount-back"
+          type="button"
+          data-fiat-amount-back
+        >
+          <i
+            class="ph ph-arrow-left"
+            aria-hidden="true"
+          ></i>
+
+          <span>
+            CHANGE DISPLAY NAME
+          </span>
+        </button>
+
+        <div
+          class="fiat-amount-options"
+          aria-label="Choose support amount"
+        >
+          <button
+            class="fiat-amount-option"
+            type="button"
+            data-fiat-amount="5"
+          >
+            <span>$5</span>
+            <small>USD</small>
+          </button>
+
+          <button
+            class="fiat-amount-option"
+            type="button"
+            data-fiat-amount="10"
+          >
+            <span>$10</span>
+            <small>USD</small>
+          </button>
+
+          <button
+            class="fiat-amount-option"
+            type="button"
+            data-fiat-amount="20"
+          >
+            <span>$20</span>
+            <small>USD</small>
+          </button>
+
+          <button
+            class="fiat-amount-option"
+            type="button"
+            data-fiat-amount="50"
+          >
+            <span>$50</span>
+            <small>USD</small>
+          </button>
+        </div>
+
+        <div class="fiat-custom-amount">
+          <label
+            class="fiat-field"
+            for="support-custom-amount"
+          >
+            <span>
+              CUSTOM AMOUNT
+            </span>
+
+            <div class="fiat-money-input">
+              <span
+                class="fiat-currency-symbol"
+                aria-hidden="true"
+              >
+                $
+              </span>
+
+              <input
+                id="support-custom-amount"
+                name="amount"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                placeholder="0.00"
+                aria-describedby="
+                  support-amount-help
+                  support-amount-error
+                "
+                data-fiat-custom-amount
+              />
+
+              <span class="fiat-currency-code">
+                USD
+              </span>
+            </div>
+          </label>
+
+          <span
+            class="fiat-field-help"
+            id="support-amount-help"
+          >
+            Minimum support amount is $1.00 USD.
+          </span>
+
+          <span
+            class="fiat-field-error"
+            id="support-amount-error"
+            data-fiat-amount-error
+            aria-live="polite"
+            hidden
+          ></span>
+        </div>
+
+        <div class="fiat-checkout-summary">
+          <div class="fiat-checkout-total">
+            <span>
+              SUPPORT AMOUNT
+            </span>
+
+            <strong data-fiat-selected-amount>
+              $0.00
+            </strong>
+          </div>
+
+          <button
+            class="fiat-checkout-button"
+            type="button"
+            data-fiat-checkout
+            disabled
+          >
+            <span>
+              CONTINUE TO STRIPE
+            </span>
+
+            <i
+              class="ph ph-arrow-up-right"
+              aria-hidden="true"
+            ></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
+
+<script>
+  import '../../scripts/fiatSupport.ts';
+</script>

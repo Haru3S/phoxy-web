@@ -1,0 +1,612 @@
+/*
+ * FIAT SUPPORT
+ */
+
+.fiat-support {
+  display: none;
+
+  width: 100%;
+
+  padding: 0.75rem;
+}
+
+.fiat-support.is-active {
+  display: block;
+}
+
+.fiat-step[hidden] {
+  display: none;
+}
+
+
+/*
+ * TOOLBAR
+ */
+
+.fiat-support
+  .detail-toolbar {
+  position: relative;
+  z-index: 10;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 1rem;
+
+  margin-bottom:
+    clamp(
+      1.5rem,
+      2.5vh,
+      2.25rem
+    );
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  user-select: none;
+}
+
+.fiat-support
+  .back-button {
+  display: flex;
+  align-items: center;
+
+  gap: 0.45rem;
+
+  padding: 0.55rem 0.65rem;
+  margin: -0.55rem -0.65rem;
+
+  border: 0;
+
+  background: transparent;
+  color: var(--color-fg);
+
+  font: inherit;
+
+  cursor: pointer;
+}
+
+.fiat-support
+  .back-button span {
+  position: relative;
+}
+
+.fiat-support
+  .back-button
+  span::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  bottom: -0.15rem;
+
+  width: 100%;
+  height: 1px;
+
+  background: currentColor;
+
+  transform: scaleX(0);
+  transform-origin: left;
+
+  transition:
+    transform
+    0.1s
+    ease-out;
+}
+
+.fiat-support
+  .back-button:hover
+  span::after,
+.fiat-support
+  .back-button:focus-visible
+  span::after {
+  transform: scaleX(1);
+}
+
+
+/*
+ * PAGE HEADING
+ */
+
+.fiat-support
+  .detail-heading {
+  margin-bottom:
+    clamp(
+      2.5rem,
+      5vh,
+      4rem
+    );
+}
+
+.fiat-support
+  .detail-heading h1 {
+  margin:
+    0
+    0
+    clamp(
+      3rem,
+      7vh,
+      6rem
+    );
+
+  font-family:
+    "Space Grotesk Variable",
+    sans-serif;
+
+  font-size:
+    clamp(
+      5rem,
+      9vw,
+      10rem
+    );
+
+  font-weight: 700;
+  line-height: 0.78;
+  letter-spacing: -0.06em;
+}
+
+.fiat-support
+  .detail-heading p {
+  max-width: 36rem;
+
+  margin: 0;
+
+  font-family:
+    "Inter Variable",
+    sans-serif;
+
+  font-size:
+    clamp(
+      1.1rem,
+      1.5vw,
+      1.55rem
+    );
+
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+}
+
+
+/*
+ * CONTENT
+ */
+
+.fiat-content {
+  width: 100%;
+
+  padding-top: 1rem;
+
+  border-top:
+    1px
+    solid
+    var(--color-border);
+}
+
+
+/*
+ * STEP HEADING
+ */
+
+.fiat-step-heading {
+  margin-bottom: 1.5rem;
+}
+
+.fiat-step-index {
+  display: block;
+
+  margin-bottom: 0.6rem;
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  opacity: 0.45;
+}
+
+.fiat-step-heading h2 {
+  margin:
+    0
+    0
+    0.65rem;
+
+  font-family:
+    "Space Grotesk Variable",
+    sans-serif;
+
+  font-size:
+    clamp(
+      2.2rem,
+      4vw,
+      4.75rem
+    );
+
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+}
+
+.fiat-step-heading p {
+  max-width: 46ch;
+
+  margin: 0;
+
+  font-family:
+    "Inter Variable",
+    sans-serif;
+
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+
+.fiat-step-heading strong {
+  font-weight: 700;
+}
+
+
+/*
+ * IDENTITY
+ */
+
+.fiat-identity {
+  display: flex;
+  flex-direction: column;
+
+  gap: 0.75rem;
+}
+
+
+/*
+ * DISPLAY NAME
+ */
+
+.fiat-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 0.5rem;
+
+  width: 100%;
+}
+
+.fiat-field > span {
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.fiat-field input {
+  width: 100%;
+
+  padding:
+    0.9rem
+    0.95rem;
+
+  border:
+    1px
+    solid
+    var(--color-border);
+
+  border-radius: 0;
+
+  outline: none;
+
+  background: transparent;
+  color: var(--color-fg);
+
+  font-family:
+    "Space Grotesk Variable",
+    sans-serif;
+
+  font-size:
+    clamp(
+      1.25rem,
+      2vw,
+      1.8rem
+    );
+
+  font-weight: 600;
+
+  transition:
+    border-color
+    0.1s
+    ease-out,
+    background
+    0.1s
+    ease-out;
+}
+
+.fiat-field input:hover,
+.fiat-field input:focus {
+  border-color:
+    rgba(
+      255,
+      255,
+      255,
+      0.65
+    );
+
+  background:
+    var(--color-hover);
+}
+
+.fiat-field
+  input[aria-invalid="true"] {
+  border-color: #f38ba8;
+}
+
+.fiat-field input::placeholder {
+  color: var(--color-fg);
+
+  opacity: 0.25;
+}
+
+.fiat-field-help,
+.fiat-field-error {
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.fiat-field-help {
+  opacity: 0.5;
+}
+
+.fiat-field-error {
+  color: #f38ba8;
+}
+
+
+/*
+ * ACTIONS
+ */
+
+.fiat-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 1rem;
+
+  margin-top: 0.5rem;
+}
+
+.fiat-primary-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 2rem;
+
+  min-width: 14rem;
+
+  padding:
+    0.85rem
+    1rem;
+
+  border:
+    1px
+    solid
+    var(--color-fg);
+
+  background:
+    var(--color-fg);
+
+  color:
+    var(--color-bg);
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.fiat-primary-action i {
+  font-size: 1.1rem;
+
+  transition:
+    transform
+    0.1s
+    ease-out;
+}
+
+.fiat-primary-action:hover i,
+.fiat-primary-action:focus-visible i {
+  transform:
+    translateX(
+      0.2rem
+    );
+}
+
+.fiat-skip-action,
+.fiat-amount-back {
+  position: relative;
+
+  width: fit-content;
+
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
+  color: var(--color-fg);
+
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  opacity: 0.65;
+
+  cursor: pointer;
+}
+
+.fiat-skip-action::after,
+.fiat-amount-back span::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  bottom: -0.15rem;
+
+  width: 100%;
+  height: 1px;
+
+  background: currentColor;
+
+  transform: scaleX(0);
+  transform-origin: left;
+
+  transition:
+    transform
+    0.1s
+    ease-out;
+}
+
+.fiat-skip-action:hover::after,
+.fiat-skip-action:focus-visible::after,
+.fiat-amount-back:hover
+  span::after,
+.fiat-amount-back:focus-visible
+  span::after {
+  transform: scaleX(1);
+}
+
+
+/*
+ * AMOUNT STEP
+ */
+
+.fiat-amount {
+  display: flex;
+  flex-direction: column;
+
+  gap: 1.5rem;
+}
+
+.fiat-amount-back {
+  display: flex;
+  align-items: center;
+
+  gap: 0.4rem;
+}
+
+.fiat-amount-back span {
+  position: relative;
+}
+
+.fiat-amount-placeholder {
+  display: flex;
+  flex-direction: column;
+
+  gap: 0.5rem;
+
+  min-height: 12rem;
+
+  padding: 1rem;
+
+  border:
+    1px
+    solid
+    var(--color-border);
+
+  justify-content: center;
+}
+
+.fiat-amount-placeholder > span {
+  font-family:
+    "Adwaita Mono",
+    monospace;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  opacity: 0.45;
+}
+
+.fiat-amount-placeholder p {
+  margin: 0;
+
+  font-family:
+    "Inter Variable",
+    sans-serif;
+
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+
+
+/*
+ * REDUCED MOTION
+ */
+
+@media (
+  prefers-reduced-motion:
+    reduce
+) {
+  .fiat-support
+    .back-button
+    span::after,
+  .fiat-primary-action i,
+  .fiat-skip-action::after,
+  .fiat-amount-back
+    span::after,
+  .fiat-field input {
+    transition: none;
+  }
+}
+
+
+/*
+ * MOBILE
+ */
+
+@media (max-width: 700px) {
+  .fiat-support
+    .detail-toolbar {
+    margin-bottom: 1.5rem;
+  }
+
+  .fiat-support
+    .detail-heading h1 {
+    font-size:
+      clamp(
+        4.5rem,
+        22vw,
+        8rem
+      );
+  }
+
+  .fiat-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .fiat-primary-action {
+    width: 100%;
+  }
+
+  .fiat-skip-action {
+    width: fit-content;
+  }
+}

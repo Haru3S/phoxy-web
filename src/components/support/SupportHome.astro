@@ -27,10 +27,8 @@ import '../../styles/supportHome.css';
     </p>
 
     <p>
-      Support is completely optional. Some methods
-      work directly right now, while others need
-      server-side infrastructure before I can safely
-      enable them.
+      Support is completely optional. Pick whichever
+      method works best for you.
     </p>
   </div>
 
@@ -41,10 +39,48 @@ import '../../styles/supportHome.css';
     <button
       class="support-method"
       type="button"
-      data-open-support-page="crypto"
+      data-open-support-page="fiat"
     >
       <span class="method-index">
         01
+      </span>
+
+      <span class="method-content">
+        <span class="method-heading">
+          <span class="method-title">
+            Fiat
+          </span>
+
+          <span class="method-status">
+            AVAILABLE
+          </span>
+        </span>
+
+        <span class="method-description">
+          Support with a card or digital wallet
+          through Stripe.
+        </span>
+
+        <span class="method-meta">
+          STRIPE / USD + INTERNATIONAL
+        </span>
+      </span>
+
+      <span
+        class="method-icon"
+        aria-hidden="true"
+      >
+        <i class="ph ph-arrow-right"></i>
+      </span>
+    </button>
+
+    <button
+      class="support-method"
+      type="button"
+      data-open-support-page="crypto"
+    >
+      <span class="method-index">
+        02
       </span>
 
       <span class="method-content">
@@ -83,7 +119,7 @@ import '../../styles/supportHome.css';
       data-open-support-page="tf2"
     >
       <span class="method-index">
-        02
+        03
       </span>
 
       <span class="method-content">
@@ -113,46 +149,6 @@ import '../../styles/supportHome.css';
         aria-hidden="true"
       >
         <i class="ph ph-arrow-right"></i>
-      </span>
-    </button>
-
-    <button
-      class="support-method is-disabled"
-      type="button"
-      aria-disabled="true"
-      aria-label="Fiat support is currently offline"
-    >
-      <span class="method-index">
-        03
-      </span>
-
-      <span class="method-content">
-        <span class="method-heading">
-          <span class="method-title">
-            Fiat
-          </span>
-
-          <span class="method-status offline">
-            OFFLINE
-          </span>
-        </span>
-
-        <span class="method-description">
-          Card and international currency support
-          requires secure server-side payment
-          processing and is not connected yet.
-        </span>
-
-        <span class="method-meta">
-          USD + INTERNATIONAL / BACKEND REQUIRED
-        </span>
-      </span>
-
-      <span
-        class="method-icon"
-        aria-hidden="true"
-      >
-        <i class="ph ph-credit-card"></i>
       </span>
     </button>
   </section>
