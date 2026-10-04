@@ -8,12 +8,16 @@ import Projects from '../components/projects/Projects.astro';
 import Work from '../components/work/Work.astro';
 import Contact from '../components/contact/Contact.astro';
 import Gallery from '../components/gallery/Gallery.astro';
+import Footer from '../components/footer/Footer.astro';
 
 import '../styles/index.css';
 ---
 
 <Layout title="Phoxy">
-  <main class="home-load-enter">
+  <main
+    id="top"
+    class="home-load-enter"
+  >
     <!-- Hero -->
     <div class="home-load-motion">
       <Hero />
@@ -43,6 +47,9 @@ import '../styles/index.css';
 
     <!-- Gallery -->
     <Gallery />
+
+    <!-- Footer -->
+    <Footer />
   </main>
 </Layout>
 
