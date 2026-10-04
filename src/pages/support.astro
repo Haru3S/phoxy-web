@@ -7,6 +7,8 @@ import SupportVisual from '../components/support/SupportVisual.astro';
 import SupportHome from '../components/support/SupportHome.astro';
 import CryptoSupport from '../components/support/CryptoSupport.astro';
 import TF2Support from '../components/support/TF2Support.astro';
+
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/';
 ---
 
 <Layout title="Support — Phoxy">
@@ -72,12 +74,12 @@ import TF2Support from '../components/support/TF2Support.astro';
       <PageNav
         first={{
           label: 'Links',
-          href: '/links',
+          href: `${base}links`,
           icon: 'link',
         }}
         second={{
           label: 'Home',
-          href: '/',
+          href: base,
           icon: 'house',
         }}
       />

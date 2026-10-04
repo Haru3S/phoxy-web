@@ -1,5 +1,9 @@
+---
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/';
+---
+
 <nav class="main-nav" aria-label="Primary navigation">
-  <a href="/#contact">
+  <a href={`${base}#contact`}>
     <span class="nav-label">Contact</span>
 
     <span class="nav-icon" aria-hidden="true">
@@ -7,7 +11,7 @@
     </span>
   </a>
 
-  <a href="/links">
+  <a href={`${base}links`}>
     <span class="nav-label">Links</span>
 
     <span class="nav-icon" aria-hidden="true">
@@ -15,7 +19,7 @@
     </span>
   </a>
 
-  <a href="/support">
+  <a href={`${base}support`}>
     <span class="nav-label">Support</span>
 
     <span class="nav-icon" aria-hidden="true">

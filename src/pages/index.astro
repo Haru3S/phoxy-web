@@ -17,6 +17,8 @@ import { projects } from '../data/projects';
 
 import { gallery } from '../data/gallery';
 
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/';
+
 const sortedGallery = [...gallery].sort(
   (a, b) =>
     new Date(`${b.date}T00:00:00`).getTime() -
@@ -35,7 +37,7 @@ const sortedGallery = [...gallery].sort(
     <section id="about" class="about">
       <div class="about-art">
         <img
-          src="/assets/animations/fc3s.gif"
+          src={`${base}assets/animations/fc3s.gif`}
           alt=""
         />
       </div>

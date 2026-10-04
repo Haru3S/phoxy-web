@@ -5,6 +5,8 @@ import LinkVisual from '../components/links/LinkVisual.astro';
 import PageNav from '../components/navigation/PageNav.astro';
 
 import { links } from '../data/links';
+
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/';
 ---
 
 <Layout title="Links — Phoxy">
@@ -75,12 +77,12 @@ import { links } from '../data/links';
       <PageNav
         first={{
           label: 'Support',
-          href: '/support',
+          href: `${base}support`,
           icon: 'tip-jar',
         }}
         second={{
           label: 'Home',
-          href: '/',
+          href: base,
           icon: 'house',
         }}
       />

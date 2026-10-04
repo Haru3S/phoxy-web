@@ -1,3 +1,7 @@
+---
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/';
+---
+
 <section
   class="hero"
   aria-labelledby="hero-title"
@@ -8,13 +12,13 @@
 
     <img
       class="hero-layer hero-wall"
-      src="/assets/hero/wall-texture.webp"
+      src={`${base}assets/hero/wall-texture.webp`}
       alt=""
     />
 
     <img
       class="hero-layer hero-graffiti"
-      src="/assets/hero/phoxy-graffiti.webp"
+      src={`${base}assets/hero/phoxy-graffiti.webp`}
       alt=""
     />
 
@@ -25,7 +29,7 @@
     >
       <img
         class="hero-layer hero-scout"
-        src="/assets/hero/scout.webp"
+        src={`${base}assets/hero/scout.webp`}
         alt=""
       />
     </button>
