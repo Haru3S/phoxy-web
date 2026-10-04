@@ -31,10 +31,57 @@ const rolloverUrl =
  */
 
 const rolloverAudio =
-  new Audio(rolloverUrl);
+  new Audio();
 
-rolloverAudio.volume = 0.2;
 rolloverAudio.preload = 'auto';
+rolloverAudio.volume = 0.2;
+rolloverAudio.src = rolloverUrl;
+
+/*
+ * Explicitly ask the browser to begin loading
+ * the sound as soon as this module executes.
+ */
+
+rolloverAudio.load();
+
+
+/*
+ * LOADING STATE
+ */
+
+let rolloverReady =
+  rolloverAudio.readyState >=
+  HTMLMediaElement.HAVE_CURRENT_DATA;
+
+let pendingRollover = false;
+
+
+/*
+ * Once enough audio exists to begin playback,
+ * mark the sound as ready.
+ *
+ * If somebody already hovered a control while
+ * the file was loading, play that rollover now
+ * rather than silently losing the first one.
+ */
+
+const markRolloverReady = () => {
+  rolloverReady = true;
+
+  if (!pendingRollover) {
+    return;
+  }
+
+  pendingRollover = false;
+
+  playRollover();
+};
+
+rolloverAudio.addEventListener(
+  'canplay',
+  markRolloverReady,
+  { once: true }
+);
 
 
 /*
@@ -116,7 +163,21 @@ const shouldPlaySound = (
  * PLAYBACK
  */
 
-const playRollover = () => {
+function playRollover() {
+  /*
+   * If the asset hasn't loaded enough to play
+   * yet, remember that a rollover happened.
+   *
+   * canplay will handle it as soon as the sound
+   * becomes available.
+   */
+
+  if (!rolloverReady) {
+    pendingRollover = true;
+    return;
+  }
+
+
   /*
    * Rewind the existing instance rather than
    * creating a new Audio object every time.
@@ -129,14 +190,14 @@ const playRollover = () => {
     .play()
     .catch(() => {
       /*
-       * Browsers control autoplay permissions.
+       * Audio feedback is optional UI polish.
        *
-       * If playback is refused, silently ignore
-       * it. We intentionally don't maintain our
-       * own second "unlocked" state.
+       * If playback is refused for any reason,
+       * navigation and interaction continue
+       * normally.
        */
     });
-};
+}
 
 
 /*
