@@ -1,4 +1,250 @@
-<section class="supporters">
+---
+import type {
+  SupporterRecord,
+} from '../../data/support/supporterTypes';
+
+import {
+  canAppearInAmount,
+  canAppearInRecent,
+  canAppearInTotal,
+  getPublicDisplayName,
+} from '../../lib/support/supporterPrivacy';
+
+import '../../styles/support/supporterDisplay.css';
+
+/*
+ * TEMPORARY DEVELOPMENT DATA
+ *
+ * This is deliberately shaped like the eventual
+ * normalized backend response.
+ *
+ * Stripe and crypto will both become producers of
+ * this same record format.
+ *
+ * Delete these records once the supporter API is
+ * connected.
+ */
+
+const supporterRecords: SupporterRecord[] = [
+  {
+    id: 'mock-stripe-001',
+    displayName: 'PhoxyFan',
+    anonymous: false,
+    amountUsd: 20,
+    source: 'stripe',
+    asset: 'usd',
+    nativeAmount: '20.00',
+    supportedAt: '2026-10-04T20:15:00.000Z',
+    verified: true,
+    moderationStatus: 'approved',
+    moderationReason: null,
+  },
+  {
+    id: 'mock-ltc-001',
+    displayName: 'Kalli',
+    anonymous: false,
+    amountUsd: 12.48,
+    source: 'crypto',
+    asset: 'ltc',
+    nativeAmount: '0.127',
+    supportedAt: '2026-10-03T17:42:00.000Z',
+    verified: true,
+    moderationStatus: 'approved',
+    moderationReason: null,
+  },
+  {
+    id: 'mock-stripe-002',
+    displayName: null,
+    anonymous: true,
+    amountUsd: 10,
+    source: 'stripe',
+    asset: 'usd',
+    nativeAmount: '10.00',
+    supportedAt: '2026-10-02T22:08:00.000Z',
+    verified: true,
+    moderationStatus: 'approved',
+    moderationReason: null,
+  },
+  {
+    id: 'mock-btc-001',
+    displayName: 'FoxFriend',
+    anonymous: false,
+    amountUsd: 32.16,
+    source: 'crypto',
+    asset: 'btc',
+    nativeAmount: '0.0003',
+    supportedAt: '2026-10-01T19:30:00.000Z',
+    verified: true,
+    moderationStatus: 'approved',
+    moderationReason: null,
+  },
+  {
+    id: 'mock-stripe-003',
+    displayName: 'PhoxyFan',
+    anonymous: false,
+    amountUsd: 5,
+    source: 'stripe',
+    asset: 'usd',
+    nativeAmount: '5.00',
+    supportedAt: '2026-09-30T16:10:00.000Z',
+    verified: true,
+    moderationStatus: 'approved',
+    moderationReason: null,
+  },
+  {
+    id: 'mock-sol-001',
+    displayName: null,
+    anonymous: true,
+    amountUsd: 8.72,
+    source: 'crypto',
+    asset: 'sol',
+    nativeAmount: '0.04',
+    supportedAt: '2026-09-29T21:25:00.000Z',
+    verified: true,
+    moderationStatus: 'approved',
+    moderationReason: null,
+  },
+];
+
+const recentRecords =
+  supporterRecords
+    .filter(canAppearInRecent)
+    .sort(
+      (a, b) =>
+        new Date(b.supportedAt).getTime() -
+        new Date(a.supportedAt).getTime()
+    );
+
+const amountRecords =
+  supporterRecords
+    .filter(canAppearInAmount)
+    .sort(
+      (a, b) =>
+        b.amountUsd - a.amountUsd
+    );
+
+const totalsMap =
+  new Map<
+    string,
+    {
+      key: string;
+      displayName: string;
+      totalUsd: number;
+      contributionCount: number;
+      latestSupportAt: string;
+    }
+  >();
+
+for (
+  const record of supporterRecords.filter(
+    canAppearInTotal
+  )
+) {
+  const displayName =
+    getPublicDisplayName(record);
+
+  const key =
+    displayName.toLowerCase();
+
+  const existing =
+    totalsMap.get(key);
+
+  if (!existing) {
+    totalsMap.set(
+      key,
+      {
+        key,
+        displayName,
+        totalUsd:
+          record.amountUsd,
+        contributionCount: 1,
+        latestSupportAt:
+          record.supportedAt,
+      }
+    );
+
+    continue;
+  }
+
+  existing.totalUsd +=
+    record.amountUsd;
+
+  existing.contributionCount += 1;
+
+  if (
+    new Date(
+      record.supportedAt
+    ).getTime() >
+    new Date(
+      existing.latestSupportAt
+    ).getTime()
+  ) {
+    existing.latestSupportAt =
+      record.supportedAt;
+  }
+}
+
+const totalRecords =
+  Array.from(
+    totalsMap.values()
+  ).sort(
+    (a, b) =>
+      b.totalUsd - a.totalUsd
+  );
+
+function formatUsd(
+  amount: number
+): string {
+  return new Intl.NumberFormat(
+    'en-US',
+    {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }
+  ).format(amount);
+}
+
+function formatDate(
+  value: string
+): string {
+  return new Intl.DateTimeFormat(
+    'en-US',
+    {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }
+  ).format(
+    new Date(value)
+  );
+}
+
+function getSourceLabel(
+  record: SupporterRecord
+): string {
+  if (
+    record.source === 'stripe'
+  ) {
+    return 'FIAT';
+  }
+
+  if (
+    record.source === 'crypto' &&
+    record.asset
+  ) {
+    return record.asset.toUpperCase();
+  }
+
+  return record.source.toUpperCase();
+}
+---
+
+<section
+  class="supporters"
+  data-supporter-display
+>
   <header class="supporters-header">
     <span>SUPPORTERS</span>
 
@@ -40,23 +286,57 @@
       class="supporter-view"
       data-support-view="recent"
     >
-      <span class="view-status">
-        LIVE DATA UNAVAILABLE
-      </span>
+      {
+        recentRecords.length > 0 ? (
+          <ol class="supporter-list">
+            {
+              recentRecords.map(
+                (record) => (
+                  <li class="supporter-entry">
+                    <div class="supporter-entry-main">
+                      <strong>
+                        {getPublicDisplayName(record)}
+                      </strong>
 
-      <h2>
-        Recent support will appear here.
-      </h2>
+                      <span>
+                        {formatUsd(record.amountUsd)}
+                      </span>
+                    </div>
 
-      <p>
-        This site currently runs without a backend,
-        so verified supporter activity cannot be
-        collected or displayed yet.
-      </p>
+                    <div class="supporter-entry-meta">
+                      <span>
+                        {getSourceLabel(record)}
+                      </span>
 
-      <span class="view-note">
-        DIRECT CRYPTO + ITEM SUPPORT REMAINS AVAILABLE
-      </span>
+                      <time
+                        datetime={record.supportedAt}
+                        data-relative-time
+                      >
+                        {formatDate(record.supportedAt)}
+                      </time>
+                    </div>
+                  </li>
+                )
+              )
+            }
+          </ol>
+        ) : (
+          <div class="supporter-empty">
+            <span class="view-status">
+              NO VERIFIED SUPPORT YET
+            </span>
+
+            <h2>
+              First one's still up for grabs.
+            </h2>
+
+            <p>
+              Verified support will appear here
+              once a payment source records it.
+            </p>
+          </div>
+        )
+      }
     </section>
 
     <section
@@ -64,24 +344,60 @@
       data-support-view="total"
       hidden
     >
-      <span class="view-status">
-        AGGREGATION UNAVAILABLE
-      </span>
+      {
+        totalRecords.length > 0 ? (
+          <ol class="supporter-list">
+            {
+              totalRecords.map(
+                (supporter) => (
+                  <li class="supporter-entry">
+                    <div class="supporter-entry-main">
+                      <strong>
+                        {supporter.displayName}
+                      </strong>
 
-      <h2>
-        Supporter totals need verified records.
-      </h2>
+                      <span>
+                        {formatUsd(supporter.totalUsd)}
+                      </span>
+                    </div>
 
-      <p>
-        This static site does not track donation
-        identities. Donation counts will populate
-        here once the server-side supporter system
-        is connected.
-      </p>
+                    <div class="supporter-entry-meta">
+                      <span>
+                        {
+                          supporter.contributionCount === 1
+                            ? '1 SUPPORT'
+                            : `${supporter.contributionCount} SUPPORTS`
+                        }
+                      </span>
 
-      <span class="view-note">
-        PUBLIC USERNAMES WILL REMAIN OPTIONAL
-      </span>
+                      <span>
+                        LAST {formatDate(
+                          supporter.latestSupportAt
+                        )}
+                      </span>
+                    </div>
+                  </li>
+                )
+              )
+            }
+          </ol>
+        ) : (
+          <div class="supporter-empty">
+            <span class="view-status">
+              NO PUBLIC TOTALS YET
+            </span>
+
+            <h2>
+              Supporter totals will live here.
+            </h2>
+
+            <p>
+              Repeat support using the same public
+              display name will be combined here.
+            </p>
+          </div>
+        )
+      }
     </section>
 
     <section
@@ -89,304 +405,63 @@
       data-support-view="amount"
       hidden
     >
-      <span class="view-status">
-        VALUATION UNAVAILABLE
-      </span>
+      {
+        amountRecords.length > 0 ? (
+          <ol class="supporter-list">
+            {
+              amountRecords.map(
+                (record) => (
+                  <li class="supporter-entry">
+                    <div class="supporter-entry-main">
+                      <strong>
+                        {getPublicDisplayName(record)}
+                      </strong>
 
-      <h2>
-        Support amounts need trusted payment data.
-      </h2>
+                      <span>
+                        {formatUsd(record.amountUsd)}
+                      </span>
+                    </div>
 
-      <p>
-        Automatic conversion and aggregation require
-        verified transaction information. This view
-        will activate when the backend is online.
-      </p>
+                    <div class="supporter-entry-meta">
+                      <span>
+                        {getSourceLabel(record)}
+                      </span>
 
-      <span class="view-note">
-        UNVERIFIED CLIENT DATA IS NEVER COUNTED
-      </span>
+                      <span>
+                        {formatDate(record.supportedAt)}
+                      </span>
+                    </div>
+                  </li>
+                )
+              )
+            }
+          </ol>
+        ) : (
+          <div class="supporter-empty">
+            <span class="view-status">
+              NO PUBLIC AMOUNTS YET
+            </span>
+
+            <h2>
+              Support amounts will appear here.
+            </h2>
+
+            <p>
+              Named verified support is included
+              in amount rankings.
+            </p>
+          </div>
+        )
+      }
     </section>
   </div>
+
+  <footer
+    class="supporters-footer"
+    aria-hidden="true"
+  ></footer>
 </section>
 
 <script>
-  const supporterTabs =
-    document.querySelectorAll<HTMLButtonElement>(
-      '[data-support-tab]'
-    );
-
-  const supporterViews =
-    document.querySelectorAll<HTMLElement>(
-      '[data-support-view]'
-    );
-
-  supporterTabs.forEach((tab) => {
-    tab.addEventListener('click', () => {
-      const selectedView =
-        tab.dataset.supportTab;
-
-      if (!selectedView) return;
-
-      supporterTabs.forEach((otherTab) => {
-        const isSelected =
-          otherTab === tab;
-
-        otherTab.classList.toggle(
-          'is-active',
-          isSelected
-        );
-
-        otherTab.setAttribute(
-          'aria-pressed',
-          String(isSelected)
-        );
-      });
-
-      supporterViews.forEach((view) => {
-        view.hidden =
-          view.dataset.supportView !==
-          selectedView;
-      });
-    });
-  });
+  import '../../scripts/supporterDisplay.ts';
 </script>
-
-<style>
-  .supporters {
-    display: flex;
-    flex-direction: column;
-
-    width: 100%;
-    height: 100%;
-
-    min-width: 0;
-    min-height: 0;
-
-    overflow: hidden;
-
-    border-bottom:
-      1px
-      solid
-      var(--color-border);
-  }
-
-  .supporters-header {
-    flex: 0 0 auto;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 1rem;
-
-    width: 100%;
-
-    padding: 0.65rem 0.75rem;
-
-    border-bottom:
-      1px
-      solid
-      var(--color-border);
-  }
-
-  .supporters-header > span {
-    font-family:
-      "Adwaita Mono",
-      monospace;
-
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-  }
-
-  .supporter-tabs {
-    display: flex;
-    align-items: center;
-
-    gap: 1rem;
-  }
-
-  .supporter-tab {
-    position: relative;
-
-    padding: 0;
-
-    border: 0;
-
-    background: transparent;
-    color: var(--color-fg);
-
-    font-family:
-      "Adwaita Mono",
-      monospace;
-
-    font-size: 0.7rem;
-    font-weight: 700;
-
-    cursor: pointer;
-  }
-
-  .supporter-tab::after {
-    content: "";
-
-    position: absolute;
-
-    left: 0;
-    bottom: -0.2rem;
-
-    width: 100%;
-    height: 1px;
-
-    background: currentColor;
-
-    transform: scaleX(0);
-    transform-origin: left;
-
-    transition:
-      transform
-      0.1s
-      ease-out;
-  }
-
-  .supporter-tab:hover::after,
-  .supporter-tab:focus-visible::after,
-  .supporter-tab.is-active::after {
-    transform: scaleX(1);
-  }
-
-  .supporter-display {
-    flex: 1 1 0;
-
-    display: flex;
-    align-items: center;
-
-    width: 100%;
-
-    min-width: 0;
-    min-height: 0;
-
-    overflow-y: auto;
-    overflow-x: hidden;
-
-    scrollbar-width: thin;
-  }
-
-  .supporter-view {
-    width: 100%;
-    max-width: 42rem;
-
-    padding:
-      clamp(
-        1.25rem,
-        2.5vw,
-        2.5rem
-      )
-      0.75rem;
-  }
-
-  .supporter-view[hidden] {
-    display: none;
-  }
-
-  .view-status,
-  .view-note {
-    display: block;
-
-    font-family:
-      "Adwaita Mono",
-      monospace;
-
-    font-size: 0.65rem;
-    font-weight: 700;
-
-    letter-spacing: 0.03em;
-  }
-
-  .view-status {
-    margin-bottom: 0.75rem;
-
-    opacity: 0.5;
-  }
-
-  h2 {
-    max-width: 16ch;
-
-    margin:
-      0
-      0
-      0.75rem;
-
-    font-family:
-      "Space Grotesk Variable",
-      sans-serif;
-
-    font-size:
-      clamp(
-        1.8rem,
-        3vw,
-        3.4rem
-      );
-
-    font-weight: 600;
-    line-height: 0.95;
-    letter-spacing: -0.045em;
-  }
-
-  p {
-    max-width: 42ch;
-
-    margin:
-      0
-      0
-      1.5rem;
-
-    font-family:
-      "Inter Variable",
-      sans-serif;
-
-    font-size:
-      clamp(
-        0.9rem,
-        1.1vw,
-        1.1rem
-      );
-
-    line-height: 1.25;
-  }
-
-  .view-note {
-    opacity: 0.7;
-  }
-
-  @media (
-    prefers-reduced-motion: reduce
-  ) {
-    .supporter-tab::after {
-      transition: none;
-    }
-  }
-
-  @media (max-width: 700px) {
-    .supporters {
-      min-height: 24rem;
-    }
-
-    .supporters-header {
-      align-items: flex-start;
-      flex-direction: column;
-
-      gap: 0.75rem;
-    }
-
-    .supporter-tabs {
-      width: 100%;
-
-      justify-content: space-between;
-    }
-
-    .supporter-display {
-      min-height: 20rem;
-    }
-  }
-</style>
