@@ -1,0 +1,47 @@
+.votv-visual {
+  position: relative;
+  width: 100%;
+  height: clamp(24rem, 46vw, 43rem);
+  min-width: 0;
+  overflow: hidden;
+  isolation: isolate;
+  background: #9ebfc4;
+  cursor: crosshair;
+}
+
+.votv-visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.04),
+      transparent 34%,
+      transparent 76%,
+      rgba(4, 10, 10, 0.16)
+    ),
+    radial-gradient(
+      ellipse at 52% 36%,
+      transparent 34%,
+      rgba(12, 24, 25, 0.08) 78%,
+      rgba(4, 10, 10, 0.18) 100%
+    );
+}
+
+.votv-visual :global(canvas) {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 700px) {
+  .votv-visual {
+    height: 32rem;
+  }
+}
