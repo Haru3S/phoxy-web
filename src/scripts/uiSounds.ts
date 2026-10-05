@@ -102,9 +102,9 @@ rolloverAudio.addEventListener(
 /*
  * CONTROL LOOKUP
  *
- * Native links/buttons and custom elements
- * exposing button semantics participate in
- * the global UI sound system.
+ * Native links/buttons, radio/checkbox choices, and custom elements exposing
+ * button semantics participate. Resolve a choice's label to its actual input
+ * so moving between the label and input is still the same rollover target.
  */
 
 const getUiTarget = (
@@ -114,9 +114,15 @@ const getUiTarget = (
     return null;
   }
 
-  return target.closest<HTMLElement>(
-    'a, button, [role="button"]'
+  const control = target.closest<HTMLElement>(
+    'a, button, [role="button"], input[type="radio"], input[type="checkbox"]'
   );
+  if (control) return control;
+
+  const labelledControl = target.closest<HTMLLabelElement>('label')?.control;
+  return labelledControl instanceof HTMLInputElement &&
+    labelledControl.matches('input[type="radio"], input[type="checkbox"]')
+    ? labelledControl : null;
 };
 
 
@@ -153,7 +159,7 @@ const isExcludedControl = (
 /*
  * DISABLED STATE
  *
- * Support native disabled buttons and
+ * Support native disabled buttons/choices and
  * aria-disabled controls.
  */
 
@@ -161,9 +167,8 @@ const isDisabledControl = (
   element: HTMLElement
 ) => {
   if (
-    element instanceof
-      HTMLButtonElement &&
-    element.disabled
+    (element instanceof HTMLButtonElement || element instanceof HTMLInputElement) &&
+    element.matches(':disabled')
   ) {
     return true;
   }
@@ -226,7 +231,21 @@ function playRollover() {
   );
 }
 
-const playRelease = () => {
+let releaseTarget: HTMLElement | null = null;
+
+const playRelease = (target: HTMLElement) => {
+  // Repeated activation of the same control must not cut off its in-flight
+  // feedback (including a play request still starting). A different control
+  // continues to supersede it, and a completed cue can be replayed normally.
+  if (
+    releaseTarget === target &&
+    !releaseAudio.paused &&
+    !releaseAudio.ended
+  ) {
+    return;
+  }
+
+  releaseTarget = target;
   restartAudio(
     releaseAudio
   );
@@ -374,8 +393,9 @@ document.addEventListener(
  * Click represents a completed activation,
  * giving the interface a distinct release sound.
  *
- * Disabled controls never receive the
- * successful activation sound.
+ * Use capture so eligibility reflects the control at activation, before its
+ * local handler disables it or changes the displayed step. Already-disabled
+ * controls still receive no release sound.
  */
 
 document.addEventListener(
@@ -394,6 +414,13 @@ document.addEventListener(
       return;
     }
 
-    playRelease();
-  }
+    // Label activation forwards a second click to its native input. Only that
+    // input click is a completed activation; otherwise one selection plays twice.
+    if (target instanceof HTMLInputElement && event.target !== target) {
+      return;
+    }
+
+    playRelease(target);
+  },
+  { capture: true }
 );
