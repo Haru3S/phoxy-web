@@ -13,6 +13,11 @@ type FiatIdentity = {
   anonymous: boolean;
 };
 
+type CheckoutResponse = {
+  checkoutUrl?: string;
+  error?: string;
+};
+
 const MIN_SUPPORT_AMOUNT = 1;
 
 function getValidationMessage(
@@ -33,240 +38,733 @@ function getValidationMessage(
   }
 }
 
-function parseAmount(value: string): number | null {
-  const cleaned = value.trim().replace(/[$,\s]/g, '');
+function parseAmount(
+  value: string
+): number | null {
+  const cleaned =
+    value
+      .trim()
+      .replace(
+        /[$,\s]/g,
+        ''
+      );
 
-  if (!cleaned) return null;
-  if (!/^\d+(?:\.\d{0,2})?$/.test(cleaned)) return null;
+  if (!cleaned) {
+    return null;
+  }
 
-  const amount = Number(cleaned);
-  if (!Number.isFinite(amount)) return null;
+  if (
+    !/^\d+(?:\.\d{0,2})?$/.test(
+      cleaned
+    )
+  ) {
+    return null;
+  }
+
+  const amount =
+    Number(cleaned);
+
+  if (
+    !Number.isFinite(
+      amount
+    )
+  ) {
+    return null;
+  }
 
   return amount;
 }
 
-function formatAmount(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
+function formatAmount(
+  amount: number
+): string {
+  return new Intl.NumberFormat(
+    'en-US',
+    {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }
+  ).format(amount);
 }
 
 function initFiatSupport(): void {
-  const root = document.querySelector<HTMLElement>('[data-fiat-support]');
-  if (!root) return;
+  const root =
+    document.querySelector<HTMLElement>(
+      '[data-fiat-support]'
+    );
 
-  const identityStep = root.querySelector<HTMLElement>('[data-fiat-step="identity"]');
-  const amountStep = root.querySelector<HTMLElement>('[data-fiat-step="amount"]');
-  const displayNameInput = root.querySelector<HTMLInputElement>('[data-fiat-display-name]');
-  const nameError = root.querySelector<HTMLElement>('[data-fiat-name-error]');
-  const continueButton = root.querySelector<HTMLButtonElement>('[data-fiat-continue]');
-  const anonymousButton = root.querySelector<HTMLButtonElement>('[data-fiat-anonymous]');
-  const amountBackButton = root.querySelector<HTMLButtonElement>('[data-fiat-amount-back]');
-  const supporterName = root.querySelector<HTMLElement>('[data-fiat-supporter-name]');
-  const amountOptions = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-fiat-amount]'));
-  const customAmountInput = root.querySelector<HTMLInputElement>('[data-fiat-custom-amount]');
-  const customAmountContainer = root.querySelector<HTMLElement>('.fiat-custom-amount');
-  const amountError = root.querySelector<HTMLElement>('[data-fiat-amount-error]');
-  const selectedAmountDisplay = root.querySelector<HTMLElement>('[data-fiat-selected-amount]');
-  const checkoutButton = root.querySelector<HTMLButtonElement>('[data-fiat-checkout]');
-
-  if (!identityStep || !amountStep || !displayNameInput || !nameError || !continueButton || !anonymousButton || !amountBackButton || !supporterName || !customAmountInput || !customAmountContainer || !amountError || !selectedAmountDisplay || !checkoutButton) return;
-
-  let identity: FiatIdentity = { displayName: '', anonymous: false };
-  let selectedAmount: number | null = null;
-  let amountSource: 'preset' | 'custom' | null = null;
-
-  function setNameError(message: string | null): void {
-    if (message) {
-      nameError.textContent = message;
-      nameError.hidden = false;
-      displayNameInput.setAttribute('aria-invalid', 'true');
-      return;
-    }
-
-    nameError.textContent = '';
-    nameError.hidden = true;
-    displayNameInput.removeAttribute('aria-invalid');
+  if (!root) {
+    return;
   }
 
-  function setAmountError(message: string | null): void {
+  const identityStep =
+    root.querySelector<HTMLElement>(
+      '[data-fiat-step="identity"]'
+    );
+
+  const amountStep =
+    root.querySelector<HTMLElement>(
+      '[data-fiat-step="amount"]'
+    );
+
+  const displayNameInput =
+    root.querySelector<HTMLInputElement>(
+      '[data-fiat-display-name]'
+    );
+
+  const nameError =
+    root.querySelector<HTMLElement>(
+      '[data-fiat-name-error]'
+    );
+
+  const continueButton =
+    root.querySelector<HTMLButtonElement>(
+      '[data-fiat-continue]'
+    );
+
+  const anonymousButton =
+    root.querySelector<HTMLButtonElement>(
+      '[data-fiat-anonymous]'
+    );
+
+  const amountBackButton =
+    root.querySelector<HTMLButtonElement>(
+      '[data-fiat-amount-back]'
+    );
+
+  const supporterName =
+    root.querySelector<HTMLElement>(
+      '[data-fiat-supporter-name]'
+    );
+
+  const amountOptions =
+    Array.from(
+      root.querySelectorAll<HTMLButtonElement>(
+        '[data-fiat-amount]'
+      )
+    );
+
+  const customAmountInput =
+    root.querySelector<HTMLInputElement>(
+      '[data-fiat-custom-amount]'
+    );
+
+  const customAmountContainer =
+    root.querySelector<HTMLElement>(
+      '.fiat-custom-amount'
+    );
+
+  const amountError =
+    root.querySelector<HTMLElement>(
+      '[data-fiat-amount-error]'
+    );
+
+  const selectedAmountDisplay =
+    root.querySelector<HTMLElement>(
+      '[data-fiat-selected-amount]'
+    );
+
+  const checkoutButton =
+    root.querySelector<HTMLButtonElement>(
+      '[data-fiat-checkout]'
+    );
+
+  if (
+    !identityStep ||
+    !amountStep ||
+    !displayNameInput ||
+    !nameError ||
+    !continueButton ||
+    !anonymousButton ||
+    !amountBackButton ||
+    !supporterName ||
+    !customAmountInput ||
+    !customAmountContainer ||
+    !amountError ||
+    !selectedAmountDisplay ||
+    !checkoutButton
+  ) {
+    return;
+  }
+
+  let identity: FiatIdentity = {
+    displayName: '',
+    anonymous: false,
+  };
+
+  let selectedAmount:
+    number | null =
+    null;
+
+  let amountSource:
+    'preset' |
+    'custom' |
+    null =
+    null;
+
+  let checkoutPending =
+    false;
+
+  function setNameError(
+    message: string | null
+  ): void {
     if (message) {
-      amountError.textContent = message;
-      amountError.hidden = false;
-      customAmountInput.setAttribute('aria-invalid', 'true');
+      nameError.textContent =
+        message;
+
+      nameError.hidden =
+        false;
+
+      displayNameInput
+        .setAttribute(
+          'aria-invalid',
+          'true'
+        );
+
       return;
     }
 
-    amountError.textContent = '';
-    amountError.hidden = true;
-    customAmountInput.removeAttribute('aria-invalid');
+    nameError.textContent =
+      '';
+
+    nameError.hidden =
+      true;
+
+    displayNameInput
+      .removeAttribute(
+        'aria-invalid'
+      );
+  }
+
+  function setAmountError(
+    message: string | null
+  ): void {
+    if (message) {
+      amountError.textContent =
+        message;
+
+      amountError.hidden =
+        false;
+
+      customAmountInput
+        .setAttribute(
+          'aria-invalid',
+          'true'
+        );
+
+      return;
+    }
+
+    amountError.textContent =
+      '';
+
+    amountError.hidden =
+      true;
+
+    customAmountInput
+      .removeAttribute(
+        'aria-invalid'
+      );
   }
 
   function updateAmountUI(): void {
-    amountOptions.forEach((button) => {
-      const amount = Number(button.dataset.fiatAmount);
-      const selected = amountSource === 'preset' && selectedAmount !== null && amount === selectedAmount;
-      button.classList.toggle('is-selected', selected);
-      button.setAttribute('aria-pressed', selected ? 'true' : 'false');
-    });
+    amountOptions.forEach(
+      (button) => {
+        const amount =
+          Number(
+            button.dataset
+              .fiatAmount
+          );
 
-    customAmountContainer.classList.toggle('is-dimmed', amountSource === 'preset');
-    customAmountContainer.classList.toggle('is-selected', amountSource === 'custom' && selectedAmount !== null);
+        const selected =
+          amountSource ===
+            'preset' &&
+          selectedAmount !==
+            null &&
+          amount ===
+            selectedAmount;
 
-    if (selectedAmount === null) {
-      selectedAmountDisplay.textContent = '$0.00';
-      checkoutButton.disabled = true;
+        button.classList.toggle(
+          'is-selected',
+          selected
+        );
+
+        button.setAttribute(
+          'aria-pressed',
+          selected
+            ? 'true'
+            : 'false'
+        );
+      }
+    );
+
+    customAmountContainer
+      .classList.toggle(
+        'is-dimmed',
+        amountSource ===
+          'preset'
+      );
+
+    customAmountContainer
+      .classList.toggle(
+        'is-selected',
+        amountSource ===
+          'custom' &&
+          selectedAmount !==
+            null
+      );
+
+    if (
+      selectedAmount ===
+      null
+    ) {
+      selectedAmountDisplay
+        .textContent =
+        '$0.00';
+
+      checkoutButton.disabled =
+        true;
+
       return;
     }
 
-    selectedAmountDisplay.textContent = formatAmount(selectedAmount);
-    checkoutButton.disabled = false;
+    selectedAmountDisplay
+      .textContent =
+      formatAmount(
+        selectedAmount
+      );
+
+    checkoutButton.disabled =
+      checkoutPending;
   }
 
-  function selectPresetAmount(amount: number): void {
-    selectedAmount = amount;
-    amountSource = 'preset';
-    customAmountInput.value = '';
+  function selectPresetAmount(
+    amount: number
+  ): void {
+    selectedAmount =
+      amount;
+
+    amountSource =
+      'preset';
+
+    customAmountInput.value =
+      '';
+
     setAmountError(null);
     updateAmountUI();
   }
 
   function selectCustomAmount(): void {
-    const rawValue = customAmountInput.value;
-    const amount = parseAmount(rawValue);
-    amountSource = rawValue.trim() === '' ? null : 'custom';
+    const rawValue =
+      customAmountInput.value;
 
-    if (rawValue.trim() === '') {
-      selectedAmount = null;
+    const amount =
+      parseAmount(
+        rawValue
+      );
+
+    amountSource =
+      rawValue.trim() === ''
+        ? null
+        : 'custom';
+
+    if (
+      rawValue.trim() === ''
+    ) {
+      selectedAmount =
+        null;
+
       setAmountError(null);
       updateAmountUI();
+
       return;
     }
 
     if (amount === null) {
-      selectedAmount = null;
-      setAmountError('Enter a valid USD amount with up to two decimal places.');
+      selectedAmount =
+        null;
+
+      setAmountError(
+        'Enter a valid USD amount with up to two decimal places.'
+      );
+
       updateAmountUI();
+
       return;
     }
 
-    if (amount < MIN_SUPPORT_AMOUNT) {
-      selectedAmount = null;
-      setAmountError(`Minimum support amount is ${formatAmount(MIN_SUPPORT_AMOUNT)}.`);
+    if (
+      amount <
+      MIN_SUPPORT_AMOUNT
+    ) {
+      selectedAmount =
+        null;
+
+      setAmountError(
+        `Minimum support amount is ${formatAmount(MIN_SUPPORT_AMOUNT)}.`
+      );
+
       updateAmountUI();
+
       return;
     }
 
-    selectedAmount = amount;
+    selectedAmount =
+      amount;
+
     setAmountError(null);
     updateAmountUI();
   }
 
   function showIdentityStep(): void {
-    amountStep.hidden = true;
-    identityStep.hidden = false;
-    identityStep.setAttribute('aria-hidden', 'false');
-    amountStep.setAttribute('aria-hidden', 'true');
+    amountStep.hidden =
+      true;
 
-    requestAnimationFrame(() => {
-      displayNameInput.focus();
-    });
+    identityStep.hidden =
+      false;
+
+    identityStep.setAttribute(
+      'aria-hidden',
+      'false'
+    );
+
+    amountStep.setAttribute(
+      'aria-hidden',
+      'true'
+    );
+
+    requestAnimationFrame(
+      () => {
+        displayNameInput
+          .focus();
+      }
+    );
   }
 
   function showAmountStep(): void {
-    identityStep.hidden = true;
-    amountStep.hidden = false;
-    identityStep.setAttribute('aria-hidden', 'true');
-    amountStep.setAttribute('aria-hidden', 'false');
+    identityStep.hidden =
+      true;
 
-    supporterName.textContent = identity.anonymous ? 'Anonymous' : identity.displayName;
+    amountStep.hidden =
+      false;
+
+    identityStep.setAttribute(
+      'aria-hidden',
+      'true'
+    );
+
+    amountStep.setAttribute(
+      'aria-hidden',
+      'false'
+    );
+
+    supporterName.textContent =
+      identity.anonymous
+        ? 'Anonymous'
+        : identity
+            .displayName;
   }
 
   function continueWithName(): void {
-    const normalized = normalizeDisplayName(displayNameInput.value);
-    const validation = validateDisplayName(normalized);
+    const normalized =
+      normalizeDisplayName(
+        displayNameInput.value
+      );
 
-    if (validation.valid === false) {
-      setNameError(getValidationMessage(validation.reason));
+    const validation =
+      validateDisplayName(
+        normalized
+      );
+
+    if (
+      validation.valid ===
+      false
+    ) {
+      setNameError(
+        getValidationMessage(
+          validation.reason
+        )
+      );
+
       displayNameInput.focus();
+
       return;
     }
 
-    const moderation = moderateDisplayName(validation.displayName);
+    const moderation =
+      moderateDisplayName(
+        validation.displayName
+      );
 
-    if (moderation.status !== 'approved') {
-      setNameError('That public display name cannot be used.');
+    if (
+      moderation.status !==
+      'approved'
+    ) {
+      setNameError(
+        'That public display name cannot be used.'
+      );
+
       displayNameInput.focus();
+
       return;
     }
 
     setNameError(null);
-    displayNameInput.value = validation.displayName;
-    identity = { displayName: validation.displayName, anonymous: false };
+
+    displayNameInput.value =
+      validation.displayName;
+
+    identity = {
+      displayName:
+        validation.displayName,
+      anonymous: false,
+    };
+
     showAmountStep();
   }
 
   function continueAnonymous(): void {
     setNameError(null);
-    identity = { displayName: 'Anonymous', anonymous: true };
+
+    identity = {
+      displayName:
+        'Anonymous',
+      anonymous: true,
+    };
+
     showAmountStep();
   }
 
-  continueButton.addEventListener('click', continueWithName);
-  anonymousButton.addEventListener('click', continueAnonymous);
-  amountBackButton.addEventListener('click', showIdentityStep);
+  async function startCheckout(): Promise<void> {
+    if (
+      selectedAmount ===
+        null ||
+      checkoutPending
+    ) {
+      return;
+    }
 
-  displayNameInput.addEventListener('input', () => {
-    if (!nameError.hidden) setNameError(null);
-  });
+    checkoutPending =
+      true;
 
-  displayNameInput.addEventListener('keydown', (event) => {
-    if (event.key !== 'Enter') return;
-    event.preventDefault();
-    continueWithName();
-  });
+    checkoutButton.disabled =
+      true;
 
-  amountOptions.forEach((button) => {
-    button.addEventListener('click', () => {
-      const amount = Number(button.dataset.fiatAmount);
-      if (!Number.isFinite(amount)) return;
-      selectPresetAmount(amount);
-    });
-  });
+    setAmountError(null);
 
-  customAmountInput.addEventListener('focus', () => {
-    if (amountSource === 'preset') {
-      selectedAmount = null;
-      amountSource = 'custom';
+    try {
+      const response =
+        await fetch(
+          '/api/support/checkout',
+          {
+            method: 'POST',
+
+            headers: {
+              'Content-Type':
+                'application/json',
+            },
+
+            body:
+              JSON.stringify({
+                amount:
+                  selectedAmount,
+
+                displayName:
+                  identity
+                    .displayName,
+
+                anonymous:
+                  identity
+                    .anonymous,
+              }),
+          }
+        );
+
+      let data:
+        CheckoutResponse;
+
+      try {
+        data =
+          await response.json();
+      } catch {
+        throw new Error(
+          'Payment service returned an invalid response.'
+        );
+      }
+
+      if (
+        !response.ok ||
+        !data.checkoutUrl
+      ) {
+        throw new Error(
+          data.error ||
+          'Could not start checkout.'
+        );
+      }
+
+      window.location.assign(
+        data.checkoutUrl
+      );
+    } catch (error) {
+      console.error(
+        'Checkout failed.',
+        error
+      );
+
+      setAmountError(
+        error instanceof Error
+          ? error.message
+          : 'Could not start checkout.'
+      );
+
+      checkoutPending =
+        false;
+
       updateAmountUI();
     }
-  });
+  }
 
-  customAmountInput.addEventListener('input', selectCustomAmount);
+  continueButton
+    .addEventListener(
+      'click',
+      continueWithName
+    );
 
-  customAmountInput.addEventListener('blur', () => {
-    if (amountSource !== 'custom' || selectedAmount === null) return;
-    customAmountInput.value = selectedAmount.toFixed(2);
-  });
+  anonymousButton
+    .addEventListener(
+      'click',
+      continueAnonymous
+    );
 
-  checkoutButton.addEventListener('click', () => {
-    if (selectedAmount === null) return;
+  amountBackButton
+    .addEventListener(
+      'click',
+      showIdentityStep
+    );
 
-    /*
-     * Stripe Checkout gets connected here during backend pass.
-     * Browser identity/amount are never proof payment succeeded.
-     * Server-side validation and moderation must run again there.
-     */
-  });
+  displayNameInput
+    .addEventListener(
+      'input',
+      () => {
+        if (
+          !nameError.hidden
+        ) {
+          setNameError(null);
+        }
+      }
+    );
+
+  displayNameInput
+    .addEventListener(
+      'keydown',
+      (event) => {
+        if (
+          event.key !==
+          'Enter'
+        ) {
+          return;
+        }
+
+        event.preventDefault();
+        continueWithName();
+      }
+    );
+
+  amountOptions.forEach(
+    (button) => {
+      button.addEventListener(
+        'click',
+        () => {
+          const amount =
+            Number(
+              button.dataset
+                .fiatAmount
+            );
+
+          if (
+            !Number.isFinite(
+              amount
+            )
+          ) {
+            return;
+          }
+
+          selectPresetAmount(
+            amount
+          );
+        }
+      );
+    }
+  );
+
+  customAmountInput
+    .addEventListener(
+      'focus',
+      () => {
+        if (
+          amountSource ===
+          'preset'
+        ) {
+          selectedAmount =
+            null;
+
+          amountSource =
+            'custom';
+
+          updateAmountUI();
+        }
+      }
+    );
+
+  customAmountInput
+    .addEventListener(
+      'input',
+      selectCustomAmount
+    );
+
+  customAmountInput
+    .addEventListener(
+      'blur',
+      () => {
+        if (
+          amountSource !==
+            'custom' ||
+          selectedAmount ===
+            null
+        ) {
+          return;
+        }
+
+        customAmountInput.value =
+          selectedAmount
+            .toFixed(2);
+      }
+    );
+
+  checkoutButton
+    .addEventListener(
+      'click',
+      () => {
+        void startCheckout();
+      }
+    );
 
   updateAmountUI();
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initFiatSupport, { once: true });
+if (
+  document.readyState ===
+  'loading'
+) {
+  document.addEventListener(
+    'DOMContentLoaded',
+    initFiatSupport,
+    {
+      once: true,
+    }
+  );
 } else {
   initFiatSupport();
 }
