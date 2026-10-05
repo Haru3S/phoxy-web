@@ -23,19 +23,49 @@ export type ProviderPayment = {
 
 export class NowPaymentsError extends Error {}
 
+export function getNowPaymentsEnvironment(): 'production' | 'sandbox' {
+  const environment = getSecret('NOWPAYMENTS_ENVIRONMENT') ?? 'production';
+  if (environment !== 'production' && environment !== 'sandbox') {
+    throw new NowPaymentsError('Invalid NOWPayments environment.');
+  }
+  if (environment === 'sandbox' && getSecret('VERCEL_ENV') === 'production') {
+    throw new NowPaymentsError('NOWPayments sandbox is not allowed on Vercel Production.');
+  }
+  return environment;
+}
+
+const SANDBOX_CASES = ['success', 'common', 'failed', 'partially_paid'] as const;
+
 export function getNowPaymentsConfig() {
-  const apiKey = getSecret('NOWPAYMENTS_API_KEY')?.trim();
-  const ipnSecret = getSecret('NOWPAYMENTS_IPN_SECRET')?.trim();
-  const callback = getSecret('NOWPAYMENTS_IPN_CALLBACK_URL');
-  if (getSecret('NOWPAYMENTS_ENABLED') !== 'true' || !apiKey || !ipnSecret || !callback) {
+  const environment = getNowPaymentsEnvironment();
+  const prefix = environment === 'sandbox' ? 'NOWPAYMENTS_SANDBOX' : 'NOWPAYMENTS';
+  const apiKey = getSecret(`${prefix}_API_KEY`)?.trim();
+  const ipnSecret = getSecret(`${prefix}_IPN_SECRET`)?.trim();
+  const callback = getSecret(`${prefix}_IPN_CALLBACK_URL`);
+  const apiUrl = getSecret(`${prefix}_API_URL`);
+  if (getSecret('NOWPAYMENTS_ENABLED') !== 'true' || !apiKey || !ipnSecret || !callback || !apiUrl) {
     throw new NowPaymentsError('NOWPayments is not enabled/configured.');
+  }
+  // URLs come from configuration. Restrict credential forwarding to the selected
+  // official HTTPS endpoint; arbitrary hosts and cross-environment URLs fail closed.
+  const baseUrl = new URL(apiUrl);
+  const expectedHost = environment === 'sandbox' ? 'api-sandbox.nowpayments.io' : 'api.nowpayments.io';
+  if (baseUrl.protocol !== 'https:' || baseUrl.hostname !== expectedHost || baseUrl.port ||
+    baseUrl.username || baseUrl.password || baseUrl.search || baseUrl.hash ||
+    !/^\/v1\/?$/.test(baseUrl.pathname)) {
+    throw new NowPaymentsError('Invalid NOWPayments API URL.');
   }
   const callbackUrl = new URL(callback);
   if (callbackUrl.protocol !== 'https:' || callbackUrl.username || callbackUrl.password ||
     callbackUrl.search || callbackUrl.hash || callbackUrl.pathname !== '/api/support/crypto/ipn') {
     throw new NowPaymentsError('Invalid NOWPayments callback URL.');
   }
-  return { apiKey, ipnSecret, callbackUrl: callbackUrl.toString() };
+  const sandboxCase = environment === 'sandbox' ? getSecret('NOWPAYMENTS_SANDBOX_CASE') : undefined;
+  if (environment === 'sandbox' && !SANDBOX_CASES.includes(sandboxCase as typeof SANDBOX_CASES[number])) {
+    throw new NowPaymentsError('Invalid or missing NOWPayments sandbox case.');
+  }
+  return { environment, apiKey, ipnSecret, callbackUrl: callbackUrl.toString(),
+    apiUrl: baseUrl.toString().replace(/\/$/, ''), sandboxCase };
 }
 
 export function parseProviderPayment(value: unknown): ProviderPayment {
@@ -74,7 +104,7 @@ export function assertPaymentMatches(payment: ProviderPayment, order: { orderId:
 
 export function createNowPaymentsClient(config: ReturnType<typeof getNowPaymentsConfig>, fetchImpl = fetch) {
   async function request(path: string, body?: object): Promise<unknown> {
-    const response = await fetchImpl(`https://api.nowpayments.io/v1/${path}`, {
+    const response = await fetchImpl(`${config.apiUrl}/${path}`, {
       method: body ? 'POST' : 'GET',
       headers: { 'x-api-key': config.apiKey, 'Content-Type': 'application/json' },
       body: body ? JSON.stringify(body) : undefined,
@@ -95,6 +125,7 @@ export function createNowPaymentsClient(config: ReturnType<typeof getNowPayments
         price_amount: order.amountUsdCents / 100, price_currency: 'usd',
         pay_currency: payCurrency, order_id: order.orderId,
         order_description: 'Phoxy support', ipn_callback_url: config.callbackUrl,
+        ...(config.environment === 'sandbox' ? { case: config.sandboxCase } : {}),
       }));
       assertPaymentMatches(payment, order);
       if (!payment.payAddress) throw new NowPaymentsError('Provider did not return payment instructions.');

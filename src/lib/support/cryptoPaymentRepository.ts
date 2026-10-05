@@ -1,4 +1,4 @@
-import { getDatabase } from './database';
+import { getCryptoDatabase } from './cryptoDatabase';
 import { cryptoContributionQuery } from './contributionRepository';
 import { CRYPTO_ASSETS, type CryptoAsset } from './cryptoAssets';
 import type { CryptoOrderInput } from './cryptoValidation';
@@ -12,7 +12,7 @@ export type PendingCryptoOrder = {
 };
 
 export async function createPendingCryptoOrder(orderId: string, input: CryptoOrderInput) {
-  const sql = getDatabase();
+  const sql = getCryptoDatabase();
   const asset = CRYPTO_ASSETS[input.asset];
   await sql`
     INSERT INTO support_crypto_payments (
@@ -27,14 +27,14 @@ export async function createPendingCryptoOrder(orderId: string, input: CryptoOrd
 }
 
 export async function markCryptoCreationUnknown(orderId: string) {
-  const sql = getDatabase();
+  const sql = getCryptoDatabase();
   await sql`UPDATE support_crypto_payments SET creation_state = 'creation_unknown', updated_at = now()
     WHERE order_id = ${orderId} AND creation_state = 'creating';`;
 }
 
 export async function attachProviderPayment(order: PendingCryptoOrder, payment: ProviderPayment) {
   assertPaymentMatches(payment, order);
-  const sql = getDatabase();
+  const sql = getCryptoDatabase();
   const rows = await sql`
     UPDATE support_crypto_payments SET
       nowpayments_payment_id = ${payment.paymentId}, creation_state = 'created',
@@ -47,7 +47,7 @@ export async function attachProviderPayment(order: PendingCryptoOrder, payment: 
 }
 
 export async function findPendingCryptoOrder(orderId: string): Promise<PendingCryptoOrder | null> {
-  const sql = getDatabase();
+  const sql = getCryptoDatabase();
   const rows = await sql`SELECT order_id, amount_usd_cents, asset, nowpayments_payment_id
     FROM support_crypto_payments WHERE order_id = ${orderId};`;
   const row = (rows as {
@@ -62,7 +62,7 @@ export async function findPendingCryptoOrder(orderId: string): Promise<PendingCr
 export async function processCryptoPayment(order: PendingCryptoOrder, payment: ProviderPayment) {
   assertPaymentMatches(payment, order);
   if (!order.paymentId) throw new Error('Provider payment has not been bound yet.');
-  const sql = getDatabase();
+  const sql = getCryptoDatabase();
   // READ COMMITTED gives each statement a fresh view after the row lock is
   // acquired. All four writes/reads commit together or roll back together.
   await sql.transaction([

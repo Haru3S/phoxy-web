@@ -22,10 +22,10 @@ const compiled = await build({
   plugins: [{
     name: 'local-test-boundaries', setup(builder) {
       builder.onResolve({ filter: /^astro:env\/server$/ }, () => ({ path: 'env', namespace: 'test' }));
-      builder.onResolve({ filter: /^\.\/database$/ }, () => ({ path: 'db', namespace: 'test' }));
+      builder.onResolve({ filter: /^\.\/(?:database|cryptoDatabase)$/ }, () => ({ path: 'db', namespace: 'test' }));
       builder.onLoad({ filter: /.*/, namespace: 'test' }, ({ path }) => ({ contents: path === 'env' ?
         'export const getSecret = key => globalThis.cryptoTestSecrets[key];' :
-        'export const getDatabase = () => globalThis.cryptoTestDatabase;' }));
+        'export const getDatabase = () => globalThis.cryptoTestDatabase; export const getCryptoDatabase = getDatabase;' }));
     },
   }],
 });
@@ -53,6 +53,7 @@ globalThis.cryptoTestSecrets = {
   NOWPAYMENTS_ENABLED: 'true', NOWPAYMENTS_API_KEY: 'synthetic-api-key',
   NOWPAYMENTS_IPN_SECRET: 'synthetic-ipn-secret',
   NOWPAYMENTS_IPN_CALLBACK_URL: 'https://example.test/api/support/crypto/ipn',
+  NOWPAYMENTS_API_URL: 'https://api.nowpayments.io/v1',
 };
 const originalFetch = globalThis.fetch;
 after(async () => { globalThis.fetch = originalFetch; await db.close(); });
@@ -325,4 +326,140 @@ test('an ambiguous provider POST is not retried and leaves a reconcilable pendin
   assert.equal(pending.creation_state, 'creation_unknown');
   assert.equal(pending.nowpayments_payment_id, null);
   assert.equal((await ledger(body.orderId)).length, 0);
+});
+
+const sandboxSecrets = {
+  NOWPAYMENTS_ENVIRONMENT: 'sandbox',
+  NOWPAYMENTS_SANDBOX_API_URL: 'https://api-sandbox.nowpayments.io/v1/',
+  NOWPAYMENTS_SANDBOX_API_KEY: 'synthetic-sandbox-api-key',
+  NOWPAYMENTS_SANDBOX_IPN_SECRET: 'synthetic-sandbox-ipn-secret',
+  NOWPAYMENTS_SANDBOX_IPN_CALLBACK_URL: 'https://preview.example.test/api/support/crypto/ipn',
+  NOWPAYMENTS_SANDBOX_CASE: 'success', VERCEL_ENV: 'preview',
+};
+
+async function withSecrets(overrides, run) {
+  const previous = globalThis.cryptoTestSecrets;
+  globalThis.cryptoTestSecrets = { ...previous, ...overrides };
+  try { return await run(); }
+  finally { globalThis.cryptoTestSecrets = previous; }
+}
+
+test('production is default, ignores sandbox settings, and never sends a simulation case', async () => {
+  await withSecrets({ ...sandboxSecrets, NOWPAYMENTS_ENVIRONMENT: undefined, NOWPAYMENTS_SANDBOX_CASE: 'invalid' }, async () => {
+    const config = backend.getNowPaymentsConfig();
+    assert.equal(config.environment, 'production');
+    assert.equal(config.apiKey, 'synthetic-api-key');
+    assert.equal(config.ipnSecret, 'synthetic-ipn-secret');
+    assert.equal(config.apiUrl, 'https://api.nowpayments.io/v1');
+    assert.equal(config.sandboxCase, undefined);
+    const order = { orderId: randomUUID(), amountUsdCents: 2500, asset: 'btc' };
+    const client = backend.createNowPaymentsClient(config, async (url, options) => {
+      assert.equal(new URL(url).hostname, 'api.nowpayments.io');
+      assert.equal(options.headers['x-api-key'], 'synthetic-api-key');
+      if (options.body) assert.equal(Object.hasOwn(JSON.parse(options.body), 'case'), false);
+      return Response.json(url.endsWith('/currencies') ? { currencies: ['btc'] } : rawPayment(provider(order)));
+    });
+    await client.createPayment(order);
+    await assert.rejects(withSecrets({ NOWPAYMENTS_API_KEY: undefined }, () => backend.getNowPaymentsConfig()));
+  });
+});
+
+test('sandbox uses separate credentials, callback, API host, and documented cases for POST and GET', async () => {
+  for (const simulationCase of ['success', 'common', 'failed', 'partially_paid']) {
+    await withSecrets({ ...sandboxSecrets, NOWPAYMENTS_SANDBOX_CASE: simulationCase }, async () => {
+      const config = backend.getNowPaymentsConfig();
+      assert.equal(config.apiKey, 'synthetic-sandbox-api-key');
+      assert.equal(config.ipnSecret, 'synthetic-sandbox-ipn-secret');
+      const order = { orderId: randomUUID(), amountUsdCents: 2500, asset: 'ltc' };
+      const client = backend.createNowPaymentsClient(config, async (url, options) => {
+        assert.equal(new URL(url).hostname, 'api-sandbox.nowpayments.io');
+        assert.equal(options.headers['x-api-key'], 'synthetic-sandbox-api-key');
+        if (options.body) {
+          const body = JSON.parse(options.body);
+          assert.equal(body.case, simulationCase);
+          assert.equal(body.ipn_callback_url, sandboxSecrets.NOWPAYMENTS_SANDBOX_IPN_CALLBACK_URL);
+          assert.equal(body.price_currency, 'usd');
+        }
+        return Response.json(url.endsWith('/currencies') ? { currencies: ['ltc'] } : rawPayment(provider(order)));
+      });
+      await client.createPayment(order);
+      await client.getPayment('123456789');
+    });
+  }
+});
+
+test('configuration fails closed for mixed environments, missing sandbox credentials, unsafe URLs, and kill switch', async () => {
+  for (const overrides of [
+    { NOWPAYMENTS_ENVIRONMENT: 'typo' },
+    { ...sandboxSecrets, VERCEL_ENV: 'production' },
+    { ...sandboxSecrets, NOWPAYMENTS_SANDBOX_API_KEY: undefined },
+    { ...sandboxSecrets, NOWPAYMENTS_SANDBOX_IPN_SECRET: undefined },
+    { ...sandboxSecrets, NOWPAYMENTS_SANDBOX_IPN_CALLBACK_URL: undefined },
+    { ...sandboxSecrets, NOWPAYMENTS_SANDBOX_API_URL: undefined },
+    { ...sandboxSecrets, NOWPAYMENTS_SANDBOX_CASE: undefined },
+    { ...sandboxSecrets, NOWPAYMENTS_SANDBOX_CASE: 'expired' },
+    { ...sandboxSecrets, NOWPAYMENTS_ENABLED: 'false' },
+    { ...sandboxSecrets, NOWPAYMENTS_SANDBOX_API_URL: 'https://api.nowpayments.io/v1' },
+    { NOWPAYMENTS_API_URL: 'https://api-sandbox.nowpayments.io/v1' },
+    { NOWPAYMENTS_API_URL: 'http://api.nowpayments.io/v1' },
+    { NOWPAYMENTS_API_URL: 'https://example.test/v1' },
+    { NOWPAYMENTS_API_URL: 'https://api.nowpayments.io/v1?extra=true' },
+    { ...sandboxSecrets, NOWPAYMENTS_SANDBOX_IPN_CALLBACK_URL: 'http://preview.example.test/api/support/crypto/ipn' },
+  ]) {
+    await withSecrets(overrides, () => assert.throws(() => backend.getNowPaymentsConfig()));
+  }
+  assert.throws(() => backend.validateCryptoOrder({ amount: 25, asset: 'ltc', anonymous: true, case: 'success' }));
+});
+
+test('sandbox IPN requires its own signature and verified provider state before normal promotion', async () => {
+  await withSecrets(sandboxSecrets, async () => {
+    const { order, payment } = await boundOrder();
+    const payload = { order_id: order.orderId, payment_id: order.paymentId, payment_status: 'finished' };
+    const signature = secret => createHmac('sha512', secret).update(JSON.stringify(backend.sortObjectDeep(payload))).digest('hex');
+    let status = 'confirmed';
+    globalThis.fetch = async (url, options) => {
+      assert.equal(new URL(url).hostname, 'api-sandbox.nowpayments.io');
+      assert.equal(options.headers['x-api-key'], 'synthetic-sandbox-api-key');
+      return Response.json(rawPayment({ ...payment, status, actuallyPaid: '0.25', updatedAt: '2026-10-05T15:02:00Z' }));
+    };
+    const count = queryCount;
+    assert.equal((await backend.ipnPost({ request: ipnRequest(payload, signature('synthetic-ipn-secret')) })).status, 401);
+    assert.equal(queryCount, count);
+    const request = () => ipnRequest(payload, signature('synthetic-sandbox-ipn-secret'));
+    assert.equal((await backend.ipnPost({ request: request() })).status, 200);
+    assert.equal((await ledger(order.orderId)).length, 0);
+    status = 'finished';
+    assert.equal((await backend.ipnPost({ request: request() })).status, 200);
+    assert.equal((await backend.ipnPost({ request: request() })).status, 200);
+    assert.equal((await ledger(order.orderId)).length, 1);
+  });
+});
+
+test('sandbox database selection never falls back to the production connection', async () => {
+  // Exercise the actual database selector with a synthetic Neon factory. No DB
+  // connection or credential loading is permitted in this isolated test.
+  const compiledDatabase = await build({
+    stdin: { contents: "export { getCryptoDatabase } from './src/lib/support/cryptoDatabase.ts';", resolveDir: process.cwd() },
+    bundle: true, write: false, platform: 'node', format: 'esm',
+    plugins: [{ name: 'database-config-test', setup(builder) {
+      builder.onResolve({ filter: /^astro:env\/server$/ }, () => ({ path: 'env', namespace: 'config-test' }));
+      builder.onResolve({ filter: /^@neondatabase\/serverless$/ }, () => ({ path: 'neon', namespace: 'config-test' }));
+      builder.onLoad({ filter: /.*/, namespace: 'config-test' }, ({ path }) => ({ contents: path === 'env' ?
+        'export const getSecret = key => globalThis.cryptoTestSecrets[key];' :
+        'export const neon = url => ({ syntheticConnection: url });' }));
+    }}],
+  });
+  const selector = await import('data:text/javascript;base64,' + Buffer.from(compiledDatabase.outputFiles[0].text).toString('base64'));
+  const production = 'postgresql://example.invalid/production';
+  const sandbox = 'postgresql://sandbox.example.invalid/test';
+  await withSecrets({ ...sandboxSecrets, PHXFDB_DATABASE_URL: production }, async () => {
+    assert.throws(() => selector.getCryptoDatabase());
+    await withSecrets({ NOWPAYMENTS_SANDBOX_DATABASE_URL: production }, () => assert.throws(() => selector.getCryptoDatabase()));
+    await withSecrets({ NOWPAYMENTS_SANDBOX_DATABASE_URL: sandbox }, () => {
+      assert.equal(selector.getCryptoDatabase().syntheticConnection, sandbox);
+    });
+    await withSecrets({ NOWPAYMENTS_ENVIRONMENT: 'production' }, () => {
+      assert.equal(selector.getCryptoDatabase().syntheticConnection, production);
+    });
+  });
 });

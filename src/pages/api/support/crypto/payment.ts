@@ -33,7 +33,7 @@ export const POST: APIRoute = async ({ request }) => {
     const payment = await createNowPaymentsClient(config).createPayment(order);
     await attachProviderPayment(order, payment);
     return cryptoJson({
-      orderId, paymentId: payment.paymentId, status: payment.status,
+      environment: config.environment, orderId, paymentId: payment.paymentId, status: payment.status,
       amount: input.amountUsdCents / 100, priceCurrency: 'usd', asset: input.asset,
       network: CRYPTO_ASSETS[input.asset].network, payCurrency: payment.payCurrency,
       payAmount: payment.payAmount, payAddress: payment.payAddress,

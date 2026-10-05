@@ -28,16 +28,19 @@ or full provider responses are persisted.
 
 Configure these in Vercel's server environment after migration approval:
 
-- `PHXFDB_DATABASE_URL`: existing Neon connection.
-- `NOWPAYMENTS_API_KEY`: NOWPayments API key.
-- `NOWPAYMENTS_IPN_SECRET`: NOWPayments IPN secret, separate from the API key.
+- `PHXFDB_DATABASE_URL`: existing production Neon connection.
+- `NOWPAYMENTS_ENVIRONMENT`: `production` (default when absent) or `sandbox`.
+- `NOWPAYMENTS_API_URL`: `https://api.nowpayments.io/v1` for production.
+- `NOWPAYMENTS_API_KEY`: production NOWPayments API key.
+- `NOWPAYMENTS_IPN_SECRET`: production IPN secret, separate from the API key.
 - `NOWPAYMENTS_IPN_CALLBACK_URL`: canonical public HTTPS URL ending in
   `/api/support/crypto/ipn`, with no query, fragment, or embedded credentials.
 - `NOWPAYMENTS_ENABLED`: exactly `true` to activate the endpoints; absent/false
   returns 503 before any DB or provider access.
 
 Never use `PUBLIC_` credentials. `astro:env/server` provides the server-only
-boundary. API host is fixed to `https://api.nowpayments.io/v1`; requests use a
+boundary. API URLs are configured in the environment and restricted to the selected
+official HTTPS host and `/v1` path, with no credentials, query, or fragment. Requests use a
 10-second timeout, no caching, and no redirects. Provider POSTs are not retried.
 The provider account's currencies, settlement configuration, fee settings, and
 underpayment tolerance must be reviewed before live use.
@@ -137,29 +140,92 @@ idempotency, anonymity, decimal underpayment rejection, and network constraints 
 Zero synthetic pending orders or contributions remained after rollback. Provider
 credentials were not used and no provider payment was created.
 
-## Before a provider sandbox/test payment
+## Vercel Preview sandbox configuration
 
-Local configuration currently contains an API key and IPN secret, but their account
-environment and validity have not been verified. The callback URL and enable flag
-are absent. Vercel environment configuration was not inspected or changed.
+Set these variables for **Preview only**, preferably scoped to the test branch:
 
-The current service targets the production API only. Provider sandbox simulation
-requires a controlled server-only sandbox host selector and simulation-case support;
-setting sandbox credentials alone cannot switch this implementation to sandbox.
-These additions have not been made as part of migration validation.
+| Variable | Required value |
+| --- | --- |
+| `NOWPAYMENTS_ENVIRONMENT` | `sandbox` |
+| `NOWPAYMENTS_ENABLED` | `true` |
+| `NOWPAYMENTS_SANDBOX_API_URL` | `https://api-sandbox.nowpayments.io/v1` |
+| `NOWPAYMENTS_SANDBOX_API_KEY` | API key from the NOWPayments sandbox account |
+| `NOWPAYMENTS_SANDBOX_IPN_SECRET` | IPN secret from that same sandbox account |
+| `NOWPAYMENTS_SANDBOX_IPN_CALLBACK_URL` | `https://<your-preview-host>/api/support/crypto/ipn` |
+| `NOWPAYMENTS_SANDBOX_CASE` | `success` for the first complete lifecycle test |
+| `NOWPAYMENTS_SANDBOX_DATABASE_URL` | Connection URL of a separate migrated Neon test branch |
 
-For a sandbox test, configure sandbox API/IPN credentials on a publicly reachable
-test deployment, use its HTTPS `/api/support/crypto/ipn` callback URL, and use a
-separate Neon test branch so simulated finished payments cannot credit the live board.
-Enable `NOWPAYMENTS_ENABLED=true` only in that configured test environment. The
-existing crypto frontend can remain disconnected: the payment route accepts manual
-JSON POST requests. Check available currencies and merchant/minimum settings before
-creating a provider payment. A production payment test instead uses production
-credentials and real funds; none has been initiated during this validation.
+The provider API URL above is an outbound destination. The IPN callback URL is
+your **application's** HTTPS Preview URL; do not use the provider API URL there.
+Use a stable Preview alias for the test branch, or the exact deployment hostname
+that will process the callback. Configure it in both this environment variable and
+the sandbox dashboard if the dashboard requests a callback URL. Redeploy after
+changing variables. Vercel Deployment Protection must allow unauthenticated provider
+POSTs to the IPN route; use an accessible dedicated test deployment (this backend
+does not add a protection-bypass query or remove signature verification).
+
+Sandbox reads only the `NOWPAYMENTS_SANDBOX_*` credentials, URL, and callback;
+it never falls back to production credentials. Its repository requires the sandbox
+database URL and rejects the same Neon database endpoint as `PHXFDB_DATABASE_URL`
+when that production URL is configured. Stripe retains its existing database path.
+Preview's existing `PHXFDB_DATABASE_URL` may be pointed at the test branch too if
+you want to see test contributions in the Preview supporter board. Both tables
+must exist in the test branch; a branch cloned after migration already contains
+them. Do not change the Production database URL for sandbox testing.
+
+`NOWPAYMENTS_SANDBOX_CASE` is server-controlled and accepts the documented
+`success`, `common`, `failed`, or `partially_paid` cases. Only sandbox POSTs contain
+the provider's `case` field. Production ignores all sandbox settings and never sends
+that field. Invalid environments fail closed; Vercel Production refuses sandbox mode.
+Missing URL or credentials return 503; the existing enable switch applies to both modes.
+No database migration is needed for this configuration change.
+
+## End-to-end provider test procedure
+
+1. Create/configure a NOWPayments sandbox account at
+   `https://account-sandbox.nowpayments.io`, including its account settlement settings,
+   API key, IPN secret, and enabled coins. Never use production keys for this test.
+2. Prepare a separate Neon test branch and the accessible Vercel Preview deployment
+   with the variables above. Confirm the callback hostname belongs to that deployment.
+3. Put the test values in a local ignored `.env.sandbox.local` file for the runner.
+   The runner needs `NOWPAYMENTS_ENVIRONMENT`, `NOWPAYMENTS_ENABLED`,
+   `NOWPAYMENTS_SANDBOX_CASE`, `NOWPAYMENTS_SANDBOX_IPN_CALLBACK_URL`, and
+   `NOWPAYMENTS_SANDBOX_DATABASE_URL`. API/IPN credentials belong on the server;
+   the runner does not use them.
+4. Run this explicit opt-in command from the repository root:
+
+   ```powershell
+   node --env-file=.env.sandbox.local tests/nowPaymentsSandbox.e2e.mjs
+   ```
+
+   The runner POSTs a $25 anonymous LTC request to the normal Preview payment route
+   exactly once, checks that it reports sandbox mode, and polls the test database
+   for up to three minutes for provider IPN processing. It does not send funds,
+   manufacture/sign IPNs, call promotion directly, or retry payment creation.
+5. For `success`, confirm the actual provider's `finished` state, full crypto payment,
+   IPN processing timestamp, and exactly one linked anonymous contribution. An early
+   callback may receive 503 before payment binding; allow provider retry or use its
+   documented IPN replay facility. Inspect dashboard/logs if the test times out.
+6. Repeat with `failed` and `partially_paid`, updating the Preview case variable and
+   redeploying before each runner invocation. Both must produce zero contributions.
+   `common` is available for manual lifecycle observation but is not an automated
+   terminal test case in the runner.
+7. To test replay idempotency end to end, resend a real provider notification using
+   its replay facility when available, then verify the same order still has exactly
+   one contribution. Do not generate a replacement signature locally. The isolated
+   tests already cover duplicate IPNs and wrong-environment signature rejection.
+8. Disable the kill switch after testing. Test rows remain only on the disposable
+   Neon branch; the runner does not delete data or modify the production database.
+
+The provider integration runner is prepared but is not part of
+`node --test tests/cryptoBackend.test.mjs`. It must be run separately once the real
+sandbox credentials, migrated test branch, and Preview deployment are configured.
+No real provider payment was submitted while implementing this support.
 
 References:
 
 - [NOWPayments API reference](https://documenter.getpostman.com/view/7907941/2s93JusNJt)
+- [Official sandbox API and cases](https://documenter.getpostman.com/view/7907941/T1LSCRHC)
 - [Official IPN signature implementation](https://github.com/NowPaymentsIO/nowpayments-sdk-nodejs/blob/master/src/ipn.js)
 - [Payment status and integration guide](https://nowpayments.io/blog/nowpayments-api-explained-customize-your-payment-gateway)
 - [Supported asset/network identifiers](https://nowpayments.io/supported-coins)
