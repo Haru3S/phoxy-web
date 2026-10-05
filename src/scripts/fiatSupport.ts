@@ -40,6 +40,89 @@ type AmountSource =
 
 const MIN_SUPPORT_AMOUNT = 1;
 
+const HARD_ERROR_AUDIO_PATH =
+  '/audio/hard_error.ogg';
+
+const MISC_SUCCESS_AUDIO_PATH =
+  '/audio/misc_success.ogg';
+
+function createAudio(
+  source: string
+): HTMLAudioElement {
+  const audio =
+    new Audio(source);
+
+  audio.preload =
+    'auto';
+
+  return audio;
+}
+
+function playAudio(
+  audio: HTMLAudioElement
+): void {
+  audio.currentTime =
+    0;
+
+  void audio
+    .play()
+    .catch(
+      () => {
+        // Audio feedback is optional. Never block
+        // support flow if the browser refuses playback.
+      }
+    );
+}
+
+async function playAudioBeforeNavigation(
+  audio: HTMLAudioElement
+): Promise<void> {
+  audio.currentTime =
+    0;
+
+  try {
+    await audio.play();
+  } catch {
+    return;
+  }
+
+  await new Promise<void>(
+    (resolve) => {
+      let finished =
+        false;
+
+      const finish = () => {
+        if (finished) {
+          return;
+        }
+
+        finished =
+          true;
+
+        audio.removeEventListener(
+          'ended',
+          finish
+        );
+
+        resolve();
+      };
+
+      audio.addEventListener(
+        'ended',
+        finish,
+        {
+          once: true,
+        }
+      );
+
+      window.setTimeout(
+        finish,
+        900
+      );
+    }
+  );
+}
+
 function getValidationMessage(
   reason: DisplayNameValidationReason
 ): string {
@@ -127,6 +210,16 @@ function initFiatSupport(): void {
   if (!root) {
     return;
   }
+
+  const hardErrorAudio =
+    createAudio(
+      HARD_ERROR_AUDIO_PATH
+    );
+
+  const miscSuccessAudio =
+    createAudio(
+      MISC_SUCCESS_AUDIO_PATH
+    );
 
   function requireElement<
     T extends Element
@@ -250,7 +343,7 @@ function initFiatSupport(): void {
     false;
 
   function setNameError(
-    message: string | null
+    message: string
   ): void {
     if (message) {
       nameError.textContent =
@@ -281,7 +374,7 @@ function initFiatSupport(): void {
   }
 
   function setAmountError(
-    message: string | null
+    message: string
   ): void {
     if (message) {
       amountError.textContent =
@@ -392,7 +485,7 @@ function initFiatSupport(): void {
     customAmountInput.value =
       '';
 
-    setAmountError(null);
+    setAmountError('');
     updateAmountUI();
   }
 
@@ -689,12 +782,16 @@ function initFiatSupport(): void {
         'That public display name cannot be used.'
       );
 
+      playAudio(
+        hardErrorAudio
+      );
+
       displayNameInput.focus();
 
       return;
     }
 
-    setNameError(null);
+    setNameError('');
 
     displayNameInput.value =
       validation.displayName;
@@ -709,7 +806,7 @@ function initFiatSupport(): void {
   }
 
   function continueAnonymous(): void {
-    setNameError(null);
+    setNameError('');
 
     identity = {
       displayName:
@@ -735,7 +832,7 @@ function initFiatSupport(): void {
     checkoutButton.disabled =
       true;
 
-    setAmountError(null);
+    setAmountError('');
 
     try {
       const response =
@@ -787,6 +884,10 @@ function initFiatSupport(): void {
         );
       }
 
+      await playAudioBeforeNavigation(
+        miscSuccessAudio
+      );
+
       window.location.assign(
         data.checkoutUrl
       );
@@ -834,7 +935,7 @@ function initFiatSupport(): void {
         if (
           !nameError.hidden
         ) {
-          setNameError(null);
+          setNameError('');
         }
       }
     );

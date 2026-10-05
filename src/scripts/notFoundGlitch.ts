@@ -62,7 +62,7 @@ sourceboxAudio.preload =
   'auto';
 
 sourceboxAudio.volume =
-  0.07;
+  0.16;
 
 sourceboxAudio.loop =
   false;
