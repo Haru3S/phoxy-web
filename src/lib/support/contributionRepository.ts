@@ -62,6 +62,26 @@ type InsertedContributionRow = {
   id: string;
 };
 
+// A lazy query for the crypto repository's transaction. The order row must be
+// locked before this query runs. Its UUID is also the ledger idempotency key.
+// The Stripe insert path below remains unchanged.
+export function cryptoContributionQuery(sql: ReturnType<typeof getDatabase>, orderId: string) {
+  return sql`
+    INSERT INTO support_contributions (
+      id, display_name, normalized_display_name, anonymous, amount_usd_cents,
+      source, asset, native_amount, supported_at, moderation_status, moderation_reason
+    )
+    SELECT order_id, display_name, normalized_display_name, anonymous, amount_usd_cents,
+      'crypto', asset, actually_paid::text, confirmed_at, moderation_status, moderation_reason
+    FROM support_crypto_payments
+    WHERE order_id = ${orderId} AND contribution_id IS NULL
+      AND provider_status = 'finished' AND confirmed_at IS NOT NULL
+      AND actually_paid >= expected_crypto_amount
+    ON CONFLICT (id) DO NOTHING
+    RETURNING id;
+  `;
+}
+
 export async function insertContribution(
   contribution:
     ContributionInsert
