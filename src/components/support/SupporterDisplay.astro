@@ -16,8 +16,15 @@ import {
 
 import '../../styles/support/supporterDisplay.css';
 
-const supporterRecords =
-  await getSupporterRecords();
+let supporterRecords: SupporterRecord[] = [];
+let supporterLoadFailed = false;
+
+try {
+  supporterRecords = await getSupporterRecords();
+} catch {
+  supporterLoadFailed = true;
+  console.error('Supporter board database read failed or timed out.');
+}
 
 const recentRecords =
   supporterRecords
@@ -200,7 +207,13 @@ function getSourceLabel(
       data-support-view="recent"
     >
       {
-        recentRecords.length > 0 ? (
+        supporterLoadFailed ? (
+          <div class="supporter-empty" role="status">
+            <span class="view-status">SUPPORTERS UNAVAILABLE</span>
+            <h2>Supporter board temporarily unavailable.</h2>
+            <p>Please try again shortly.</p>
+          </div>
+        ) : recentRecords.length > 0 ? (
           <ol class="supporter-list">
             {
               recentRecords.map(
@@ -258,7 +271,13 @@ function getSourceLabel(
       hidden
     >
       {
-        totalRecords.length > 0 ? (
+        supporterLoadFailed ? (
+          <div class="supporter-empty" role="status">
+            <span class="view-status">SUPPORTERS UNAVAILABLE</span>
+            <h2>Supporter board temporarily unavailable.</h2>
+            <p>Please try again shortly.</p>
+          </div>
+        ) : totalRecords.length > 0 ? (
           <ol class="supporter-list">
             {
               totalRecords.map(
@@ -319,7 +338,13 @@ function getSourceLabel(
       hidden
     >
       {
-        amountRecords.length > 0 ? (
+        supporterLoadFailed ? (
+          <div class="supporter-empty" role="status">
+            <span class="view-status">SUPPORTERS UNAVAILABLE</span>
+            <h2>Supporter board temporarily unavailable.</h2>
+            <p>Please try again shortly.</p>
+          </div>
+        ) : amountRecords.length > 0 ? (
           <ol class="supporter-list">
             {
               amountRecords.map(

@@ -205,7 +205,7 @@ export async function getSupporterRecords():
     getDatabase();
 
   const result =
-    await sql`
+    await sql.query(`
       SELECT
         id,
         display_name,
@@ -219,7 +219,11 @@ export async function getSupporterRecords():
         moderation_reason
       FROM support_contributions
       ORDER BY supported_at DESC;
-    `;
+    `, [], {
+      fetchOptions: {
+        signal: AbortSignal.timeout(3000),
+      },
+    });
 
   const rows =
     result as SupporterDatabaseRow[];
