@@ -1,702 +1,157 @@
 ---
-const currencies = [
-  {
-    name: 'Litecoin',
-    symbol: 'LTC',
-    network: 'Litecoin',
-    address: 'LcUtH8fceM2hMvwtZ43MKQWbaUb7KM8ZVC',
-    preferred: true,
-  },
-  {
-    name: 'Bitcoin',
-    symbol: 'BTC',
-    network: 'Bitcoin',
-    address: 'bc1qae8fscuztwn2f0ccha8p4hvfle45z0cpptt5pd',
-  },
-  {
-    name: 'Ethereum',
-    symbol: 'ETH',
-    network: 'Ethereum',
-    address: '0x90027CEEa4fed03f3eA319A0f3a5cA8Cd606b410',
-  },
-  {
-    name: 'USD Coin',
-    symbol: 'USDC',
-    network: 'Solana',
-    address: '2t6BARR6UrwuGKPbH4y7A8TPVXY4nDA7M7KPr7m8qteK',
-  },
-  {
-    name: 'Tether',
-    symbol: 'USDT',
-    network: 'Solana',
-    address: '2t6BARR6UrwuGKPbH4y7A8TPVXY4nDA7M7KPr7m8qteK',
-  },
-  {
-    name: 'Solana',
-    symbol: 'SOL',
-    network: 'Solana',
-    address: '2t6BARR6UrwuGKPbH4y7A8TPVXY4nDA7M7KPr7m8qteK',
-  },
-  {
-    name: 'Dogecoin',
-    symbol: 'DOGE',
-    network: 'Dogecoin',
-    address: 'DGjFZBCfVHQP2osQc3gVS585NFBTapWRHF',
-  },
-];
+import Admonition from '../ui/Admonition.astro';
+import { CRYPTO_ASSETS, type CryptoAsset } from '../../lib/support/cryptoAssets';
+import '../../styles/support/fiatSupport.css';
+import '../../styles/support/cryptoSupport.css';
+
+const names: Record<CryptoAsset, string> = {
+  ltc: 'Litecoin', btc: 'Bitcoin', eth: 'Ethereum', sol: 'Solana',
+  doge: 'Dogecoin', usdc: 'USD Coin', usdt: 'Tether',
+};
+// Render public metadata from the backend map; no provider identifiers are
+// needed by the browser controller.
+const currencies = Object.entries(CRYPTO_ASSETS).map(([asset, config]) => ({
+  asset, name: names[asset as CryptoAsset], symbol: asset.toUpperCase(), network: config.network,
+}));
 ---
 
-<section
-  class="support-view"
-  data-support-page="crypto"
-  aria-hidden="true"
->
+<section class="support-view fiat-support crypto-support" data-support-page="crypto" data-crypto-support aria-hidden="true">
   <header class="detail-toolbar">
-    <button
-      class="back-button"
-      type="button"
-      data-support-back
-    >
-      <i
-        class="ph ph-arrow-left"
-        aria-hidden="true"
-      ></i>
-
-      <span>Back</span>
+    <button class="back-button" type="button" data-support-back>
+      <i class="ph ph-arrow-left" aria-hidden="true"></i><span>Back</span>
     </button>
-
-    <span>CRYPTO / DIRECT</span>
+    <span>CRYPTO / NOWPAYMENTS</span>
   </header>
-
   <div class="detail-heading">
-    <h1>
-      <span
-        class="lens-text lens-interactive"
-        data-text="Crypto"
-      >
-        Crypto
-      </span>
-    </h1>
-
-    <p>
-      Choose a currency below to support me through
-      a direct wallet transfer.
-    </p>
+    <h1><span class="lens-text lens-interactive" data-text="Crypto">Crypto</span></h1>
+    <p>Support me with crypto. Choose your amount and currency, then send your payment through NOWPayments.</p>
   </div>
 
-  <div class="currency-list">
-    {currencies.map((currency) => (
-      <article
-        class:list={[
-          'currency',
-          {
-            'is-preferred':
-              currency.preferred,
-          },
-        ]}
-      >
-        <div class="currency-heading">
-          <div class="currency-name">
-            <h2>
-              {currency.name}
-            </h2>
-
-            {currency.preferred && (
-              <span class="preferred">
-                PREFERRED
-              </span>
-            )}
-          </div>
-
-          <span class="currency-symbol">
-            {currency.symbol}
-          </span>
-        </div>
-
-        <div class="address-row">
-          <code class="wallet-address">
-            <span class="wallet-address-text">
-              {currency.address}
-            </span>
-          </code>
-
-          <button
-            class="copy-button"
-            type="button"
-            data-copy-address={currency.address}
-            aria-label={`Copy ${currency.name} wallet address`}
-          >
-            <i
-              class="ph ph-copy"
-              aria-hidden="true"
-            ></i>
-
-            <span data-copy-label>
-              COPY
-            </span>
+  <section class="fiat-content">
+    <div class="fiat-step" data-crypto-step="identity" aria-hidden="false">
+      <div class="fiat-step-heading">
+        <span class="fiat-step-index">01 / 04</span>
+        <h2 tabindex="-1">Whatcha' Be Called</h2>
+        <p>Choose the name that'll represent you on the supporter leaderboard.</p>
+      </div>
+      <div class="fiat-identity">
+        <Admonition type="note">
+          <p>I don't use accounts or track personal data to identify returning supporters. Support using the same display name is combined on the leaderboard.</p>
+        </Admonition>
+        <label class="fiat-field" for="crypto-display-name">
+          <span>DISPLAY NAME</span>
+          <input id="crypto-display-name" type="text" minlength="2" maxlength="24" autocomplete="off" spellcheck="false"
+            placeholder="Anonymous" aria-describedby="crypto-name-help crypto-name-error" data-crypto-display-name />
+        </label>
+        <span class="fiat-field-help" id="crypto-name-help">2–24 characters. Letters, numbers, and underscores only. This name is public. Use Skip to stay anonymous.</span>
+        <span class="fiat-field-error" id="crypto-name-error" data-crypto-name-error aria-live="polite" hidden></span>
+        <div class="fiat-actions">
+          <button class="fiat-skip-action" type="button" data-crypto-anonymous>SKIP / STAY ANONYMOUS</button>
+          <button class="fiat-primary-action" type="button" data-crypto-identity-continue>
+            <span>CONTINUE</span><i class="ph ph-arrow-right" aria-hidden="true"></i>
           </button>
         </div>
+      </div>
+    </div>
 
-        <div class="network-row">
-          <span>NETWORK</span>
-
-          <span>
-            {currency.network.toUpperCase()}
-          </span>
+    <div class="fiat-step" data-crypto-step="amount" aria-hidden="true" hidden>
+      <div class="fiat-step-heading">
+        <span class="fiat-step-index">02 / 04</span>
+        <h2 tabindex="-1">Choose An Amount</h2>
+        <p class="fiat-supporting-as">Supporting as <strong data-crypto-supporter-name>Anonymous</strong></p>
+      </div>
+      <div class="fiat-amount">
+        <button class="fiat-amount-back" type="button" data-crypto-edit="identity">
+          <i class="ph ph-arrow-left" aria-hidden="true"></i><span>CHANGE DISPLAY NAME</span>
+        </button>
+        <div class="fiat-amount-options" role="group" aria-label="Choose support amount">
+          {[5, 10, 20, 50].map(amount => (
+            <button class="fiat-amount-option" type="button" data-crypto-amount={amount} aria-pressed="false"><span>${amount}</span><small>USD</small></button>
+          ))}
         </div>
-      </article>
-    ))}
-  </div>
+        <div class="fiat-custom-amount" data-crypto-custom-container>
+          <label class="fiat-field" for="crypto-custom-amount">
+            <span>CUSTOM AMOUNT</span>
+            <div class="fiat-money-input">
+              <span class="fiat-currency-symbol" aria-hidden="true">$</span>
+              <input id="crypto-custom-amount" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00"
+                aria-describedby="crypto-amount-help crypto-amount-error" data-crypto-custom-amount />
+              <span class="fiat-currency-code">USD</span>
+            </div>
+          </label>
+          <span class="fiat-field-help" id="crypto-amount-help">$1–$1,000 USD. Up to two decimal places.</span>
+          <span class="fiat-field-error" id="crypto-amount-error" data-crypto-amount-error aria-live="polite" hidden></span>
+        </div>
+        <div class="fiat-checkout-summary">
+          <div class="fiat-checkout-total"><span>SUPPORT AMOUNT</span><strong data-crypto-selected-amount>$0.00</strong></div>
+          <button class="fiat-checkout-button" type="button" data-crypto-amount-continue disabled>
+            <span>CHOOSE CURRENCY</span><i class="ph ph-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
 
-  <p class="detail-note">
-    Always verify the currency, network, and wallet
-    address before sending funds.
-  </p>
+    <div class="fiat-step" data-crypto-step="currency" aria-hidden="true" hidden>
+      <div class="fiat-step-heading">
+        <span class="fiat-step-index">03 / 04</span>
+        <h2 tabindex="-1">Choose A Currency</h2>
+        <p><strong data-crypto-currency-amount>$0.00</strong> USD support as <strong data-crypto-supporter-name>Anonymous</strong>.</p>
+      </div>
+      <button class="fiat-amount-back" type="button" data-crypto-edit="amount">
+        <i class="ph ph-arrow-left" aria-hidden="true"></i><span>CHANGE AMOUNT</span>
+      </button>
+      <fieldset class="crypto-currency-list">
+        <legend class="crypto-legend">PAYMENT CURRENCY / NETWORK</legend>
+        {currencies.map(currency => (
+          <label class="crypto-currency-option">
+            <input type="radio" name="crypto-currency" value={currency.asset} data-crypto-currency
+              data-network={currency.network} data-symbol={currency.symbol} checked={currency.asset === 'ltc'} />
+            <span class="crypto-currency-name">{currency.name} {currency.asset === 'ltc' && <small class="crypto-preferred">PREFERRED</small>}</span>
+            <span class="crypto-currency-meta">{currency.symbol} / {currency.network.toUpperCase()}</span>
+          </label>
+        ))}
+      </fieldset>
+      <p class="fiat-field-help">USDC and USDT payments use Solana. Send only the selected asset on the displayed network.</p>
+      <div class="fiat-checkout-summary">
+        <div class="fiat-checkout-total"><span>SUPPORT AMOUNT</span><strong data-crypto-selected-amount>$0.00</strong></div>
+        <button class="fiat-checkout-button" type="button" data-crypto-create>
+          <span data-crypto-create-label>CREATE PAYMENT</span><i class="ph ph-arrow-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="fiat-step" data-crypto-step="payment" aria-hidden="true" hidden>
+      <div class="fiat-step-heading">
+        <span class="fiat-step-index">04 / 04</span>
+        <h2 tabindex="-1">Send Your Payment</h2>
+        <p>Supporting as <strong data-crypto-supporter-name>Anonymous</strong> with <strong data-crypto-selected-amount>$0.00</strong> USD.</p>
+      </div>
+      <p class="crypto-sandbox" data-crypto-sandbox hidden>SANDBOX TEST / DO NOT SEND REAL FUNDS</p>
+      <div class="crypto-payment-details">
+        <div class="crypto-payment-row"><span>SEND EXACTLY</span><strong><code data-crypto-pay-amount></code> <span data-crypto-pay-symbol></span></strong></div>
+        <div class="crypto-payment-row crypto-network"><span>NETWORK</span><strong data-crypto-pay-network></strong></div>
+        <p class="fiat-field-help">Use this network only. A transfer on another network may be lost.</p>
+        <div class="crypto-address-row">
+          <div><span class="crypto-detail-label">PAYMENT ADDRESS</span><code class="crypto-address" data-crypto-pay-address></code></div>
+          <button class="fiat-skip-action" type="button" data-crypto-copy>COPY ADDRESS</button>
+        </div>
+        <div class="crypto-payment-row"><span>PAYMENT REFERENCE</span><code data-crypto-payment-id></code></div>
+        <div class="crypto-payment-row"><span>ORDER REFERENCE</span><code data-crypto-order-id></code></div>
+        <p class="fiat-field-help" data-crypto-copy-feedback aria-live="polite"></p>
+      </div>
+      <Admonition type="note">
+        <p>Awaiting provider confirmation. Creating a payment or sending funds does not confirm your contribution. Support appears on the board only after NOWPayments verifies final settlement. This page does not show live payment status.</p>
+      </Admonition>
+      <p class="fiat-field-help">Use this address for this payment only. Quotes can expire; reloading doesn't refresh them. If you've waited, contact me before sending.</p>
+      <button class="fiat-primary-action" type="button" data-support-back><span>BACK TO SUPPORT</span><i class="ph ph-arrow-left" aria-hidden="true"></i></button>
+    </div>
+
+    <div class="crypto-message" data-crypto-message tabindex="-1" role="status" aria-live="polite" hidden></div>
+    <p class="fiat-field-help" data-crypto-recovery hidden>Keep your order reference and contact me before trying again. Don't send funds to an address from an incomplete request.</p>
+    <noscript><p class="fiat-field-error">Enable JavaScript to create a crypto payment.</p></noscript>
+  </section>
 </section>
 
 <script>
-  const copyButtons =
-    document.querySelectorAll<HTMLButtonElement>(
-      '[data-copy-address]'
-    );
-
-  const fallbackCopy = (
-    text: string
-  ) => {
-    const textarea =
-      document.createElement(
-        'textarea'
-      );
-
-    textarea.value = text;
-
-    textarea.style.position =
-      'fixed';
-
-    textarea.style.opacity =
-      '0';
-
-    textarea.style.pointerEvents =
-      'none';
-
-    document.body.appendChild(
-      textarea
-    );
-
-    textarea.focus();
-    textarea.select();
-
-    const copied =
-      document.execCommand(
-        'copy'
-      );
-
-    textarea.remove();
-
-    return copied;
-  };
-
-  copyButtons.forEach(
-    (button) => {
-      button.addEventListener(
-        'click',
-        async () => {
-          const address =
-            button.dataset
-              .copyAddress;
-
-          const label =
-            button.querySelector<HTMLElement>(
-              '[data-copy-label]'
-            );
-
-          const icon =
-            button.querySelector<HTMLElement>(
-              'i'
-            );
-
-          if (
-            !address ||
-            !label
-          ) {
-            return;
-          }
-
-          let copied = false;
-
-          try {
-            if (
-              navigator.clipboard &&
-              window.isSecureContext
-            ) {
-              await navigator
-                .clipboard
-                .writeText(
-                  address
-                );
-
-              copied = true;
-            } else {
-              copied =
-                fallbackCopy(
-                  address
-                );
-            }
-          } catch {
-            copied =
-              fallbackCopy(
-                address
-              );
-          }
-
-          if (!copied) {
-            label.textContent =
-              'FAILED';
-
-            window.setTimeout(
-              () => {
-                label.textContent =
-                  'COPY';
-              },
-              1600
-            );
-
-            return;
-          }
-
-          label.textContent =
-            'COPIED';
-
-          if (icon) {
-            icon.className =
-              'ph ph-check';
-          }
-
-          window.setTimeout(
-            () => {
-              label.textContent =
-                'COPY';
-
-              if (icon) {
-                icon.className =
-                  'ph ph-copy';
-              }
-            },
-            1600
-          );
-        }
-      );
-    }
-  );
+  import '../../scripts/cryptoSupport.ts';
 </script>
-
-<style>
-  .support-view {
-    display: none;
-
-    width: 100%;
-
-    padding: 0.75rem;
-  }
-
-  .support-view.is-active {
-    display: block;
-  }
-
-  .detail-toolbar {
-    position: relative;
-    z-index: 10;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    user-select: none;
-
-    gap: 1rem;
-
-    margin-bottom:
-      clamp(
-        1.5rem,
-        2.5vh,
-        2.25rem
-      );
-
-    font-family:
-      "Adwaita Mono",
-      monospace;
-
-    font-size: 0.7rem;
-    font-weight: 700;
-
-    user-select: none;
-  }
-
-  .back-button {
-    display: flex;
-    align-items: center;
-
-    gap: 0.45rem;
-
-    padding: 0.55rem 0.65rem;
-    margin: -0.55rem -0.65rem;
-
-    border: 0;
-
-    background: transparent;
-    color: var(--color-fg);
-
-    font: inherit;
-
-    cursor: pointer;
-  }
-
-  .back-button span {
-    position: relative;
-  }
-
-  .back-button span::after {
-    content: "";
-
-    position: absolute;
-
-    left: 0;
-    bottom: -0.15rem;
-
-    width: 100%;
-    height: 1px;
-
-    background: currentColor;
-
-    transform: scaleX(0);
-    transform-origin: left;
-
-    transition:
-      transform
-      0.1s
-      ease-out;
-  }
-
-  .back-button:hover
-    span::after,
-  .back-button:focus-visible
-    span::after {
-    transform: scaleX(1);
-  }
-
-  .detail-heading {
-    margin-bottom:
-      clamp(
-        2.5rem,
-        5vh,
-        4rem
-      );
-  }
-
-  .detail-heading h1 {
-    margin:
-      0
-      0
-      clamp(
-        3rem,
-        7vh,
-        6rem
-      );
-
-    font-family:
-      "Space Grotesk Variable",
-      sans-serif;
-
-    font-size:
-      clamp(
-        5rem,
-        9vw,
-        10rem
-      );
-
-    font-weight: 700;
-    line-height: 0.78;
-    letter-spacing: -0.06em;
-  }
-
-  .detail-heading p {
-    max-width: 36rem;
-
-    margin: 0;
-
-    font-family:
-      "Inter Variable",
-      sans-serif;
-
-    font-size:
-      clamp(
-        1.1rem,
-        1.5vw,
-        1.55rem
-      );
-
-    line-height: 1.08;
-    letter-spacing: -0.025em;
-  }
-
-  .currency-list {
-    width: 100%;
-
-    border-top:
-      1px
-      solid
-      var(--color-border);
-  }
-
-  .currency {
-    padding: 1rem 0;
-
-    border-bottom:
-      1px
-      solid
-      var(--color-border);
-  }
-
-  .currency-heading {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-
-    gap: 1rem;
-
-    margin-bottom: 1rem;
-  }
-
-  .currency-name {
-    display: flex;
-    align-items: baseline;
-
-    gap: 0.75rem;
-
-    min-width: 0;
-  }
-
-  .currency-heading h2 {
-    margin: 0;
-
-    font-family:
-      "Space Grotesk Variable",
-      sans-serif;
-
-    font-size:
-      clamp(
-        1.8rem,
-        2.5vw,
-        3rem
-      );
-
-    font-weight: 600;
-    line-height: 0.9;
-    letter-spacing: -0.04em;
-  }
-
-  .preferred,
-  .currency-symbol,
-  .wallet-address,
-  .copy-button,
-  .network-row,
-  .detail-note {
-    font-family:
-      "Adwaita Mono",
-      monospace;
-
-    font-size: 0.7rem;
-    font-weight: 700;
-  }
-
-  /*
-   * Catppuccin Mocha Yellow.
-   * Only the semantic preferred marker gets it.
-   */
-
-  .preferred {
-    color: #f9e2af;
-  }
-
-  .preferred::before {
-    content: "●";
-
-    margin-right: 0.35rem;
-
-    font-size: 0.7em;
-  }
-
-  .address-row {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-
-    gap: 0.85rem;
-
-    min-width: 0;
-  }
-
-  /*
-   * WALLET ADDRESS
-   *
-   * Same quick left-to-right underline language
-   * used throughout the site.
-   */
-
-  .wallet-address {
-    display: block;
-
-    min-width: 0;
-
-    overflow-wrap: anywhere;
-
-    background: transparent;
-    color: var(--color-fg);
-
-    opacity: 0.65;
-  }
-
-  .wallet-address-text {
-    position: relative;
-
-    display: inline;
-
-    background-image:
-      linear-gradient(
-        currentColor,
-        currentColor
-      );
-
-    background-repeat: no-repeat;
-
-    background-position:
-      left
-      bottom;
-
-    background-size:
-      0%
-      1px;
-
-    transition:
-      background-size
-      0.1s
-      ease-out;
-  }
-
-  .address-row:hover
-    .wallet-address-text,
-  .address-row:focus-within
-    .wallet-address-text {
-    background-size:
-      100%
-      1px;
-  }
-
-  .copy-button {
-    display: flex;
-    align-items: center;
-
-    flex: 0 0 auto;
-
-    gap: 0.4rem;
-
-    padding: 0.55rem 0.65rem;
-    margin: -0.55rem -0.65rem;
-
-    border: 0;
-
-    background: transparent;
-    color: var(--color-fg);
-
-    cursor: pointer;
-
-    opacity: 0.65;
-
-    transition:
-      opacity
-      0.1s
-      ease-out;
-  }
-
-  .copy-button:hover,
-  .copy-button:focus-visible {
-    opacity: 1;
-  }
-
-  .copy-button i {
-    font-size: 1rem;
-  }
-
-  .network-row {
-    display: flex;
-    align-items: center;
-
-    gap: 0.5rem;
-
-    margin-top: 0.65rem;
-
-    opacity: 0.35;
-  }
-
-  .network-row
-    span:first-child::after {
-    content: " /";
-  }
-
-  .detail-note {
-    max-width: 58ch;
-
-    margin:
-      1.5rem
-      0
-      0;
-
-    line-height: 1.35;
-
-    opacity: 0.5;
-  }
-
-  @media (
-    prefers-reduced-motion:
-      reduce
-  ) {
-    .back-button span::after,
-    .wallet-address-text,
-    .copy-button {
-      transition: none;
-    }
-  }
-
-  @media (max-width: 700px) {
-    .detail-toolbar {
-      margin-bottom: 1.5rem;
-    }
-
-    .detail-heading h1 {
-      font-size:
-        clamp(
-          4.5rem,
-          22vw,
-          8rem
-        );
-    }
-
-    .currency-name {
-      align-items: flex-start;
-      flex-direction: column;
-
-      gap: 0.35rem;
-    }
-
-    .address-row {
-      align-items: flex-start;
-      flex-direction: column;
-
-      gap: 0.65rem;
-    }
-
-    .copy-button {
-      width: fit-content;
-    }
-  }
-</style>

@@ -1,8 +1,32 @@
-# NOWPayments backend — phase one
+# NOWPayments support integration
 
-This phase adds server endpoints only. The existing direct-wallet crypto UI is
-unchanged and does not call these endpoints. Direct transfers to its existing
-addresses are not tracked by NOWPayments or added to the supporter board.
+The Crypto Support frontend calls the payment endpoint through
+Identity → Amount → Currency → Payment. It reuses fiat form styles, identity
+validation/moderation, and preset/custom USD inputs with $1–$1,000 bounds. Public
+asset/network metadata comes from the server's centralized asset map; the browser
+sends only internal asset IDs. The old direct-wallet address list has been removed.
+
+LTC remains a presentation preference, and all seven mapped assets are selectable.
+USDC and USDT prominently show Solana. Exact provider-created crypto amount/address,
+network, payment/order references, and a sandbox warning are rendered as text.
+Creation is never shown as confirmed support; signed IPN verification and promotion
+remain authoritative. There is no "I sent it" action or client-side ledger mutation.
+
+The frontend blocks repeated clicks and freezes ambiguous creation for operator
+reconciliation. Known validation failures can be corrected; a known pre-provider
+unavailable response offers another method or a later attempt. There are no
+automatic POST retries. Session storage preserves one payment's public instructions
+and chosen public identity in the same tab through reload, or preserves an unresolved
+request guard; anonymous names and draft inputs are not stored. If storage is
+unavailable, the in-memory guard still prevents repeat clicks, but reload recovery
+is unavailable. This storage is not an account or server-side supporter identity.
+
+The API has no public verified status/reconciliation endpoint or quote expiry.
+The UI cannot poll settlement, verify a restored quote's freshness, or automatically
+reopen creation after payment. Saved instructions are not refreshed quotes. A real
+sandbox end-to-end provider test is still required before activation. No payment
+enablement, Vercel environment settings, or deployment changed while connecting
+the frontend. Older transfers to direct wallets are not tracked.
 
 ## Migration applied
 
@@ -203,12 +227,13 @@ creation request when a retry delay has elapsed; reconcile its order first.
 
 Refund notifications update pending-table status but do not delete or reverse an
 already confirmed ledger contribution. Refund accounting, repeated deposits,
-manual reconciliation, rate limiting, status polling, and frontend connection are
+manual reconciliation, rate limiting, and verified status polling are
 follow-up work before a public launch. The endpoints stay disabled until enabled.
 
 ## Validation
 
-Run `node --test tests/cryptoBackend.test.mjs`, `npm run check`, and `npm run build`.
+Run `node --test tests/cryptoBackend.test.mjs tests/cryptoFrontend.test.mjs`,
+`npm run check`, and `npm run build`.
 Tests use embedded local Postgres and synthetic provider/API data; they never connect
 to Neon, NOWPayments, or Stripe and never submit real payments.
 
