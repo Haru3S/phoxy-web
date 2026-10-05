@@ -41,10 +41,10 @@ type AmountSource =
 const MIN_SUPPORT_AMOUNT = 1;
 
 const HARD_ERROR_AUDIO_PATH =
-  '/audio/hard_error.ogg';
+  '/audio/ui/hard_error.ogg';
 
 const MISC_SUCCESS_AUDIO_PATH =
-  '/audio/misc_success.ogg';
+  '/audio/ui/misc_success.ogg';
 
 function createAudio(
   source: string
