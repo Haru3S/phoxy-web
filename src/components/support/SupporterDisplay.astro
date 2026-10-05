@@ -10,101 +10,14 @@ import {
   getPublicDisplayName,
 } from '../../lib/support/supporterPrivacy';
 
+import {
+  getSupporterRecords,
+} from '../../lib/support/supporterRepository';
+
 import '../../styles/support/supporterDisplay.css';
 
-/*
- * TEMPORARY DEVELOPMENT DATA
- *
- * This is deliberately shaped like the eventual
- * normalized backend response.
- *
- * Stripe and crypto will both become producers of
- * this same record format.
- *
- * Delete these records once the supporter API is
- * connected.
- */
-
-const supporterRecords: SupporterRecord[] = [
-  {
-    id: 'mock-stripe-001',
-    displayName: 'PhoxyFan',
-    anonymous: false,
-    amountUsd: 20,
-    source: 'stripe',
-    asset: 'usd',
-    nativeAmount: '20.00',
-    supportedAt: '2026-10-04T20:15:00.000Z',
-    verified: true,
-    moderationStatus: 'approved',
-    moderationReason: null,
-  },
-  {
-    id: 'mock-ltc-001',
-    displayName: 'Kalli',
-    anonymous: false,
-    amountUsd: 12.48,
-    source: 'crypto',
-    asset: 'ltc',
-    nativeAmount: '0.127',
-    supportedAt: '2026-10-03T17:42:00.000Z',
-    verified: true,
-    moderationStatus: 'approved',
-    moderationReason: null,
-  },
-  {
-    id: 'mock-stripe-002',
-    displayName: null,
-    anonymous: true,
-    amountUsd: 10,
-    source: 'stripe',
-    asset: 'usd',
-    nativeAmount: '10.00',
-    supportedAt: '2026-10-02T22:08:00.000Z',
-    verified: true,
-    moderationStatus: 'approved',
-    moderationReason: null,
-  },
-  {
-    id: 'mock-btc-001',
-    displayName: 'FoxFriend',
-    anonymous: false,
-    amountUsd: 32.16,
-    source: 'crypto',
-    asset: 'btc',
-    nativeAmount: '0.0003',
-    supportedAt: '2026-10-01T19:30:00.000Z',
-    verified: true,
-    moderationStatus: 'approved',
-    moderationReason: null,
-  },
-  {
-    id: 'mock-stripe-003',
-    displayName: 'PhoxyFan',
-    anonymous: false,
-    amountUsd: 5,
-    source: 'stripe',
-    asset: 'usd',
-    nativeAmount: '5.00',
-    supportedAt: '2026-09-30T16:10:00.000Z',
-    verified: true,
-    moderationStatus: 'approved',
-    moderationReason: null,
-  },
-  {
-    id: 'mock-sol-001',
-    displayName: null,
-    anonymous: true,
-    amountUsd: 8.72,
-    source: 'crypto',
-    asset: 'sol',
-    nativeAmount: '0.04',
-    supportedAt: '2026-09-29T21:25:00.000Z',
-    verified: true,
-    moderationStatus: 'approved',
-    moderationReason: null,
-  },
-];
+const supporterRecords =
+  await getSupporterRecords();
 
 const recentRecords =
   supporterRecords

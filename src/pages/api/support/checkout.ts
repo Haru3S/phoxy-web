@@ -68,6 +68,107 @@ function dollarsToCents(
   return cents;
 }
 
+export const GET: APIRoute =
+  async ({ request }) => {
+    const stripeSecretKey =
+      getSecret(
+        'STRIPE_SECRET_KEY'
+      );
+
+    if (!stripeSecretKey) {
+      console.error(
+        'STRIPE_SECRET_KEY is not configured.'
+      );
+
+      return jsonResponse(
+        {
+          error:
+            'Payment service is unavailable.',
+        },
+        500
+      );
+    }
+
+    const requestUrl =
+      new URL(
+        request.url
+      );
+
+    const sessionId =
+      requestUrl.searchParams.get(
+        'session_id'
+      );
+
+    if (
+      !sessionId ||
+      !sessionId.startsWith(
+        'cs_'
+      )
+    ) {
+      return jsonResponse(
+        {
+          error:
+            'Invalid checkout session.',
+        },
+        400
+      );
+    }
+
+    const stripe =
+      new Stripe(
+        stripeSecretKey
+      );
+
+    try {
+      const session =
+        await stripe
+          .checkout
+          .sessions
+          .retrieve(
+            sessionId
+          );
+
+      if (
+        session.payment_status !==
+          'paid' ||
+        session.currency !==
+          'usd' ||
+        session.amount_total ===
+          null
+      ) {
+        return jsonResponse(
+          {
+            verified: false,
+            error:
+              'Payment has not been confirmed.',
+          },
+          409
+        );
+      }
+
+      return jsonResponse({
+        verified: true,
+        amount:
+          session.amount_total /
+          100,
+      });
+    } catch (error) {
+      console.error(
+        'Stripe Checkout Session verification failed.',
+        error
+      );
+
+      return jsonResponse(
+        {
+          verified: false,
+          error:
+            'Payment could not be confirmed.',
+        },
+        400
+      );
+    }
+  };
+
 export const POST: APIRoute =
   async ({ request }) => {
     const stripeSecretKey =

@@ -18,6 +18,26 @@ type CheckoutResponse = {
   error?: string;
 };
 
+type CheckoutStatusResponse = {
+  verified?: boolean;
+  amount?: number;
+  error?: string;
+};
+
+type ParsedAmount =
+  | {
+      valid: true;
+      amount: number;
+    }
+  | {
+      valid: false;
+    };
+
+type AmountSource =
+  | 'none'
+  | 'preset'
+  | 'custom';
+
 const MIN_SUPPORT_AMOUNT = 1;
 
 function getValidationMessage(
@@ -40,7 +60,7 @@ function getValidationMessage(
 
 function parseAmount(
   value: string
-): number | null {
+): ParsedAmount {
   const cleaned =
     value
       .trim()
@@ -50,7 +70,9 @@ function parseAmount(
       );
 
   if (!cleaned) {
-    return null;
+    return {
+      valid: false,
+    };
   }
 
   if (
@@ -58,7 +80,9 @@ function parseAmount(
       cleaned
     )
   ) {
-    return null;
+    return {
+      valid: false,
+    };
   }
 
   const amount =
@@ -69,10 +93,15 @@ function parseAmount(
       amount
     )
   ) {
-    return null;
+    return {
+      valid: false,
+    };
   }
 
-  return amount;
+  return {
+    valid: true,
+    amount,
+  };
 }
 
 function formatAmount(
@@ -99,43 +128,77 @@ function initFiatSupport(): void {
     return;
   }
 
+  function requireElement<
+    T extends Element
+  >(
+    selector: string
+  ): T {
+    const element =
+      root.querySelector<T>(
+        selector
+      );
+
+    if (!element) {
+      throw new Error(
+        `Fiat support is missing required element: ${selector}`
+      );
+    }
+
+    return element;
+  }
+
+  const toolbarBackButton =
+    requireElement<HTMLButtonElement>(
+      '[data-fiat-toolbar-back]'
+    );
+
   const identityStep =
-    root.querySelector<HTMLElement>(
+    requireElement<HTMLElement>(
       '[data-fiat-step="identity"]'
     );
 
   const amountStep =
-    root.querySelector<HTMLElement>(
+    requireElement<HTMLElement>(
       '[data-fiat-step="amount"]'
     );
 
+  const successStep =
+    requireElement<HTMLElement>(
+      '[data-fiat-step="success"]'
+    );
+
+  const successAmount =
+    requireElement<HTMLElement>(
+      '[data-fiat-success-amount]'
+    );
+
   const displayNameInput =
-    root.querySelector<HTMLInputElement>(
+    requireElement<HTMLInputElement>(
       '[data-fiat-display-name]'
     );
 
   const nameError =
-    root.querySelector<HTMLElement>(
+    requireElement<HTMLElement>(
       '[data-fiat-name-error]'
     );
 
   const continueButton =
-    root.querySelector<HTMLButtonElement>(
+    requireElement<HTMLButtonElement>(
       '[data-fiat-continue]'
     );
 
   const anonymousButton =
-    root.querySelector<HTMLButtonElement>(
+    requireElement<HTMLButtonElement>(
       '[data-fiat-anonymous]'
     );
 
   const amountBackButton =
-    root.querySelector<HTMLButtonElement>(
+    requireElement<HTMLButtonElement>(
       '[data-fiat-amount-back]'
     );
 
   const supporterName =
-    root.querySelector<HTMLElement>(
+    requireElement<HTMLElement>(
       '[data-fiat-supporter-name]'
     );
 
@@ -147,62 +210,41 @@ function initFiatSupport(): void {
     );
 
   const customAmountInput =
-    root.querySelector<HTMLInputElement>(
+    requireElement<HTMLInputElement>(
       '[data-fiat-custom-amount]'
     );
 
   const customAmountContainer =
-    root.querySelector<HTMLElement>(
+    requireElement<HTMLElement>(
       '.fiat-custom-amount'
     );
 
   const amountError =
-    root.querySelector<HTMLElement>(
+    requireElement<HTMLElement>(
       '[data-fiat-amount-error]'
     );
 
   const selectedAmountDisplay =
-    root.querySelector<HTMLElement>(
+    requireElement<HTMLElement>(
       '[data-fiat-selected-amount]'
     );
 
   const checkoutButton =
-    root.querySelector<HTMLButtonElement>(
+    requireElement<HTMLButtonElement>(
       '[data-fiat-checkout]'
     );
-
-  if (
-    !identityStep ||
-    !amountStep ||
-    !displayNameInput ||
-    !nameError ||
-    !continueButton ||
-    !anonymousButton ||
-    !amountBackButton ||
-    !supporterName ||
-    !customAmountInput ||
-    !customAmountContainer ||
-    !amountError ||
-    !selectedAmountDisplay ||
-    !checkoutButton
-  ) {
-    return;
-  }
 
   let identity: FiatIdentity = {
     displayName: '',
     anonymous: false,
   };
 
-  let selectedAmount:
-    number | null =
-    null;
+  let selectedAmount =
+    0;
 
   let amountSource:
-    'preset' |
-    'custom' |
-    null =
-    null;
+    AmountSource =
+    'none';
 
   let checkoutPending =
     false;
@@ -281,8 +323,6 @@ function initFiatSupport(): void {
         const selected =
           amountSource ===
             'preset' &&
-          selectedAmount !==
-            null &&
           amount ===
             selectedAmount;
 
@@ -317,8 +357,8 @@ function initFiatSupport(): void {
       );
 
     if (
-      selectedAmount ===
-      null
+      amountSource ===
+      'none'
     ) {
       selectedAmountDisplay
         .textContent =
@@ -360,31 +400,35 @@ function initFiatSupport(): void {
     const rawValue =
       customAmountInput.value;
 
-    const amount =
-      parseAmount(
-        rawValue
-      );
-
-    amountSource =
-      rawValue.trim() === ''
-        ? null
-        : 'custom';
-
     if (
       rawValue.trim() === ''
     ) {
       selectedAmount =
-        null;
+        0;
 
-      setAmountError(null);
+      amountSource =
+        'none';
+
+      setAmountError(
+        null
+      );
+
       updateAmountUI();
 
       return;
     }
 
-    if (amount === null) {
+    amountSource =
+      'custom';
+
+    const parsed =
+      parseAmount(
+        rawValue
+      );
+
+    if (!parsed.valid) {
       selectedAmount =
-        null;
+        0;
 
       setAmountError(
         'Enter a valid USD amount with up to two decimal places.'
@@ -396,11 +440,11 @@ function initFiatSupport(): void {
     }
 
     if (
-      amount <
+      parsed.amount <
       MIN_SUPPORT_AMOUNT
     ) {
       selectedAmount =
-        null;
+        0;
 
       setAmountError(
         `Minimum support amount is ${formatAmount(MIN_SUPPORT_AMOUNT)}.`
@@ -412,14 +456,23 @@ function initFiatSupport(): void {
     }
 
     selectedAmount =
-      amount;
+      parsed.amount;
 
-    setAmountError(null);
+    setAmountError(
+      null
+    );
+
     updateAmountUI();
   }
 
   function showIdentityStep(): void {
+    toolbarBackButton.hidden =
+      false;
+
     amountStep.hidden =
+      true;
+
+    successStep.hidden =
       true;
 
     identityStep.hidden =
@@ -431,6 +484,11 @@ function initFiatSupport(): void {
     );
 
     amountStep.setAttribute(
+      'aria-hidden',
+      'true'
+    );
+
+    successStep.setAttribute(
       'aria-hidden',
       'true'
     );
@@ -444,7 +502,13 @@ function initFiatSupport(): void {
   }
 
   function showAmountStep(): void {
+    toolbarBackButton.hidden =
+      false;
+
     identityStep.hidden =
+      true;
+
+    successStep.hidden =
       true;
 
     amountStep.hidden =
@@ -460,11 +524,130 @@ function initFiatSupport(): void {
       'false'
     );
 
+    successStep.setAttribute(
+      'aria-hidden',
+      'true'
+    );
+
     supporterName.textContent =
       identity.anonymous
         ? 'Anonymous'
         : identity
             .displayName;
+  }
+
+  function showSuccessStep(
+    amount: number
+  ): void {
+    toolbarBackButton.hidden =
+      true;
+
+    identityStep.hidden =
+      true;
+
+    amountStep.hidden =
+      true;
+
+    successStep.hidden =
+      false;
+
+    identityStep.setAttribute(
+      'aria-hidden',
+      'true'
+    );
+
+    amountStep.setAttribute(
+      'aria-hidden',
+      'true'
+    );
+
+    successStep.setAttribute(
+      'aria-hidden',
+      'false'
+    );
+
+    successAmount.textContent =
+      formatAmount(amount);
+  }
+
+  async function showReturnedCheckout(): Promise<void> {
+    const url =
+      new URL(window.location.href);
+
+    if (
+      url.searchParams.get('payment') !==
+      'success'
+    ) {
+      return;
+    }
+
+    const sessionId =
+      url.searchParams.get(
+        'session_id'
+      ) ?? '';
+
+    if (!sessionId) {
+      return;
+    }
+
+    try {
+      const response =
+        await fetch(
+          `/api/support/checkout?session_id=${encodeURIComponent(sessionId)}`,
+          {
+            method: 'GET',
+            headers: {
+              Accept:
+                'application/json',
+            },
+          }
+        );
+
+      let data:
+        CheckoutStatusResponse;
+
+      try {
+        data =
+          await response.json();
+      } catch {
+        throw new Error(
+          'Payment confirmation returned an invalid response.'
+        );
+      }
+
+      if (
+        !response.ok ||
+        data.verified !== true ||
+        typeof data.amount !==
+          'number'
+      ) {
+        throw new Error(
+          data.error ||
+          'Payment could not be confirmed.'
+        );
+      }
+
+      document
+        .querySelector<HTMLButtonElement>(
+          '[data-open-support-page="fiat"]'
+        )
+        ?.click();
+
+      showSuccessStep(
+        data.amount
+      );
+
+      window.history.replaceState(
+        {},
+        '',
+        url.pathname
+      );
+    } catch (error) {
+      console.error(
+        'Checkout confirmation failed.',
+        error
+      );
+    }
   }
 
   function continueWithName(): void {
@@ -539,8 +722,8 @@ function initFiatSupport(): void {
 
   async function startCheckout(): Promise<void> {
     if (
-      selectedAmount ===
-        null ||
+      amountSource ===
+        'none' ||
       checkoutPending
     ) {
       return;
@@ -708,7 +891,7 @@ function initFiatSupport(): void {
           'preset'
         ) {
           selectedAmount =
-            null;
+            0;
 
           amountSource =
             'custom';
@@ -731,8 +914,8 @@ function initFiatSupport(): void {
         if (
           amountSource !==
             'custom' ||
-          selectedAmount ===
-            null
+          selectedAmount <
+            MIN_SUPPORT_AMOUNT
         ) {
           return;
         }
@@ -752,6 +935,7 @@ function initFiatSupport(): void {
     );
 
   updateAmountUI();
+  void showReturnedCheckout();
 }
 
 if (

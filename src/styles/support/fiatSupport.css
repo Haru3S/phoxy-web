@@ -51,6 +51,21 @@
   user-select: none;
 }
 
+/*
+ * SUCCESS TOOLBAR
+ *
+ * When the toolbar Back button is hidden, keep the
+ * FIAT / STRIPE context label pinned to the right.
+ */
+
+.fiat-support
+  .detail-toolbar:has(
+    [data-fiat-toolbar-back][hidden]
+  ) {
+  justify-content: flex-end;
+}
+
+
 .fiat-support
   .back-button {
   display: flex;

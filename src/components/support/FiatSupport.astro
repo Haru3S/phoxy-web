@@ -15,6 +15,7 @@ import '../../styles/support/fiatSupport.css';
       class="back-button"
       type="button"
       data-support-back
+      data-fiat-toolbar-back
     >
       <i
         class="ph ph-arrow-left"
@@ -293,6 +294,65 @@ import '../../styles/support/fiatSupport.css';
 
             <i
               class="ph ph-arrow-up-right"
+              aria-hidden="true"
+            ></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="fiat-step"
+      data-fiat-step="success"
+      aria-hidden="true"
+      hidden
+    >
+      <div class="fiat-step-heading">
+        <span class="fiat-step-index">
+          COMPLETE
+        </span>
+
+        <h2>
+          Thank You :3
+        </h2>
+
+        <p>
+          Your payment was confirmed through Stripe.
+          Seriously, thank you for supporting the stuff
+          I make.
+        </p>
+      </div>
+
+      <div class="fiat-identity">
+        <Admonition type="note">
+          <p>
+            Your support is recorded automatically.
+            If you chose a display name, it'll be shown
+            under that name. If you stayed anonymous,
+            it'll be shown as Anonymous.
+          </p>
+        </Admonition>
+
+        <div class="fiat-checkout-summary">
+          <div class="fiat-checkout-total">
+            <span>SUPPORT AMOUNT</span>
+
+            <strong data-fiat-success-amount>
+              —
+            </strong>
+          </div>
+
+          <button
+            class="fiat-primary-action"
+            type="button"
+            data-support-back
+          >
+            <span>
+              BACK TO SUPPORT
+            </span>
+
+            <i
+              class="ph ph-arrow-left"
               aria-hidden="true"
             ></i>
           </button>
