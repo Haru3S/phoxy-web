@@ -25,6 +25,10 @@ async function main() {
   const schema = await sql`SELECT to_regclass('public.support_crypto_payments')::text AS pending,
     to_regclass('public.support_contributions')::text AS ledger`;
   assert.ok(schema[0].pending && schema[0].ledger, 'Prepare the migrated test branch first.');
+  const columns = await sql`SELECT count(*) AS count FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'support_crypto_payments'
+      AND column_name IN ('expected_outcome_currency', 'outcome_currency', 'outcome_amount')`;
+  assert.equal(Number(columns[0].count), 3, 'Apply approved migration 002 to the test branch first.');
   const endpoint = new URL('/api/support/crypto/payment', callback);
   // No synthetic IPN signing, manual promotion, provider POST retries, or funds.
   const response = await fetch(endpoint, {
@@ -42,7 +46,7 @@ async function main() {
     const rows = await sql`
       SELECT p.provider_status, p.last_ipn_at, p.confirmed_at, p.contribution_id,
         p.nowpayments_payment_id, p.anonymous, p.display_name, p.normalized_display_name,
-        p.actually_paid >= p.expected_crypto_amount AS fully_paid,
+        p.outcome_amount > 0 AND p.outcome_currency = p.expected_outcome_currency AS settled,
         (SELECT count(*) FROM support_contributions c WHERE c.id = p.order_id) AS contribution_count,
         (SELECT c.source FROM support_contributions c WHERE c.id = p.order_id) AS source
       FROM support_crypto_payments p WHERE p.order_id = ${payment.orderId};
@@ -51,7 +55,7 @@ async function main() {
     if (row && row.last_ipn_at) {
       assert.equal(String(row.nowpayments_payment_id), payment.paymentId);
       if (simulationCase === 'success' && row.provider_status === 'finished' && row.contribution_id) {
-        assert.equal(row.fully_paid, true);
+        assert.equal(row.settled, true);
         assert.equal(row.contribution_id, payment.orderId);
         assert.equal(Number(row.contribution_count), 1);
         assert.equal(row.source, 'crypto');

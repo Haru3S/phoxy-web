@@ -2,26 +2,28 @@ import { getCryptoDatabase } from './cryptoDatabase';
 import { cryptoContributionQuery } from './contributionRepository';
 import { CRYPTO_ASSETS, type CryptoAsset } from './cryptoAssets';
 import type { CryptoOrderInput } from './cryptoValidation';
-import { assertPaymentMatches, type ProviderPayment } from './nowPayments';
+import { assertPaymentMatches, NowPaymentsError, type ProviderPayment } from './nowPayments';
 
 export type PendingCryptoOrder = {
   orderId: string;
   amountUsdCents: number;
   asset: CryptoAsset;
   paymentId: string | null;
+  expectedOutcomeCurrency: string | null;
 };
 
-export async function createPendingCryptoOrder(orderId: string, input: CryptoOrderInput) {
+export async function createPendingCryptoOrder(orderId: string, input: CryptoOrderInput, settlementCurrency: string) {
+  if (!/^[a-z0-9]{2,16}$/.test(settlementCurrency)) throw new NowPaymentsError('Invalid settlement currency.');
   const sql = getCryptoDatabase();
   const asset = CRYPTO_ASSETS[input.asset];
   await sql`
     INSERT INTO support_crypto_payments (
       order_id, display_name, normalized_display_name, anonymous,
-      moderation_status, moderation_reason, amount_usd_cents, asset, network, pay_currency
+      moderation_status, moderation_reason, amount_usd_cents, asset, network, pay_currency, expected_outcome_currency
     ) VALUES (
       ${orderId}, ${input.displayName}, ${input.normalizedDisplayName}, ${input.anonymous},
       ${input.moderationStatus}, ${input.moderationReason}, ${input.amountUsdCents},
-      ${input.asset}, ${asset.network}, ${asset.payCurrency}
+      ${input.asset}, ${asset.network}, ${asset.payCurrency}, ${settlementCurrency}
     );
   `;
 }
@@ -46,33 +48,46 @@ export async function attachProviderPayment(order: PendingCryptoOrder, payment: 
   if (!(rows as { order_id: string }[]).length) throw new Error('Could not bind the provider payment.');
 }
 
-export async function findPendingCryptoOrder(orderId: string): Promise<PendingCryptoOrder | null> {
+export async function findPendingCryptoOrder(orderId: string, signal?: AbortSignal): Promise<PendingCryptoOrder | null> {
+  signal?.throwIfAborted();
   const sql = getCryptoDatabase();
-  const rows = await sql`SELECT order_id, amount_usd_cents, asset, nowpayments_payment_id
-    FROM support_crypto_payments WHERE order_id = ${orderId};`;
+  const rows = await sql.query(`SELECT order_id, amount_usd_cents, asset, nowpayments_payment_id, expected_outcome_currency
+    FROM support_crypto_payments WHERE order_id = $1;`, [orderId], { fetchOptions: { signal } });
   const row = (rows as {
     order_id: string; amount_usd_cents: string; asset: CryptoAsset; nowpayments_payment_id: string | null;
+    expected_outcome_currency: string | null;
   }[])[0];
   return row ? {
     orderId: String(row.order_id), amountUsdCents: Number(row.amount_usd_cents),
     asset: row.asset as CryptoAsset, paymentId: row.nowpayments_payment_id as string | null,
+    expectedOutcomeCurrency: row.expected_outcome_currency,
   } : null;
 }
 
-export async function processCryptoPayment(order: PendingCryptoOrder, payment: ProviderPayment) {
+export async function processCryptoPayment(order: PendingCryptoOrder, payment: ProviderPayment, signal?: AbortSignal) {
+  signal?.throwIfAborted();
   assertPaymentMatches(payment, order);
   if (!order.paymentId) throw new Error('Provider payment has not been bound yet.');
+  if (payment.status === 'finished' && (!order.expectedOutcomeCurrency ||
+    payment.outcomeCurrency !== order.expectedOutcomeCurrency ||
+    !payment.outcomeAmount || Number(payment.outcomeAmount) <= 0)) {
+    throw new NowPaymentsError('Finished payment has no valid settlement for this order.');
+  }
   const sql = getCryptoDatabase();
   // READ COMMITTED gives each statement a fresh view after the row lock is
-  // acquired. All four writes/reads commit together or roll back together.
+  // acquired. All writes/reads commit together or roll back together. A fetch
+  // abort can leave the commit outcome unknown; the UUID still prevents duplicates.
   await sql.transaction([
+    sql`SET LOCAL statement_timeout = '2000ms';`,
     sql`SELECT order_id FROM support_crypto_payments WHERE order_id = ${order.orderId} FOR UPDATE;`,
     sql`
       UPDATE support_crypto_payments SET
         provider_status = ${payment.status}, actually_paid = ${payment.actuallyPaid},
+        outcome_amount = ${payment.outcomeAmount}, outcome_currency = ${payment.outcomeCurrency},
         provider_updated_at = ${payment.updatedAt}, last_ipn_at = now(), updated_at = now(),
         confirmed_at = CASE WHEN ${payment.status} = 'finished'
-          AND ${payment.actuallyPaid}::numeric >= expected_crypto_amount
+          AND ${payment.outcomeAmount}::numeric > 0
+          AND ${payment.outcomeCurrency} = expected_outcome_currency
           THEN COALESCE(confirmed_at, ${payment.updatedAt}::timestamptz) ELSE confirmed_at END
       WHERE order_id = ${order.orderId} AND nowpayments_payment_id = ${payment.paymentId}
         AND pay_currency = ${payment.payCurrency} AND amount_usd_cents = ${payment.amountUsdCents}
@@ -87,5 +102,5 @@ export async function processCryptoPayment(order: PendingCryptoOrder, payment: P
         AND EXISTS (SELECT 1 FROM support_contributions
           WHERE id = ${order.orderId} AND source = 'crypto');
     `,
-  ], { isolationLevel: 'ReadCommitted' });
+  ], { isolationLevel: 'ReadCommitted', fetchOptions: { signal } });
 }

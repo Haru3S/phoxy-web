@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { randomUUID } from 'node:crypto';
-import { getNowPaymentsConfig, createNowPaymentsClient } from '../../../../lib/support/nowPayments';
+import { getNowPaymentsConfig, createNowPaymentsClient, NowPaymentsError } from '../../../../lib/support/nowPayments';
 import { createPendingCryptoOrder, attachProviderPayment, markCryptoCreationUnknown } from '../../../../lib/support/cryptoPaymentRepository';
 import { validateCryptoOrder, CryptoValidationError } from '../../../../lib/support/cryptoValidation';
 import { CRYPTO_ASSETS } from '../../../../lib/support/cryptoAssets';
@@ -23,8 +23,9 @@ export const POST: APIRoute = async ({ request }) => {
     return cryptoJson({ error: error instanceof CryptoValidationError ? error.message : 'Invalid payment request.' }, 400);
   }
   const orderId = randomUUID();
-  const order = { orderId, amountUsdCents: input.amountUsdCents, asset: input.asset, paymentId: null };
-  try { await createPendingCryptoOrder(orderId, input); }
+  const order = { orderId, amountUsdCents: input.amountUsdCents, asset: input.asset, paymentId: null,
+    expectedOutcomeCurrency: config.settlementCurrency };
+  try { await createPendingCryptoOrder(orderId, input, config.settlementCurrency); }
   catch {
     console.error('Could not persist pending crypto order.', { orderId });
     return cryptoJson({ error: 'Crypto payments are unavailable.' }, 503);
@@ -47,6 +48,7 @@ export const POST: APIRoute = async ({ request }) => {
     return cryptoJson({
       orderId, error: error instanceof CryptoValidationError ? error.message :
         'Payment creation could not be completed. Do not send funds or automatically retry this order.',
-    }, error instanceof CryptoValidationError ? 422 : 503);
+    }, error instanceof CryptoValidationError ? 422 : error instanceof NowPaymentsError && error.status === 429 ? 429 : 503,
+    error instanceof NowPaymentsError && error.retryAfter ? { 'Retry-After': error.retryAfter } : {});
   }
 };

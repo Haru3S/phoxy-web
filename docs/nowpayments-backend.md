@@ -24,6 +24,40 @@ The order UUID also supplies the eventual contribution's primary key.
 No API/IPN secrets, private keys, sender wallets, payout wallets, emails, raw IPNs,
 or full provider responses are persisted.
 
+## Settlement migration applied
+
+`migrations/002_support_crypto_settlement.sql` was approved exactly as written and
+applied to the configured `PHXFDB_DATABASE_URL` Neon database on 2026-10-05. It adds three nullable columns to the
+pending table: `expected_outcome_currency varchar(16)`, `outcome_currency varchar(16)`,
+and `outcome_amount numeric(78,30)`. Currency identifiers must be lowercase
+alphanumeric provider identifiers of 2–16 characters; outcome amounts must be
+nonnegative and cannot be NaN. No index is needed for this order-ID-based lookup.
+Migration 001, existing ledger rows, Stripe constraints, and all indexes remain intact.
+
+These columns record the settlement currency configured when an order is created
+and the final provider-reported settlement. Existing orders deliberately receive
+NULLs, with no guessed backfill. Previously confirmed contributions are preserved;
+an old pending order cannot newly promote until its expected settlement currency
+is verified and reconciled by an operator. The isolated tests apply both migrations
+only to disposable local Postgres. Verification confirmed 26 pending-table columns,
+31 validated constraints, and the same four valid/ready indexes. All migration-001
+columns and constraints matched the saved baseline. The ledger's schema and rows
+were unchanged. There were zero existing crypto rows when 002 was applied.
+
+Post-migration Neon validation passed 14 groups of rollback-only checks using the
+actual repository SQL and signed-IPN route with synthetic provider responses:
+all seven assets, final settlement checks, converted settlement, nullable legacy
+orders, excluded statuses, privacy, duplicate promotion, and database constraints.
+Rollback verification found zero persistent test orders or contributions. Nine
+statements also passed through the real Neon HTTP driver using read-only lookup
+and EXPLAIN without executing mutation queries. These checks made no NOWPayments
+network calls and do not replace a real sandbox provider E2E test.
+
+Deployment order: keep `NOWPAYMENTS_ENABLED` disabled, obtain migration approval,
+apply 002 to any other intended database after approval, configure the matching settlement currency,
+deploy this backend, then enable and test. The revised queries require these columns;
+do not deploy them over an unmigrated enabled backend.
+
 ## Server configuration
 
 Configure these in Vercel's server environment after migration approval:
@@ -33,6 +67,9 @@ Configure these in Vercel's server environment after migration approval:
 - `NOWPAYMENTS_API_URL`: `https://api.nowpayments.io/v1` for production.
 - `NOWPAYMENTS_API_KEY`: production NOWPayments API key.
 - `NOWPAYMENTS_IPN_SECRET`: production IPN secret, separate from the API key.
+- `NOWPAYMENTS_SETTLEMENT_CURRENCY`: exact lowercase NOWPayments outcome
+  currency/network identifier matching the account's settlement configuration
+  (for example `usdttrc20` only if that is the configured settlement).
 - `NOWPAYMENTS_IPN_CALLBACK_URL`: canonical public HTTPS URL ending in
   `/api/support/crypto/ipn`, with no query, fragment, or embedded credentials.
 - `NOWPAYMENTS_ENABLED`: exactly `true` to activate the endpoints; absent/false
@@ -41,7 +78,8 @@ Configure these in Vercel's server environment after migration approval:
 Never use `PUBLIC_` credentials. `astro:env/server` provides the server-only
 boundary. API URLs are configured in the environment and restricted to the selected
 official HTTPS host and `/v1` path, with no credentials, query, or fragment. Requests use a
-10-second timeout, no caching, and no redirects. Provider POSTs are not retried.
+10-second timeout for creation, no caching, and no redirects. IPN processing has
+a separate 2.5-second total deadline. Provider POSTs are not retried.
 The provider account's currencies, settlement configuration, fee settings, and
 underpayment tolerance must be reviewed before live use.
 
@@ -96,6 +134,12 @@ payload keys, serializes the complete payload with JSON.stringify, calculates
 HMAC-SHA512 using the trimmed IPN secret, and compares `x-nowpayments-sig` with a
 constant-time comparison. No DB or payment-status API access occurs before signature
 verification. Unknown properties participate in signing but are not persisted.
+The canonicalizer follows the authoritative API/guide **Node.JS** example exactly,
+recursively sorting objects, including nested fee fields. That Node example converts
+arrays to numeric-key objects; the guide's Python example preserves arrays. We use
+one Node-compatible canonicalization and never accept alternative serializations
+after a failed signature. Test actual provider replay payloads containing non-null
+arrays before launch. Excessively deep nesting fails signature validation safely.
 
 After verification, the endpoint requires a known order and the exact already-bound
 provider payment ID. It fetches `GET /payment/{id}` using our API key, validating
@@ -103,15 +147,32 @@ order ID, USD price, crypto currency/network and provider status. Child/repeated
 deposit payments are unsupported and cannot be promoted. An IPN arriving before
 payment binding returns 503 so the provider can retry.
 
-Only provider status **`finished`** may promote, and only when the verified
-`actually_paid` covers the order's original expected crypto amount. NOWPayments
+Only provider status **`finished`** may promote, and only when the provider GET
+response contains a positive `outcome_amount` and its `outcome_currency` exactly
+matches the settlement currency captured on that order. Missing, zero, invalid,
+or mismatched settlement data returns retryable failure without promotion. A signed
+IPN's outcome fields alone cannot override missing/invalid provider GET data. NOWPayments
 documents `confirmed` as incoming confirmation and `sending` as ongoing processing;
 neither is final. `waiting`, `confirming`, `confirmed`, `sending`, `spending`,
 `partially_paid`, `failed`, `refunded`, and `expired` never create contributions.
-Even a provider-tolerated or manually finished underpayment is kept for review.
-Amounts are compared as decimals in Postgres, not floating point. Ledger USD value
-is the validated original gross USD price; overpayments do not increase it. Network
-fees and net settlement value are not supporter-board amounts.
+This is a **donation recognition** policy, rather than delivery of a fixed-price
+product or crediting a spendable balance. The original `pay_amount` is the incoming
+asset quote; `actually_paid` is incoming crypto, while the outcome is settlement
+after conversion/fees. Comparing these different assets or requiring the original
+crypto quote to remain the final threshold is inappropriate. A fixed-price product
+would instead need an expected price in the settlement asset and a same-currency
+outcome comparison; this backend does not implement that product policy.
+
+Ledger USD value remains the validated original gross USD pledge, consistent with
+the existing board behavior. It is not a valuation of net settlement or actual USD
+cash received. Overpayments do not increase it; fees do not reduce it. Provider
+covering/tolerance or an operator's manual finish may accept a smaller incoming
+payment, which this donation policy recognizes at the original pledge amount.
+Review those account settings before enabling payments; do not manually finish a
+payment if that recognition would be inappropriate. We do not invent a historical
+USD conversion from a current estimate or assume stablecoins are exactly one dollar.
+The provider's actual incoming and settlement amounts are retained separately on
+the pending row; native ledger amounts continue to refer to the incoming asset.
 
 One READ COMMITTED transaction locks the order, records current status/actual amount,
 inserts its confirmed ledger record via the contribution repository, and links that
@@ -121,6 +182,24 @@ IPN returns 503 for retry. Older provider timestamps cannot regress state; `fini
 cannot regress to an intermediate status, and `refunded` remains terminal.
 The board automatically reads promoted `source: crypto` contributions through its
 existing privacy/moderation logic. Pending rows never appear there.
+
+The guide requires an IPN response within **3000 ms**. A 2500 ms application deadline
+includes reading the bounded body, database lookup, provider GET, and transaction.
+The signal cancels provider/Neon HTTP requests; the transaction also sets a local
+2-second statement timeout. Timeout returns 503, never an early success or a
+fire-and-forget promotion. HTTP cancellation can leave a DB commit outcome unknown;
+the atomic transaction and order UUID make retries safe. Hosting cold starts and
+network transit are outside this application timer: measure Preview response times,
+configure provider retries, and review Neon cold-start behavior before launch.
+
+The guide lists per-outgoing-IP limits: POST payment 3/sec, GET payment status
+10/sec, and GET estimate 7/sec (we do not call estimate). Provider 429s are handled
+without retrying POST. Creation returns 429 and IPN returns retryable 503, with a
+validated `Retry-After` delay (one second when absent/invalid). Other provider
+errors return generic failures without exposing raw error bodies or credentials.
+No process-local limiter can enforce a shared serverless egress limit; distributed
+abuse/rate controls remain a launch task. Do not automatically repeat an ambiguous
+creation request when a retry delay has elapsed; reconcile its order first.
 
 Refund notifications update pending-table status but do not delete or reverse an
 already confirmed ledger contribution. Refund accounting, repeated deposits,
@@ -133,10 +212,11 @@ Run `node --test tests/cryptoBackend.test.mjs`, `npm run check`, and `npm run bu
 Tests use embedded local Postgres and synthetic provider/API data; they never connect
 to Neon, NOWPayments, or Stripe and never submit real payments.
 
-Post-migration validation also executed the repository SQL and signed-IPN handler
+Earlier migration-001 validation executed the original repository SQL and signed-IPN handler
 against Neon with synthetic provider responses inside an outer transaction that
 rolled back. All seven asset mappings, confirmed-status exclusion, finished promotion,
 idempotency, anonymity, decimal underpayment rejection, and network constraints passed.
+Those checks predate the settlement revision and do not verify migration 002.
 Zero synthetic pending orders or contributions remained after rollback. Provider
 credentials were not used and no provider payment was created.
 
@@ -151,6 +231,7 @@ Set these variables for **Preview only**, preferably scoped to the test branch:
 | `NOWPAYMENTS_SANDBOX_API_URL` | `https://api-sandbox.nowpayments.io/v1` |
 | `NOWPAYMENTS_SANDBOX_API_KEY` | API key from the NOWPayments sandbox account |
 | `NOWPAYMENTS_SANDBOX_IPN_SECRET` | IPN secret from that same sandbox account |
+| `NOWPAYMENTS_SANDBOX_SETTLEMENT_CURRENCY` | Exact outcome currency/network used by the sandbox account/simulation |
 | `NOWPAYMENTS_SANDBOX_IPN_CALLBACK_URL` | `https://<your-preview-host>/api/support/crypto/ipn` |
 | `NOWPAYMENTS_SANDBOX_CASE` | `success` for the first complete lifecycle test |
 | `NOWPAYMENTS_SANDBOX_DATABASE_URL` | Connection URL of a separate migrated Neon test branch |
@@ -170,15 +251,16 @@ database URL and rejects the same Neon database endpoint as `PHXFDB_DATABASE_URL
 when that production URL is configured. Stripe retains its existing database path.
 Preview's existing `PHXFDB_DATABASE_URL` may be pointed at the test branch too if
 you want to see test contributions in the Preview supporter board. Both tables
-must exist in the test branch; a branch cloned after migration already contains
-them. Do not change the Production database URL for sandbox testing.
+must exist in the test branch, along with the approved settlement migration 002.
+Do not change the Production database URL for sandbox testing.
 
 `NOWPAYMENTS_SANDBOX_CASE` is server-controlled and accepts the documented
 `success`, `common`, `failed`, or `partially_paid` cases. Only sandbox POSTs contain
 the provider's `case` field. Production ignores all sandbox settings and never sends
 that field. Invalid environments fail closed; Vercel Production refuses sandbox mode.
 Missing URL or credentials return 503; the existing enable switch applies to both modes.
-No database migration is needed for this configuration change.
+Sandbox selection itself uses the existing tables; the settlement revision requires
+approved migration 002 in the isolated test database before running this backend.
 
 ## End-to-end provider test procedure
 
@@ -202,7 +284,8 @@ No database migration is needed for this configuration change.
    exactly once, checks that it reports sandbox mode, and polls the test database
    for up to three minutes for provider IPN processing. It does not send funds,
    manufacture/sign IPNs, call promotion directly, or retry payment creation.
-5. For `success`, confirm the actual provider's `finished` state, full crypto payment,
+5. For `success`, confirm the actual provider's `finished` state, positive settlement
+   in the expected outcome currency,
    IPN processing timestamp, and exactly one linked anonymous contribution. An early
    callback may receive 503 before payment binding; allow provider retry or use its
    documented IPN replay facility. Inspect dashboard/logs if the test times out.
@@ -226,6 +309,5 @@ References:
 
 - [NOWPayments API reference](https://documenter.getpostman.com/view/7907941/2s93JusNJt)
 - [Official sandbox API and cases](https://documenter.getpostman.com/view/7907941/T1LSCRHC)
-- [Official IPN signature implementation](https://github.com/NowPaymentsIO/nowpayments-sdk-nodejs/blob/master/src/ipn.js)
-- [Payment status and integration guide](https://nowpayments.io/blog/nowpayments-api-explained-customize-your-payment-gateway)
+- [Authoritative integration guide and Node.JS IPN canonicalization](https://nowpayments-interactive-guide.netlify.app/#start)
 - [Supported asset/network identifiers](https://nowpayments.io/supported-coins)

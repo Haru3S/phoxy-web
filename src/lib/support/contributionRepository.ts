@@ -76,7 +76,7 @@ export function cryptoContributionQuery(sql: ReturnType<typeof getDatabase>, ord
     FROM support_crypto_payments
     WHERE order_id = ${orderId} AND contribution_id IS NULL
       AND provider_status = 'finished' AND confirmed_at IS NOT NULL
-      AND actually_paid >= expected_crypto_amount
+      AND outcome_amount > 0 AND outcome_currency = expected_outcome_currency
     ON CONFLICT (id) DO NOTHING
     RETURNING id;
   `;

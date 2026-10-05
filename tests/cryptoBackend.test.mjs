@@ -12,6 +12,7 @@ const compiled = await build({
     contents: `
       export * from './src/lib/support/cryptoValidation.ts';
       export * from './src/lib/support/cryptoAssets.ts';
+      export * from './src/lib/support/cryptoHttp.ts';
       export * from './src/lib/support/nowPaymentsSignature.ts';
       export * from './src/lib/support/nowPayments.ts';
       export * from './src/lib/support/cryptoPaymentRepository.ts';
@@ -35,6 +36,9 @@ let failLedgerInsert = false;
 let queryCount = 0;
 function sql(strings, ...values) {
   const text = strings.reduce((result, part, index) => result + part + (index < values.length ? `$${index + 1}` : ''), '');
+  return query(text, values);
+}
+function query(text, values) {
   const execute = async connection => {
     queryCount++;
     if (failLedgerInsert && text.includes('INSERT INTO support_contributions')) throw new Error('Synthetic ledger failure');
@@ -43,6 +47,7 @@ function sql(strings, ...values) {
   // Neon query promises are lazy and may be passed to a transaction.
   return { execute, then(resolve, reject) { return execute(db).then(resolve, reject); } };
 }
+sql.query = query;
 sql.transaction = queries => db.transaction(async tx => {
   const results = [];
   for (const query of queries) results.push(await query.execute(tx));
@@ -54,6 +59,7 @@ globalThis.cryptoTestSecrets = {
   NOWPAYMENTS_IPN_SECRET: 'synthetic-ipn-secret',
   NOWPAYMENTS_IPN_CALLBACK_URL: 'https://example.test/api/support/crypto/ipn',
   NOWPAYMENTS_API_URL: 'https://api.nowpayments.io/v1',
+  NOWPAYMENTS_SETTLEMENT_CURRENCY: 'usdttrc20',
 };
 const originalFetch = globalThis.fetch;
 after(async () => { globalThis.fetch = originalFetch; await db.close(); });
@@ -73,6 +79,8 @@ before(async () => {
       (NOT anonymous AND display_name IS NOT NULL AND normalized_display_name IS NOT NULL))
   );`);
   await db.exec(await readFile(new URL('../migrations/001_support_crypto_payments.sql', import.meta.url), 'utf8'));
+  // Proposed migration runs only against this disposable local database.
+  await db.exec(await readFile(new URL('../migrations/002_support_crypto_settlement.sql', import.meta.url), 'utf8'));
 });
 
 function provider(order, status = 'waiting', actuallyPaid = '0', time = '2026-10-05T15:00:00Z') {
@@ -80,6 +88,7 @@ function provider(order, status = 'waiting', actuallyPaid = '0', time = '2026-10
     paymentId: '123456789', orderId: order.orderId, status, amountUsdCents: order.amountUsdCents,
     payCurrency: backend.CRYPTO_ASSETS[order.asset].payCurrency, payAmount: '0.25',
     payAddress: 'synthetic-public-deposit-address', actuallyPaid, updatedAt: time,
+    outcomeAmount: '24.5', outcomeCurrency: 'usdttrc20',
   };
 }
 function rawPayment(payment) {
@@ -88,12 +97,14 @@ function rawPayment(payment) {
     price_amount: payment.amountUsdCents / 100, price_currency: 'usd',
     pay_currency: payment.payCurrency, pay_amount: payment.payAmount, pay_address: payment.payAddress,
     actually_paid: payment.actuallyPaid, updated_at: payment.updatedAt,
+    outcome_amount: payment.outcomeAmount, outcome_currency: payment.outcomeCurrency,
   };
 }
 async function boundOrder(input = { amount: 25, asset: 'ltc', anonymous: false, displayName: 'Example' }) {
   const validated = backend.validateCryptoOrder(input);
-  const order = { orderId: randomUUID(), amountUsdCents: validated.amountUsdCents, asset: validated.asset, paymentId: null };
-  await backend.createPendingCryptoOrder(order.orderId, validated);
+  const order = { orderId: randomUUID(), amountUsdCents: validated.amountUsdCents, asset: validated.asset, paymentId: null,
+    expectedOutcomeCurrency: backend.getNowPaymentsConfig().settlementCurrency };
+  await backend.createPendingCryptoOrder(order.orderId, validated, order.expectedOutcomeCurrency);
   const payment = provider(order);
   // Unique provider IDs for each test order.
   payment.paymentId = String(BigInt('123456789') + BigInt(queryCount));
@@ -144,7 +155,7 @@ test('provider decimal amounts are normalized and bounded', () => {
 
 test('IPN HMAC recursively sorts nested objects and arrays and rejects tampering', () => {
   const payload = { z: [{ b: 2, a: 1 }], a: { y: 1, x: 'value' } };
-  const canonical = '{"a":{"x":"value","y":1},"z":[{"a":1,"b":2}]}';
+  const canonical = '{"a":{"x":"value","y":1},"z":{"0":{"a":1,"b":2}}}';
   const expected = createHmac('sha512', 'secret').update(canonical).digest('hex');
   assert.equal(backend.verifyNowPaymentsSignature(payload, expected, 'secret'), true);
   assert.equal(backend.verifyNowPaymentsSignature({ ...payload, extra: true }, expected, 'secret'), false);
@@ -167,6 +178,7 @@ test('provider creation sends USD/server order/callback and validates asset bind
   assert.deepEqual(sent, { price_amount: 25, price_currency: 'usd', pay_currency: 'usdcsol',
     order_id: order.orderId, order_description: 'Phoxy support', ipn_callback_url: 'https://example.test/api/support/crypto/ipn' });
   assert.throws(() => backend.assertPaymentMatches({ ...payment, payCurrency: 'usdc' }, order));
+  assert.throws(() => backend.assertPaymentMatches(payment, { ...order, expectedOutcomeCurrency: 'eth' }));
   assert.throws(() => backend.parseProviderPayment({ ...rawPayment(payment), parent_payment_id: '999' }));
   assert.throws(() => backend.parseProviderPayment({ ...rawPayment(payment), price_currency: 'eur' }));
   assert.throws(() => backend.parseProviderPayment({ ...rawPayment(payment), payment_id: Number.MAX_SAFE_INTEGER + 1 }));
@@ -180,11 +192,15 @@ test('intermediate/failure/partial statuses never create contributions', async (
   }
 });
 
-test('finished underpayment remains unpromoted; full success is idempotent and preserves identity', async () => {
+test('finished validates converted settlement; donation success is idempotent and preserves identity', async () => {
   const { order, payment } = await boundOrder();
-  await backend.processCryptoPayment(order, { ...payment, status: 'finished', actuallyPaid: '0.249999999999999999999999999999', updatedAt: '2026-10-05T15:01:00Z' });
+  for (const invalid of [{ outcomeAmount: null }, { outcomeAmount: '0' },
+    { outcomeCurrency: null }, { outcomeCurrency: 'usdt' }]) {
+    await assert.rejects(backend.processCryptoPayment(order, { ...payment, status: 'finished', ...invalid }));
+  }
   assert.equal((await ledger(order.orderId)).length, 0);
-  const finished = { ...payment, status: 'finished', actuallyPaid: '0.25', updatedAt: '2026-10-05T15:02:00Z' };
+  const finished = { ...payment, status: 'finished', actuallyPaid: '0.249999999999999999999999999999',
+    outcomeAmount: '24.5', outcomeCurrency: 'usdttrc20', updatedAt: '2026-10-05T15:02:00Z' };
   await backend.processCryptoPayment(order, finished);
   await backend.processCryptoPayment(order, finished);
   const rows = await ledger(order.orderId);
@@ -198,10 +214,149 @@ test('finished underpayment remains unpromoted; full success is idempotent and p
   assert.equal(rows[0].stripe_session_id, null);
   const pending = (await db.query('SELECT contribution_id FROM support_crypto_payments WHERE order_id = $1', [order.orderId])).rows[0];
   assert.equal(pending.contribution_id, order.orderId);
+  const settlement = (await db.query('SELECT outcome_amount::text, outcome_currency, expected_outcome_currency FROM support_crypto_payments WHERE order_id = $1', [order.orderId])).rows[0];
+  assert.equal(Number(settlement.outcome_amount), 24.5);
+  assert.equal(settlement.outcome_currency, 'usdttrc20');
+  assert.equal(settlement.expected_outcome_currency, 'usdttrc20');
   // A delayed intermediate callback cannot regress a finished payment.
   await backend.processCryptoPayment(order, { ...payment, status: 'confirming', updatedAt: '2026-10-05T15:03:00Z' });
   const status = (await db.query('SELECT provider_status FROM support_crypto_payments WHERE order_id = $1', [order.orderId])).rows[0];
   assert.equal(status.provider_status, 'finished');
+});
+
+test('settlement validation supports conversion into a smaller-denomination amount and fails closed for legacy orders', async () => {
+  const { order, payment } = await boundOrder();
+  await assert.rejects(backend.processCryptoPayment({ ...order, expectedOutcomeCurrency: null },
+    { ...payment, status: 'finished' }));
+  // Donation recognition uses the verified USD pledge, not a comparison between
+  // LTC sent and BTC received or a speculative conversion of net fees back to USD.
+  await db.query('UPDATE support_crypto_payments SET expected_outcome_currency = $1 WHERE order_id = $2', ['btc', order.orderId]);
+  await backend.processCryptoPayment({ ...order, expectedOutcomeCurrency: 'btc' }, {
+    ...payment, status: 'finished', actuallyPaid: null, outcomeCurrency: 'btc', outcomeAmount: '0.0002',
+  });
+  assert.equal((await ledger(order.orderId)).length, 1);
+});
+
+test('provider fields allow the documented waiting response and reject malformed settlement data', () => {
+  const payment = provider({ orderId: randomUUID(), amountUsdCents: 2500, asset: 'btc' });
+  const raw = rawPayment(payment);
+  delete raw.actually_paid;
+  delete raw.outcome_currency;
+  delete raw.outcome_amount;
+  const waiting = backend.parseProviderPayment(raw);
+  assert.equal(waiting.outcomeCurrency, null);
+  assert.equal(waiting.outcomeAmount, null);
+  for (const invalid of [{ outcome_amount: '-1' }, { outcome_amount: 'NaN' },
+    { outcome_currency: '' }, { outcome_currency: 'USDT' }, { outcome_currency: {} }]) {
+    assert.throws(() => backend.parseProviderPayment({ ...raw, ...invalid }));
+  }
+});
+
+test('IPN HMAC matches the reference Node example for nested fees, nulls, arrays, and rejects excessive nesting', () => {
+  function referenceSort(obj) {
+    return Object.keys(obj).sort().reduce((result, key) => {
+      result[key] = obj[key] && typeof obj[key] === 'object' ? referenceSort(obj[key]) : obj[key];
+      return result;
+    }, {});
+  }
+  const payload = { outcome_currency: 'btc', outcome_amount: 0.001,
+    fee: { withdrawalFee: 0, serviceFee: 0.01, currency: 'btc', depositFee: 0.1 },
+    payment_extra_ids: [123, { z: null, a: 'https://example.test/path' }], parent_payment_id: null };
+  const signature = createHmac('sha512', 'secret').update(JSON.stringify(referenceSort(payload))).digest('hex');
+  assert.equal(backend.verifyNowPaymentsSignature(payload, signature, 'secret'), true);
+  assert.equal(backend.verifyNowPaymentsSignature({ ...payload, fee: { ...payload.fee, currency: 'eth' } }, signature, 'secret'), false);
+  let deep = {};
+  for (let index = 0; index < 70; index++) deep = { nested: deep };
+  assert.equal(backend.verifyNowPaymentsSignature(deep, '0'.repeat(128), 'secret'), false);
+});
+
+test('provider HTTP errors expose only status and a safe retry delay without retrying POST', async () => {
+  const order = { orderId: randomUUID(), amountUsdCents: 2500, asset: 'ltc' };
+  for (const [status, header, expected] of [[429, '15', '15'], [429, 'invalid', '1'], [500, '15', undefined]]) {
+    let posts = 0;
+    const client = backend.createNowPaymentsClient(backend.getNowPaymentsConfig(), async url => {
+      if (url.endsWith('/currencies')) return Response.json({ currencies: ['ltc'] });
+      posts++;
+      return Response.json({ message: 'secret provider detail' }, { status, headers: { 'Retry-After': header } });
+    });
+    await assert.rejects(client.createPayment(order), error => {
+      assert.equal(error.status, status);
+      assert.equal(error.retryAfter, expected);
+      assert.equal(error.message.includes('secret provider detail'), false);
+      return true;
+    });
+    assert.equal(posts, 1);
+  }
+});
+
+test('IPN forwards rate-limit retry delay and never trusts settlement only present in the notification', async () => {
+  const { order, payment } = await boundOrder();
+  const payload = { order_id: order.orderId, payment_id: order.paymentId,
+    payment_status: 'finished', outcome_amount: 25, outcome_currency: 'usdttrc20' };
+  globalThis.fetch = async () => Response.json({}, { status: 429, headers: { 'Retry-After': '5' } });
+  const limited = await backend.ipnPost({ request: ipnRequest(payload, sign(payload)) });
+  assert.equal(limited.status, 503);
+  assert.equal(limited.headers.get('retry-after'), '5');
+  globalThis.fetch = async () => Response.json(rawPayment({ ...payment, status: 'finished', outcomeAmount: null }));
+  assert.equal((await backend.ipnPost({ request: ipnRequest(payload, sign(payload)) })).status, 503);
+  assert.equal((await ledger(order.orderId)).length, 0);
+});
+
+test('creation route returns a safe 429 delay without credentials or provider POST retries', async () => {
+  let posts = 0;
+  globalThis.fetch = async url => {
+    if (url.endsWith('/currencies')) return Response.json({ currencies: ['ltc'] });
+    posts++;
+    return Response.json({ message: 'secret provider detail' }, { status: 429, headers: { 'Retry-After': '10' } });
+  };
+  const request = new Request('https://example.test/api/support/crypto/payment', { method: 'POST',
+    headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount: 25, asset: 'ltc', anonymous: true }) });
+  const response = await backend.paymentPost({ request });
+  assert.equal(response.status, 429);
+  assert.equal(response.headers.get('retry-after'), '10');
+  assert.equal((await response.text()).includes('secret provider detail'), false);
+  assert.equal(posts, 1);
+});
+
+test('IPN responds within 3000ms when provider verification stalls and aborts the provider request', async () => {
+  const { order } = await boundOrder();
+  const payload = { order_id: order.orderId, payment_id: order.paymentId };
+  let signal;
+  globalThis.fetch = async (_, options) => {
+    signal = options.signal;
+    return new Promise((_, reject) => signal.addEventListener('abort', () => reject(signal.reason), { once: true }));
+  };
+  const start = performance.now();
+  const response = await backend.ipnPost({ request: ipnRequest(payload, sign(payload)) });
+  assert.equal(response.status, 503);
+  assert.ok(performance.now() - start < 3000);
+  assert.equal(signal.aborted, true);
+  assert.equal((await ledger(order.orderId)).length, 0);
+});
+
+test('the IPN deadline includes slow body/DB work and propagates cancellation to queries and transactions', async () => {
+  const { order, payment } = await boundOrder();
+  const seen = [];
+  const previous = globalThis.cryptoTestDatabase;
+  globalThis.cryptoTestDatabase = Object.assign(sql, {
+    query(text, values, options) { seen.push(options.fetchOptions.signal); return query(text, values); },
+  });
+  const transaction = sql.transaction;
+  sql.transaction = (queries, options) => { seen.push(options.fetchOptions.signal); return transaction(queries); };
+  try {
+    await backend.withCryptoDeadline(async signal => {
+      await backend.findPendingCryptoOrder(order.orderId, signal);
+      await backend.processCryptoPayment(order, { ...payment, status: 'finished' }, signal);
+      assert.equal(seen.length, 2);
+      assert.ok(seen.every(value => value === signal));
+    });
+    const request = new Request('https://example.test', { method: 'POST',
+      headers: { 'Content-Type': 'application/json' }, body: new ReadableStream({ start() {} }), duplex: 'half' });
+    await assert.rejects(backend.withCryptoDeadline(signal => backend.readCryptoJson(request, 65536, signal), 20));
+    // A stuck DB promise cannot prevent a response; late work is also checked
+    // against the aborted signal before invoking provider/promotion.
+    await assert.rejects(backend.withCryptoDeadline(() => new Promise(() => {}), 20));
+  } finally { sql.query = query; sql.transaction = transaction; globalThis.cryptoTestDatabase = previous; }
 });
 
 test('SQL rollback leaves the order retryable after a ledger failure', async () => {
@@ -286,7 +441,7 @@ test('creation rejects cross-origin, malformed, and oversized bodies before touc
 
 test('IPN retries unbound orders and rejects a different payment or mismatched USD price', async () => {
   const orderId = randomUUID();
-  await backend.createPendingCryptoOrder(orderId, backend.validateCryptoOrder({ amount: 25, asset: 'sol', anonymous: true }));
+  await backend.createPendingCryptoOrder(orderId, backend.validateCryptoOrder({ amount: 25, asset: 'sol', anonymous: true }), 'usdttrc20');
   const early = { order_id: orderId, payment_id: '123456789' };
   assert.equal((await backend.ipnPost({ request: ipnRequest(early, sign(early)) })).status, 503);
   const { order, payment } = await boundOrder();
@@ -335,6 +490,7 @@ const sandboxSecrets = {
   NOWPAYMENTS_SANDBOX_IPN_SECRET: 'synthetic-sandbox-ipn-secret',
   NOWPAYMENTS_SANDBOX_IPN_CALLBACK_URL: 'https://preview.example.test/api/support/crypto/ipn',
   NOWPAYMENTS_SANDBOX_CASE: 'success', VERCEL_ENV: 'preview',
+  NOWPAYMENTS_SANDBOX_SETTLEMENT_CURRENCY: 'usdttrc20',
 };
 
 async function withSecrets(overrides, run) {
@@ -393,6 +549,9 @@ test('configuration fails closed for mixed environments, missing sandbox credent
     { NOWPAYMENTS_ENVIRONMENT: 'typo' },
     { ...sandboxSecrets, VERCEL_ENV: 'production' },
     { ...sandboxSecrets, NOWPAYMENTS_SANDBOX_API_KEY: undefined },
+    { NOWPAYMENTS_SETTLEMENT_CURRENCY: undefined },
+    { NOWPAYMENTS_SETTLEMENT_CURRENCY: 'USDTERC20' },
+    { ...sandboxSecrets, NOWPAYMENTS_SANDBOX_SETTLEMENT_CURRENCY: undefined },
     { ...sandboxSecrets, NOWPAYMENTS_SANDBOX_IPN_SECRET: undefined },
     { ...sandboxSecrets, NOWPAYMENTS_SANDBOX_IPN_CALLBACK_URL: undefined },
     { ...sandboxSecrets, NOWPAYMENTS_SANDBOX_API_URL: undefined },
