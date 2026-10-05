@@ -352,7 +352,7 @@ const showSupportPage = async (
     (resolve) => {
       requestAnimationFrame(() => {
         requestAnimationFrame(
-          resolve
+            () => resolve()
         );
       });
     }

@@ -161,7 +161,12 @@ for (const container of containers) {
   const skyColorAt = (
     y: number,
   ): [number, number, number] => {
-    const rows = t.grid.rows;
+    const grid = t.grid;
+    if (!grid) {
+      return [...COLORS.skyTop];
+    }
+
+    const rows = grid.rows;
 
     return mix(
       COLORS.skyTop,
@@ -177,8 +182,13 @@ for (const container of containers) {
   };
 
   const rebuildScene = () => {
-    const cols = t.grid.cols;
-    const rows = t.grid.rows;
+    const grid = t.grid;
+    if (!grid) {
+      return;
+    }
+
+    const cols = grid.cols;
+    const rows = grid.rows;
 
     if (cols <= 0 || rows <= 0) {
       return;
@@ -354,8 +364,13 @@ for (const container of containers) {
   };
 
   const drawSky = () => {
-    const cols = t.grid.cols;
-    const rows = t.grid.rows;
+    const grid = t.grid;
+    if (!grid) {
+      return;
+    }
+
+    const cols = grid.cols;
+    const rows = grid.rows;
 
     for (
       let y = -rows / 2;
@@ -384,8 +399,13 @@ for (const container of containers) {
   const drawStars = (
     time: number,
   ) => {
-    const cols = t.grid.cols;
-    const rows = t.grid.rows;
+    const grid = t.grid;
+    if (!grid) {
+      return;
+    }
+
+    const cols = grid.cols;
+    const rows = grid.rows;
 
     const count =
       Math.max(
@@ -521,8 +541,13 @@ for (const container of containers) {
   const drawTower = (
     time: number,
   ) => {
-    const cols = t.grid.cols;
-    const rows = t.grid.rows;
+    const grid = t.grid;
+    if (!grid) {
+      return;
+    }
+
+    const cols = grid.cols;
+    const rows = grid.rows;
 
     /*
      * From this distance the tower reads almost
@@ -892,8 +917,13 @@ for (const container of containers) {
     color: RGB,
     parallaxAmount: number,
   ) => {
-    const cols = t.grid.cols;
-    const rows = t.grid.rows;
+    const grid = t.grid;
+    if (!grid) {
+      return;
+    }
+
+    const cols = grid.cols;
+    const rows = grid.rows;
 
     const offset =
       pointerX *
@@ -970,8 +1000,13 @@ for (const container of containers) {
   };
 
   const drawValley = () => {
-    const cols = t.grid.cols;
-    const rows = t.grid.rows;
+    const grid = t.grid;
+    if (!grid) {
+      return;
+    }
+
+    const cols = grid.cols;
+    const rows = grid.rows;
 
     const start =
       -rows / 2 +
@@ -1416,6 +1451,11 @@ for (const container of containers) {
   );
 
   t.draw(() => {
+    const grid = t.grid;
+    if (!grid) {
+      return;
+    }
+
     if (
       !isNearViewport
     ) {
@@ -1429,8 +1469,8 @@ for (const container of containers) {
      * so never draw cached scene geometry from an obsolete grid.
      */
     if (
-      t.grid.cols !== sceneGridCols ||
-      t.grid.rows !== sceneGridRows
+      grid.cols !== sceneGridCols ||
+      grid.rows !== sceneGridRows
     ) {
       rebuildScene();
     }

@@ -202,14 +202,16 @@ function formatAmount(
 }
 
 function initFiatSupport(): void {
-  const root =
+  const rootElement =
     document.querySelector<HTMLElement>(
       '[data-fiat-support]'
     );
 
-  if (!root) {
+  if (!rootElement) {
     return;
   }
+
+  const root = rootElement;
 
   const hardErrorAudio =
     createAudio(
@@ -503,7 +505,7 @@ function initFiatSupport(): void {
         'none';
 
       setAmountError(
-        null
+        ''
       );
 
       updateAmountUI();
@@ -552,7 +554,7 @@ function initFiatSupport(): void {
       parsed.amount;
 
     setAmountError(
-      null
+      ''
     );
 
     updateAmountUI();

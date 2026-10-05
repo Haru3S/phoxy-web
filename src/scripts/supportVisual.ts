@@ -2,13 +2,15 @@ import { textmode } from 'textmode.js';
 
 
 
-const container =
+const containerElement =
 
     document.querySelector<HTMLElement>('[data-support-visual]');
 
 
 
-if (container) {
+if (containerElement) {
+
+    const container = containerElement;
 
     const t = textmode.create({
 
@@ -172,7 +174,7 @@ if (container) {
 
         color: string,
 
-        bg = C.water,
+        bg: string = C.water,
 
     ) {
 
@@ -196,6 +198,11 @@ if (container) {
 
     function pointerToGrid(event: PointerEvent) {
 
+        const grid = t.grid;
+        if (!grid) {
+            return { x: 0, y: 0 };
+        }
+
         const rect = container.getBoundingClientRect();
 
 
@@ -206,7 +213,7 @@ if (container) {
 
                 ((event.clientX - rect.left) / rect.width - .5) *
 
-                t.grid.cols,
+                grid.cols,
 
 
 
@@ -214,7 +221,7 @@ if (container) {
 
                 ((event.clientY - rect.top) / rect.height - .5) *
 
-                t.grid.rows,
+                grid.rows,
 
         };
 
@@ -262,9 +269,14 @@ if (container) {
 
     function water(time: number) {
 
-        const w = t.grid.cols;
+        const grid = t.grid;
+        if (!grid) {
+            return;
+        }
 
-        const h = t.grid.rows;
+        const w = grid.cols;
+
+        const h = grid.rows;
 
 
 
@@ -358,9 +370,14 @@ if (container) {
 
     function causticVeins(time: number) {
 
-        const w = t.grid.cols;
+        const grid = t.grid;
+        if (!grid) {
+            return;
+        }
 
-        const h = t.grid.rows;
+        const w = grid.cols;
+
+        const h = grid.rows;
 
 
 
@@ -676,11 +693,16 @@ if (container) {
 
     ) {
 
+        const grid = t.grid;
+        if (!grid) {
+            return;
+        }
+
         const x =
 
             nx *
 
-            t.grid.cols;
+            grid.cols;
 
 
 
@@ -688,7 +710,7 @@ if (container) {
 
             ny *
 
-            t.grid.rows;
+            grid.rows;
 
 
 
@@ -818,6 +840,11 @@ if (container) {
 
     ) {
 
+        const grid = t.grid;
+        if (!grid) {
+            return;
+        }
+
         const a =
 
             time *
@@ -832,7 +859,7 @@ if (container) {
 
             f.x *
 
-                t.grid.cols +
+                grid.cols +
 
             Math.cos(a) *
 
@@ -844,7 +871,7 @@ if (container) {
 
             f.y *
 
-                t.grid.rows +
+                grid.rows +
 
             Math.sin(a * 1.3) *
 

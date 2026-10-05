@@ -80,16 +80,18 @@ function formatRelativeTime(
 }
 
 function initSupporterDisplay(): void {
-  const root =
+  const rootElement =
     document.querySelector<HTMLElement>(
       '[data-supporter-display]'
     );
 
-  if (!root) {
+  if (!rootElement) {
     return;
   }
 
-  const display =
+  const root = rootElement;
+
+  const displayElement =
     root.querySelector<HTMLElement>(
       '.supporter-display'
     );
@@ -115,9 +117,11 @@ function initSupporterDisplay(): void {
       )
     );
 
-  if (!display) {
+  if (!displayElement) {
     return;
   }
+
+  const display = displayElement;
 
   function updateScrollFade(): void {
     const remainingScroll =

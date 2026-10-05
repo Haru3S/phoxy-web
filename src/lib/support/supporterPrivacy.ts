@@ -4,7 +4,7 @@ import type {
 
 export function canShowPublicIdentity(
   record: SupporterRecord
-): boolean {
+): record is SupporterRecord & { displayName: string } {
   return (
     record.verified &&
     record.moderationStatus === 'approved' &&

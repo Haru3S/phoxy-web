@@ -381,6 +381,10 @@ disabledFields?.forEach(
     field.addEventListener(
       'keydown',
       (event) => {
+        if (!(event instanceof KeyboardEvent)) {
+          return;
+        }
+
         if (
           event.key !== 'Enter' &&
           event.key !== ' '

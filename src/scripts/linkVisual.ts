@@ -197,6 +197,11 @@ for (const container of containers) {
   function pointerToGrid(
     event: PointerEvent,
   ) {
+    const grid = t.grid;
+    if (!grid) {
+      return { x: 0, y: 0 };
+    }
+
     const rect =
       container.getBoundingClientRect();
 
@@ -211,11 +216,11 @@ for (const container of containers) {
     return {
       x:
         (normalizedX - 0.5) *
-        t.grid.cols,
+        grid.cols,
 
       y:
         (normalizedY - 0.5) *
-        t.grid.rows,
+        grid.rows,
     };
   }
 
@@ -371,6 +376,11 @@ for (const container of containers) {
   );
 
   t.draw(() => {
+    const grid = t.grid;
+    if (!grid) {
+      return;
+    }
+
     t.background(0);
 
     const time =
@@ -388,8 +398,8 @@ for (const container of containers) {
 
     const scale =
       Math.min(
-        t.grid.cols,
-        t.grid.rows * 1.7,
+        grid.cols,
+        grid.rows * 1.7,
       ) *
       0.23;
 
