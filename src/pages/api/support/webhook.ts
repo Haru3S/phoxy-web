@@ -8,6 +8,18 @@ import {
 
 import Stripe from 'stripe';
 
+import {
+  validateDisplayName,
+} from '../../../lib/support/displayNameValidation';
+
+import {
+  moderateDisplayName,
+} from '../../../lib/support/displayNameModeration';
+
+import {
+  insertContribution,
+} from '../../../lib/support/contributionRepository';
+
 export const prerender = false;
 
 function jsonResponse(
@@ -21,6 +33,7 @@ function jsonResponse(
       headers: {
         'Content-Type':
           'application/json',
+
         'Cache-Control':
           'no-store',
       },
@@ -115,45 +128,250 @@ export const POST: APIRoute =
         const session =
           event.data.object;
 
-        const displayName =
-          session.metadata
-            ?.supporter_name ??
-          'Anonymous';
+        if (
+          session.payment_status !==
+          'paid'
+        ) {
+          console.warn(
+            'Ignoring completed Stripe Checkout session without paid status.',
+            {
+              eventId:
+                event.id,
 
-        const anonymous =
-          session.metadata
-            ?.supporter_anonymous ===
-          'true';
+              sessionId:
+                session.id,
+
+              paymentStatus:
+                session.payment_status,
+            }
+          );
+
+          break;
+        }
+
+        if (
+          session.currency !==
+          'usd'
+        ) {
+          console.error(
+            'Stripe Checkout session used an unexpected currency.',
+            {
+              eventId:
+                event.id,
+
+              sessionId:
+                session.id,
+
+              currency:
+                session.currency,
+            }
+          );
+
+          return jsonResponse(
+            {
+              error:
+                'Unexpected payment currency.',
+            },
+            400
+          );
+        }
 
         const amountTotal =
           session.amount_total;
 
-        const currency =
-          session.currency;
+        if (
+          amountTotal === null ||
+          !Number.isSafeInteger(
+            amountTotal
+          ) ||
+          amountTotal <= 0
+        ) {
+          console.error(
+            'Stripe Checkout session has an invalid payment amount.',
+            {
+              eventId:
+                event.id,
 
-        const paymentStatus =
-          session.payment_status;
+              sessionId:
+                session.id,
 
-        console.log(
-          'Verified Stripe Checkout payment:',
-          {
-            eventId:
-              event.id,
+              amountTotal,
+            }
+          );
 
-            sessionId:
-              session.id,
+          return jsonResponse(
+            {
+              error:
+                'Invalid payment amount.',
+            },
+            400
+          );
+        }
 
-            displayName,
+        const requestedAnonymous =
+          session.metadata
+            ?.supporter_anonymous ===
+          'true';
 
-            anonymous,
+        const submittedDisplayName =
+          session.metadata
+            ?.supporter_name ??
+          '';
 
-            amountTotal,
+        let displayName:
+          string | null =
+          null;
 
-            currency,
+        let normalizedDisplayName:
+          string | null =
+          null;
 
-            paymentStatus,
+        let anonymous =
+          true;
+
+        let moderationStatus:
+          'approved' |
+          'rejected' |
+          'pending' =
+          'approved';
+
+        let moderationReason:
+          'hate' |
+          'extremism' |
+          'harassment' |
+          'threat' |
+          'impersonation' |
+          'political_advocacy' |
+          'other' |
+          null =
+          null;
+
+        if (!requestedAnonymous) {
+          const validation =
+            validateDisplayName(
+              submittedDisplayName
+            );
+
+          if (validation.valid) {
+            const moderation =
+              moderateDisplayName(
+                validation.displayName
+              );
+
+            moderationStatus =
+              moderation.status;
+
+            moderationReason =
+              moderation.reason;
+
+            if (
+              moderation.status ===
+              'approved'
+            ) {
+              displayName =
+                validation.displayName;
+
+              normalizedDisplayName =
+                validation.displayName
+                  .toLowerCase();
+
+              anonymous =
+                false;
+            }
           }
-        );
+        }
+
+        try {
+          const result =
+            await insertContribution({
+              displayName,
+
+              normalizedDisplayName,
+
+              anonymous,
+
+              amountUsdCents:
+                amountTotal,
+
+              source:
+                'stripe',
+
+              asset:
+                'usd',
+
+              nativeAmount:
+                null,
+
+              supportedAt:
+                new Date(
+                  event.created *
+                    1000
+                ),
+
+              moderationStatus,
+
+              moderationReason,
+
+              stripeEventId:
+                event.id,
+
+              stripeSessionId:
+                session.id,
+            });
+
+          if (!result.inserted) {
+            console.log(
+              'Stripe contribution already exists in PHXF-DB.',
+              {
+                eventId:
+                  event.id,
+
+                sessionId:
+                  session.id,
+              }
+            );
+
+            break;
+          }
+
+          console.log(
+            'Verified Stripe contribution stored in PHXF-DB:',
+            {
+              contributionId:
+                result.id,
+
+              eventId:
+                event.id,
+
+              sessionId:
+                session.id,
+
+              displayName:
+                displayName ??
+                'Anonymous',
+
+              anonymous,
+
+              amountTotal,
+
+              currency:
+                session.currency,
+            }
+          );
+        } catch (error) {
+          console.error(
+            'Failed to store verified Stripe contribution in PHXF-DB.',
+            error
+          );
+
+          return jsonResponse(
+            {
+              error:
+                'Failed to persist contribution.',
+            },
+            500
+          );
+        }
 
         break;
       }
