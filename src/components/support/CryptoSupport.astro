@@ -135,6 +135,10 @@ const currencies = Object.entries(CRYPTO_ASSETS).map(([asset, config]) => ({
           <div><span class="crypto-detail-label">PAYMENT ADDRESS</span><code class="crypto-address" data-crypto-pay-address></code></div>
           <button class="fiat-skip-action" type="button" data-crypto-copy>COPY ADDRESS</button>
         </div>
+        <figure class="crypto-payment-qr">
+          <img data-crypto-qr-image alt="Payment QR code" width="192" height="192" hidden />
+          <figcaption class="fiat-field-help" data-crypto-qr-caption></figcaption>
+        </figure>
         <div class="crypto-payment-row"><span>PAYMENT REFERENCE</span><code data-crypto-payment-id></code></div>
         <div class="crypto-payment-row"><span>ORDER REFERENCE</span><code data-crypto-order-id></code></div>
         <p class="fiat-field-help" data-crypto-copy-feedback aria-live="polite"></p>
@@ -142,7 +146,7 @@ const currencies = Object.entries(CRYPTO_ASSETS).map(([asset, config]) => ({
       <Admonition type="note">
         <p>Awaiting provider confirmation. Creating a payment or sending funds does not confirm your contribution. Support appears on the board only after NOWPayments verifies final settlement. This page does not show live payment status.</p>
       </Admonition>
-      <p class="fiat-field-help">Use this address for this payment only. Quotes can expire; reloading doesn't refresh them. If you've waited, contact me before sending.</p>
+      <p class="fiat-field-help crypto-payment-advisory">Use this address for this payment only. Quotes can expire; reloading doesn't refresh them. If you've waited, contact me before sending.</p>
       <button class="fiat-primary-action" type="button" data-support-back><span>BACK TO SUPPORT</span><i class="ph ph-arrow-left" aria-hidden="true"></i></button>
     </div>
 

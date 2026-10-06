@@ -1,5 +1,6 @@
 import { normalizeDisplayName, validateDisplayName } from '../lib/support/displayNameValidation';
 import { moderateDisplayName } from '../lib/support/displayNameModeration';
+import qrcode from 'qrcode-generator';
 
 type Step = 'identity' | 'amount' | 'currency' | 'payment';
 type Identity = { displayName: string; anonymous: boolean };
@@ -13,6 +14,15 @@ type Attempt = { state: 'pending' | 'uncertain' | 'created'; orderId?: string;
 const STORAGE_KEY = 'phoxy.cryptoPayment';
 const usd = (value: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
 const object = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === 'object' && !Array.isArray(value);
+
+// Only Litecoin's native network uses an amount-bearing URI here. Other
+// networks use the address itself rather than guessing a wallet URI format.
+export function cryptoQrPayload(value: Pick<Payment, 'asset' | 'network' | 'payAddress' | 'payAmount'>): string {
+  if (value.asset === 'ltc' && value.network === 'litecoin') {
+    return `litecoin:${encodeURIComponent(value.payAddress)}?amount=${encodeURIComponent(value.payAmount)}`;
+  }
+  return value.payAddress;
+}
 
 // Match fiat's formatted custom amount input, with the backend's upper limit.
 export function parseCryptoAmount(value: string): number | null {
@@ -156,6 +166,25 @@ export function initCryptoSupport(): void {
     requireElement<HTMLElement>('[data-crypto-pay-symbol]').textContent = currency.dataset.symbol ?? value.asset.toUpperCase();
     requireElement<HTMLElement>('[data-crypto-pay-network]').textContent = value.network.toUpperCase();
     requireElement<HTMLElement>('[data-crypto-pay-address]').textContent = value.payAddress;
+    const qrImage = requireElement<HTMLImageElement>('[data-crypto-qr-image]');
+    const qrCaption = requireElement<HTMLElement>('[data-crypto-qr-caption]');
+    // A QR failure must not turn an already-created payment into a failed or
+    // retryable payment request. The visible instructions remain authoritative.
+    qrImage.hidden = true;
+    qrImage.removeAttribute('src');
+    try {
+      const qr = qrcode(0, 'M');
+      qr.addData(cryptoQrPayload(value));
+      qr.make();
+      // Four modules of quiet zone; the SVG is generated locally, not fetched.
+      qrImage.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(qr.createSvgTag({ cellSize: 4, margin: 16, scalable: true }))}`;
+      qrImage.hidden = false;
+      const withAmount = value.asset === 'ltc' && value.network === 'litecoin';
+      qrImage.alt = withAmount ? 'Litecoin payment QR code with the exact amount and address' : 'Payment address QR code';
+      qrCaption.textContent = withAmount ? 'SCAN PAYMENT / VERIFY NETWORK & AMOUNT' : 'SCAN ADDRESS / ENTER THE EXACT AMOUNT ABOVE';
+    } catch {
+      qrCaption.textContent = 'QR unavailable. Use the payment address above.';
+    }
     requireElement<HTMLElement>('[data-crypto-payment-id]').textContent = value.paymentId;
     requireElement<HTMLElement>('[data-crypto-order-id]').textContent = value.orderId;
     requireElement<HTMLElement>('[data-crypto-sandbox]').hidden = value.environment !== 'sandbox';

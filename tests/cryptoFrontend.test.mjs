@@ -31,7 +31,7 @@ function harness(fetchImpl, storage = new Map()) {
   for (const key of ['cryptoDisplayName','cryptoNameError','cryptoCustomAmount','cryptoCustomContainer','cryptoAmountError',
     'cryptoAmountContinue','cryptoCreate','cryptoCreateLabel','cryptoMessage','cryptoRecovery','cryptoIdentityContinue',
     'cryptoAnonymous','cryptoPayAmount','cryptoPaySymbol','cryptoPayNetwork','cryptoPayAddress','cryptoPaymentId',
-    'cryptoOrderId','cryptoSandbox','cryptoCopy','cryptoCopyFeedback','cryptoCurrencyAmount']) add(key);
+    'cryptoOrderId','cryptoSandbox','cryptoCopy','cryptoCopyFeedback','cryptoCurrencyAmount','cryptoQrImage','cryptoQrCaption']) add(key);
   for (let index = 0; index < 3; index++) { add('cryptoSupporterName'); add('cryptoSelectedAmount'); }
   for (const amount of [5,10,20,50]) add('cryptoAmount', String(amount));
   for (const target of ['identity','amount']) add('cryptoEdit', target);
@@ -61,7 +61,7 @@ function harness(fetchImpl, storage = new Map()) {
     elements.find(element => element.dataset.cryptoAmount === '20').click();
     get('cryptoAmountContinue').click(); select(asset);
   };
-  return { get, elements, active, select, proceed, storage, copied: () => copied, root };
+  return { get, elements, active, select, proceed, storage, copied: () => copied, root, qrPayload: context.cryptoFrontend.cryptoQrPayload };
 }
 const settle = () => new Promise(resolve => setTimeout(resolve, 0));
 function instructions(body, overrides = {}) {
@@ -113,6 +113,14 @@ test('all seven assets send internal IDs and render exact provider amount/addres
     assert.equal(ui.active(),'payment'); assert.equal(ui.get('cryptoPayAmount').textContent,'0.000123456789123456789');
     assert.equal(ui.get('cryptoPayAddress').textContent,'synthetic-provider-deposit-address');
     assert.equal(ui.get('cryptoPayNetwork').textContent,CRYPTO_ASSETS[asset].network.toUpperCase());
+    const qr = ui.get('cryptoQrImage');
+    assert.equal(qr.hidden,false);
+    assert.ok(qr.src.startsWith('data:image/svg+xml;charset=utf-8,'));
+    const svg = decodeURIComponent(qr.src.split(',')[1]);
+    assert.ok(svg.includes('<svg') && svg.includes('fill="white"') && svg.includes('fill="black"'));
+    const payload = ui.qrPayload({ asset, network: CRYPTO_ASSETS[asset].network,
+      payAddress: 'synthetic-provider-deposit-address', payAmount: '0.000123456789123456789' });
+    assert.equal(payload, asset === 'ltc' ? 'litecoin:synthetic-provider-deposit-address?amount=0.000123456789123456789' : 'synthetic-provider-deposit-address');
     ui.get('cryptoCreate').click(); await settle(); assert.equal(calls,1);
     ui.get('cryptoCopy').click(); await settle(); assert.equal(ui.copied(),'synthetic-provider-deposit-address');
   }
@@ -126,7 +134,19 @@ test('pending clicks create one payment and same-tab reload restores instruction
   resolve(); await settle();
   const restored = harness(() => { throw new Error('Must not create a second payment'); }, ui.storage);
   assert.equal(restored.active(),'payment'); assert.equal(restored.get('cryptoPayAmount').textContent,ui.get('cryptoPayAmount').textContent);
+  assert.equal(restored.get('cryptoQrImage').src,ui.get('cryptoQrImage').src);
   assert.equal(restored.get('cryptoCreate').disabled,true);
+});
+
+test('QR payload follows current instructions, preserves amount precision, and never applies Litecoin URI to another network', () => {
+  const ui = harness(() => { throw new Error('No request expected'); });
+  const first = { asset:'ltc', network:'litecoin', payAddress:'first-address', payAmount:'0.010000000000000001' };
+  assert.equal(ui.qrPayload(first),'litecoin:first-address?amount=0.010000000000000001');
+  assert.equal(ui.qrPayload({ ...first, payAddress:'second-address', payAmount:'0.020000000000000002' }),
+    'litecoin:second-address?amount=0.020000000000000002');
+  assert.equal(ui.qrPayload({ ...first, network:'solana' }),'first-address');
+  assert.equal(ui.qrPayload({ ...first, payAddress:'address?amount=999&other=value' }),
+    'litecoin:address%3Famount%3D999%26other%3Dvalue?amount=0.010000000000000001');
 });
 
 test('disabled provider and validation errors allow deliberate correction without automatic retries', async () => {

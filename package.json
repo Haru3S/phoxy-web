@@ -22,6 +22,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "@vercel/analytics": "^2.0.1",
     "astro": "^7.3.5",
+    "qrcode-generator": "^2.0.4",
     "stripe": "^23.0.0",
     "tailwindcss": "^4.3.3",
     "textmode.js": "^0.18.0"
