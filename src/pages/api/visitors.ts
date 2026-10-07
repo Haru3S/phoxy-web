@@ -6,10 +6,7 @@ export const GET: APIRoute = async () => {
   if (!token) {
     return new Response(
       JSON.stringify({
-        schemaVersion: 1,
-        label: "Visitors",
-        message: "Missing token",
-        color: "red",
+        error: "VISITORS_SECRET_KEY is not configured",
       }),
       {
         status: 500,
@@ -37,35 +34,20 @@ export const GET: APIRoute = async () => {
       },
     });
 
-    if (!response.ok) {
-      throw new Error(`Vercel API returned ${response.status}`);
-    }
-
     const data = await response.json();
 
-    return new Response(
-      JSON.stringify({
-        schemaVersion: 1,
-        label: "Visitors",
-        message: String(data.visitors ?? data.count ?? 0),
-        color: "b7bdf8",
-      }),
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "public, max-age=300",
-        },
+    return new Response(JSON.stringify(data), {
+      status: response.status,
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+    });
   } catch (error) {
-    console.error("Failed to fetch visitor count:", error);
+    console.error("Failed to fetch Vercel Analytics:", error);
 
     return new Response(
       JSON.stringify({
-        schemaVersion: 1,
-        label: "Visitors",
-        message: "Unavailable",
-        color: "red",
+        error: "Failed to fetch Vercel Analytics",
       }),
       {
         status: 502,
