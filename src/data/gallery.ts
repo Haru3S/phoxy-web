@@ -58,7 +58,7 @@ export const gallery: GalleryEntry[] = [
     alt: "Can't you tell I love scout!",
     date: '2026-09-12',
     type: 'artwork',
-    size: 'wide',
+    size: 'large',
   },
   {
     title: 'Kick It Root Down',
@@ -83,5 +83,29 @@ export const gallery: GalleryEntry[] = [
     date: '2026-06-28',
     type: 'artwork',
     size: 'square',
+  },
+  {
+    title: 'AUDI QUATTRO',
+    src: '/assets/artwork/AUDI_QUATTRO.webp',
+    alt: 'Based from Assetto Corsa',
+    date: '2025-01-08',
+    type: 'artwork',
+    size: 'wide',
+  },
+  {
+    title: 'Refraction Painting',
+    src: '/assets/artwork/Refraction_Painting.webp',
+    alt: 'Unfinished on the top part',
+    date: '2026-03-10',
+    type: 'artwork',
+    size: 'tall',
+  },
+  {
+    title: 'Kiki Multimedia',
+    src: '/assets/artwork/Kiki_Multimedia.webp',
+    alt: 'My cat but my style lol',
+    date: '2026-04-14',
+    type: 'artwork',
+    size: 'tall',
   },
 ];
