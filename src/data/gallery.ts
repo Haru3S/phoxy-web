@@ -108,4 +108,12 @@ export const gallery: GalleryEntry[] = [
     type: 'artwork',
     size: 'tall',
   },
+  {
+    title: 'Are You Ready or Not',
+    src: '/assets/artwork/RoN_TF2.webp',
+    alt: 'RoN TF2 HUD Concept Artwork',
+    date: '2026-07-21',
+    type: 'artwork',
+    size: 'wide',
+  },
 ];
