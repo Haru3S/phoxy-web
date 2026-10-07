@@ -6,7 +6,10 @@ export const GET: APIRoute = async () => {
   if (!token) {
     return new Response(
       JSON.stringify({
-        error: "VISITORS_SECRET_KEY is not configured",
+        schemaVersion: 1,
+        label: "Visitors",
+        message: "Unavailable",
+        color: "red",
       }),
       {
         status: 500,
@@ -20,6 +23,9 @@ export const GET: APIRoute = async () => {
   const projectId = "prj_xoi6SXbscklfbqGvJZqEO5daBTe2";
   const teamId = "team_tqDmqdeS7moRP9uyZ6C4bwFM";
 
+  const since = "2026-10-04T00:00:00.000Z";
+  const until = new Date().toISOString();
+
   try {
     const url = new URL(
       "https://api.vercel.com/v1/query/web-analytics/visits/count",
@@ -27,6 +33,8 @@ export const GET: APIRoute = async () => {
 
     url.searchParams.set("projectId", projectId);
     url.searchParams.set("teamId", teamId);
+    url.searchParams.set("since", since);
+    url.searchParams.set("until", until);
 
     const response = await fetch(url, {
       headers: {
@@ -34,20 +42,36 @@ export const GET: APIRoute = async () => {
       },
     });
 
-    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(`Vercel API returned ${response.status}`);
+    }
 
-    return new Response(JSON.stringify(data), {
-      status: response.status,
-      headers: {
-        "Content-Type": "application/json",
+    const data = await response.json();
+    const visitors = data?.data?.visitors ?? 0;
+
+    return new Response(
+      JSON.stringify({
+        schemaVersion: 1,
+        label: "Visitors",
+        message: String(visitors),
+        color: "b7bdf8",
+      }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "public, max-age=300",
+        },
       },
-    });
+    );
   } catch (error) {
     console.error("Failed to fetch Vercel Analytics:", error);
 
     return new Response(
       JSON.stringify({
-        error: "Failed to fetch Vercel Analytics",
+        schemaVersion: 1,
+        label: "Visitors",
+        message: "Unavailable",
+        color: "red",
       }),
       {
         status: 502,
