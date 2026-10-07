@@ -1,38 +1,38 @@
 <div align="center">
 <picture>
-  <img src="https://github.com/Haru3S/Source-Footsteps/blob/main/.github/src/icons/H3S%20Logo%20DUALTONE.svg?raw=true" height="100" />
+  <img src="https://github.com/Haru3S/phoxy-web/blob/main/.github/assets/Center%20PHXHOUND_2.png?raw=true" height="200" />
 </picture>
 </div>
 
-<h3 align="center">Source-Footsteps</h3>
+<h3 align="center">phoxy-web</h3>
 
-<h6 align="center">/sɔɹs ˈfʊtˌstɛps/</h6>
+<h6 align="center">/ˈfɑksi ˌwɛb/</h6>
 
 <p align="center">
-    <img src="https://github.com/Haru3S/Source-Footsteps/blob/main/.github/src/macchiato.png?raw=true" width="400" />
+    <img src="https://raw.githubusercontent.com/Haru3S/phoxy-web/4f38e22803c109330360eaf1777b05aeb21ef116/.github/assets/TransFlag%20Colours.svg" width="400" />
 </p>
 
 <p align="center">
-  <a href="https://github.com/Haru3S/phoxy-web/stargazers">
-    <img
-      alt="GitHub Stars"
-      src="https://img.shields.io/github/stars/Haru3S/phoxy-web?colorA=363a4f&colorB=b7bdf8&style=for-the-badge&logo=github&logoColor=cad3f5&label=Stars"
+    <a href="https://phoxy-web.vercel.app">
+        <img
+        src="https://img.shields.io/endpoint?url=https%3A%2F%2Fphoxy-web.vercel.app%2Fapi%2Fvisitors&style=for-the-badge&labelColor=363a4f"
+        alt="Visitors"
     >
-  </a>
-  <a href="https://github.com/Haru3S/phoxy-web/commits/main">
-    <img
-      alt="Deployment Status"
-      src="https://img.shields.io/github/checks-status/Haru3S/phoxy-web/main?colorA=363a4f&colorB=a6da95&style=for-the-badge&logo=vercel&logoColor=white&label=Deploy"
-    >
-  </a>
-  <a href="https://phoxy-web.vercel.app">
-    <img
-      alt="Website Status"
-      src="https://img.shields.io/website?url=https%3A%2F%2Fphoxy-web.vercel.app&up_message=Online&down_message=Offline&style=for-the-badge&colorA=363a4f&colorB=a6da95&label=Website&logo=vercel&logoColor=cad3f5"
-    >
-  </a>
+    </a>
+    <a href="https://github.com/Haru3S/phoxy-web/commits/main">
+        <img
+        alt="Deployment Status"
+        src="https://img.shields.io/github/checks-status/Haru3S/phoxy-web/main?colorA=363a4f&colorB=a6da95&style=for-the-badge&logo=vercel&logoColor=white&label=Deploy"
+        >
+    </a>
+    <a href="https://phoxy-web.vercel.app">
+        <img
+        alt="Website Status"
+        src="https://img.shields.io/website?url=https%3A%2F%2Fphoxy-web.vercel.app&up_message=Online&down_message=Offline&style=for-the-badge&colorA=363a4f&colorB=a6da95&label=Website&logo=vercel&logoColor=cad3f5"
+        >
+    </a>
 </p>
 
-**Source-Footsteps** is a small CLI program meant to take footstep samples and bake them into a single audio clip for use with audio effects in third-party programs. Source-Footsteps is inspired by the [Source Engine](https://developer.valvesoftware.com/wiki/Team_Fortress_2_engine_branch).
+**phoxy-web** is my personal/portfolio website, built to showcase my projects, artwork, and other things I've worked on. It is built with [Astro](https://astro.build/).
 
-This program was also made out of sheer frustration, as I could not find an existing free program that did what I wanted. So, I'm making this project free and open source for anybody who needs this really specific niche.
+This website was built so I could have full control over how it looked, how it felt to use, and have a one-stop shop for people to donate to me without using a third party.
