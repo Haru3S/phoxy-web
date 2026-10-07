@@ -1,43 +1,38 @@
-# Astro Starter Kit: Minimal
+<div align="center">
+<picture>
+  <img src="https://github.com/Haru3S/Source-Footsteps/blob/main/.github/src/icons/H3S%20Logo%20DUALTONE.svg?raw=true" height="100" />
+</picture>
+</div>
 
-```sh
-npm create astro@latest -- --template minimal
-```
+<h3 align="center">Source-Footsteps</h3>
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+<h6 align="center">/sɔɹs ˈfʊtˌstɛps/</h6>
 
-## 🚀 Project Structure
+<p align="center">
+    <img src="https://github.com/Haru3S/Source-Footsteps/blob/main/.github/src/macchiato.png?raw=true" width="400" />
+</p>
 
-Inside of your Astro project, you'll see the following folders and files:
+<p align="center">
+  <a href="https://github.com/Haru3S/phoxy-web/stargazers">
+    <img
+      alt="GitHub Stars"
+      src="https://img.shields.io/github/stars/Haru3S/phoxy-web?colorA=363a4f&colorB=b7bdf8&style=for-the-badge&logo=github&logoColor=cad3f5&label=Stars"
+    >
+  </a>
+  <a href="https://github.com/Haru3S/phoxy-web/commits/main">
+    <img
+      alt="Deployment Status"
+      src="https://img.shields.io/github/checks-status/Haru3S/phoxy-web/main?colorA=363a4f&colorB=a6da95&style=for-the-badge&logo=vercel&logoColor=white&label=Deploy"
+    >
+  </a>
+  <a href="https://phoxy-web.vercel.app">
+    <img
+      alt="Website Status"
+      src="https://img.shields.io/website?url=https%3A%2F%2Fphoxy-web.vercel.app&up_message=Online&down_message=Offline&style=for-the-badge&colorA=363a4f&colorB=a6da95&label=Website&logo=vercel&logoColor=cad3f5"
+    >
+  </a>
+</p>
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+**Source-Footsteps** is a small CLI program meant to take footstep samples and bake them into a single audio clip for use with audio effects in third-party programs. Source-Footsteps is inspired by the [Source Engine](https://developer.valvesoftware.com/wiki/Team_Fortress_2_engine_branch).
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+This program was also made out of sheer frustration, as I could not find an existing free program that did what I wanted. So, I'm making this project free and open source for anybody who needs this really specific niche.
