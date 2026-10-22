@@ -1,0 +1,20 @@
+---
+import { PARALLAX_ASSETS } from '../../scripts/sunsetParallaxConfig';
+import '../../styles/interests/sunset.css';
+---
+
+<sunset-parallax class="sunset-visual" aria-hidden="true">
+  <img
+    src={PARALLAX_ASSETS.image}
+    alt=""
+    width="5184"
+    height="3456"
+    loading="lazy"
+    decoding="async"
+    draggable="false"
+  />
+</sunset-parallax>
+
+<script>
+  import '../../scripts/sunsetParallax';
+</script>

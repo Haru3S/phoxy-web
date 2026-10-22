@@ -1,0 +1,44 @@
+.sunset-visual {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: clamp(24rem, 46vw, 43rem);
+  min-width: 0;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--color-bg);
+}
+
+.sunset-visual > img,
+.sunset-visual > canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.sunset-visual > img {
+  object-fit: cover;
+}
+
+.sunset-visual > canvas {
+  visibility: hidden;
+}
+
+.sunset-visual[data-rendered] > canvas {
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sunset-visual[data-rendered] > canvas {
+    visibility: hidden;
+  }
+}
+
+@media (max-width: 700px) {
+  .sunset-visual {
+    height: 32rem;
+  }
+}
