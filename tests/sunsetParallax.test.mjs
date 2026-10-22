@@ -152,7 +152,7 @@ test('camera displacement stays bounded and pointer exit eases toward ambient mo
   h.tick(40000);
   const afterExit = h.stats.offsets.at(-1);
   assert.ok(Math.abs(beforeExit[0] - afterExit[0]) < 0.001, 'no snap on exit');
-  assert.ok(h.stats.offsets.every(([x, y]) => Math.hypot(x * 1200, y * 600) <= 8));
+  assert.ok(h.stats.offsets.every(([x, y]) => Math.hypot(x * 1200, y * 600) <= 16));
   assert.equal(h.stats.uploads, 2);
   h.disconnect();
 });

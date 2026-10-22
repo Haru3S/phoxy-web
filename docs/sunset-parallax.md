@@ -73,12 +73,12 @@ All tuning lives in src/scripts/sunsetParallaxConfig.ts.
 
 | Setting | Value |
 | --- | --- |
-| driftAmplitude | 12 CSS px, before depth strength |
+| driftAmplitude | 18 CSS px, before depth strength |
 | driftSpeed | 2*pi/27 radians/s; combined sine periods approximately 24–37s |
-| mouseInfluence | 0.25 |
+| mouseInfluence | 0.35 |
 | pointerSmoothing | 750 ms exponential time constant |
-| depthStrength | 0.45 |
-| maxDisplacement | 8 CSS px, final vector magnitude limit |
+| depthStrength | 0.65 |
+| maxDisplacement | 16 CSS px, final vector magnitude limit |
 | resolutionScale | 0.85 |
 | maxDevicePixelRatio | 1.5 |
 | MAX_TEXTURE_EDGE | 2048 px |

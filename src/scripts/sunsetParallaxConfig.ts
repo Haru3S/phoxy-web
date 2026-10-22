@@ -15,12 +15,12 @@ export interface ParallaxConfig {
 }
 
 export const PARALLAX_CONFIG: Readonly<ParallaxConfig> = {
-  driftAmplitude: 12, // CSS pixels before depth strength
+  driftAmplitude: 18, // CSS pixels before depth strength
   driftSpeed: (Math.PI * 2) / 27, // radians per second; combined periods: 24–37s
-  mouseInfluence: 0.25,
+  mouseInfluence: 0.35,
   pointerSmoothing: 750, // milliseconds
-  depthStrength: 0.45,
-  maxDisplacement: 8, // final CSS pixels, including pointer influence
+  depthStrength: 0.65,
+  maxDisplacement: 16, // final CSS pixels, including pointer influence
   resolutionScale: 0.85,
   maxDevicePixelRatio: 1.5,
 };
